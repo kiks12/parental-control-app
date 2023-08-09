@@ -13,6 +13,20 @@
         android:theme="@style/Theme.Parentalcontrolapp"
         tools:targetApi="31">
         <activity
+            android:name=".googleauth.GoogleSignUpActivity"
+            android:exported="false" />
+        <activity
+            android:name=".googleauth.GoogleSignInActivity"
+            android:exported="false"
+            android:label="@string/title_activity_google_sign_in"
+            android:theme="@style/Theme.Parentalcontrolapp" />
+        <activity
+            android:name=".registration.RegistrationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".login.LoginActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
