@@ -22,11 +22,18 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+interface LoginScreenEvents {
+    fun firebaseAuth(): Unit
+    fun signInWithGoogle(): Unit
+    fun startRegistrationActivity(): Unit
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
-    startRegistrationActivity: () -> Unit
+    signInWithGoogle: () -> Unit,
+    startRegistrationActivity: () -> Unit,
 ) {
     val credentialState = viewModel.credentialState
     val passwordVisibility = viewModel.passwordVisibilityState
@@ -62,7 +69,7 @@ fun LoginScreen(
             )
         }
         ElevatedButton(
-            onClick = viewModel::loginWithGoogle,
+            onClick = signInWithGoogle,
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -71,7 +78,7 @@ fun LoginScreen(
                 modifier = Modifier.padding(10.dp)
             )
         }
-        TextButton(onClick = startRegistrationActivity) {
+        TextButton(onClick = startRegistrationActivity ) {
             Text(text = "Create an Account")
         }
     }
@@ -89,7 +96,7 @@ fun LoginScreenPreview() {
         modifier = Modifier.fillMaxSize(),
         color = Color.White,
     ) {
-        LoginScreen(loginViewModel, {})
+        LoginScreen(loginViewModel, {}, {})
     }
 
 }

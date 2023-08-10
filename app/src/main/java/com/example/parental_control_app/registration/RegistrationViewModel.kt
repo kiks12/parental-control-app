@@ -24,10 +24,9 @@ class RegistrationViewModel : ViewModel() {
     fun passwordOnChange(newText: String) {
         this.credentialState.value = this.credentialState.value.copy(password = newText)
     }
-
-//    fun changePasswordVisibility() {
-//        _passwordVisibilityState.value = !_passwordVisibilityState.value
-//    }
+    fun changePasswordVisibility(newVal: Boolean) {
+        _passwordVisibilityState.value = newVal
+    }
     fun register() {
         auth.createUserWithEmailAndPassword(this.credentialState.value.email, this.credentialState.value.password)
             .addOnCompleteListener { task ->

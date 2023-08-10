@@ -11,6 +11,7 @@ import com.google.firebase.ktx.Firebase
 
 class LoginViewModel : ViewModel() {
 
+    private lateinit var signInCallback: () -> Unit
     private var auth : FirebaseAuth = Firebase.auth
     var credentialState = mutableStateOf(EmailPasswordState())
         private set
@@ -24,16 +25,22 @@ class LoginViewModel : ViewModel() {
     fun passwordOnChange(newText: String) {
         credentialState.value = credentialState.value.copy(password = newText)
     }
+
+    fun setSignInCallback(callback: () -> Unit) {
+        signInCallback = callback
+    }
+
     fun login() {
         auth.signInWithEmailAndPassword(credentialState.value.email, credentialState.value.password)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
-                    Log.w(TAG, it.toString())
+                    Log.w(TAG, it.result.user?.uid.toString())
+                    signInCallback()
                 } else {
                     Log.w(TAG, it.toString())
                 }
             }
     }
 
-    fun loginWithGoogle() {}
+//    fun loginWithGoogle() {}
 }

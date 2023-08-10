@@ -20,5 +20,6 @@ class MainActivity : AppCompatActivity() {
 
         val loginActivity = Intent(this, LoginActivity::class.java)
         startActivity(loginActivity)
+        finish()
     }
 }
