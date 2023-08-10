@@ -1,5 +1,6 @@
 package com.example.parental_control_app.registration
 
+import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.parental_control_app.toasthelper.ToastHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,19 +87,5 @@ fun RegistrationScreen(
                 modifier = Modifier.padding(10.dp)
             )
         }
-    }
-}
-
-
-@Preview
-@Composable
-fun RegistrationScreenPreview() {
-    val registrationViewModel = RegistrationViewModel()
-
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color.White,
-    ) {
-        RegistrationScreen(registrationViewModel, {}, {})
     }
 }

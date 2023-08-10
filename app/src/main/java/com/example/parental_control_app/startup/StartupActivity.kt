@@ -20,13 +20,12 @@ class StartupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         auth = Firebase.auth
+        val startupViewModel = StartupViewModel()
+        startupViewModel.setSignOutCallback{ signOut() }
 
         setContent {
             ParentalcontrolappTheme {
-//                StartupScreen(StartupViewModel())
-                Button(onClick = { signOut() } ) {
-                    Text("Sign Out")
-                }
+                StartupScreen(startupViewModel)
             }
         }
     }

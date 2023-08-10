@@ -6,13 +6,18 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import com.example.parental_control_app.googleauth.GoogleOAuthActivity
 import com.example.parental_control_app.login.LoginActivity
+import com.example.parental_control_app.startup.StartupActivity
+import com.example.parental_control_app.toasthelper.ToastHelper
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
 
 class RegistrationActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val registrationViewModel = RegistrationViewModel()
+        val toastHelper = ToastHelper(this)
+        val registrationViewModel = RegistrationViewModel(toastHelper)
+        registrationViewModel.setSignUpCallback { startStartupActivity() }
+
         setContent {
             ParentalcontrolappTheme {
                 RegistrationScreen(
@@ -24,9 +29,15 @@ class RegistrationActivity : AppCompatActivity() {
         }
     }
 
+    private fun startStartupActivity() {
+        val startupActivity = Intent(this, StartupActivity::class.java)
+        startActivity(startupActivity)
+        finish()
+    }
+
     private fun signUpWithGoogle() {
-        val intent = Intent(this, GoogleOAuthActivity::class.java)
-        startActivity(intent)
+        val googleOAuthActivity = Intent(this, GoogleOAuthActivity::class.java)
+        startActivity(googleOAuthActivity)
     }
 
     private fun startLoginActivity() {

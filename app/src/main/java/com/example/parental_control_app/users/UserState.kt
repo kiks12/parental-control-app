@@ -2,7 +2,7 @@ package com.example.parental_control_app.users
 
 data class UserState(
     val userId: String,
-    val displayName: String,
+    val email: String,
     val parents: List<ParentState>,
     val children: List<ChildState>
 )

@@ -7,8 +7,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import com.example.parental_control_app.MainActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.parental_control_app.R
+import com.example.parental_control_app.startup.StartupActivity
+import com.example.parental_control_app.users.UserState
+import com.example.parental_control_app.users.UsersRepository
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
@@ -20,13 +23,20 @@ import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
-class GoogleOAuthActivity : AppCompatActivity() {
+class GoogleOAuthActivity(
+    private val usersRepository: UsersRepository = UsersRepository()
+) : AppCompatActivity() {
 
     private lateinit var oneTapClient: SignInClient
     private lateinit var request: BeginSignInRequest
     private lateinit var auth: FirebaseAuth
+    private lateinit var firestore: FirebaseFirestore
     private var showOneTapUI = true
     private lateinit var googleSignInClient : GoogleSignInClient
     companion object {
@@ -37,6 +47,7 @@ class GoogleOAuthActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         auth = Firebase.auth
+        firestore = Firebase.firestore
 
         val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
@@ -130,8 +141,21 @@ class GoogleOAuthActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    Toast.makeText(this, "Signed in as ${user?.displayName} - ${user?.uid}", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, MainActivity::class.java))
+                    val newUser = UserState(
+                        userId = auth.uid.toString(),
+                        email = user?.email.toString(),
+                        parents = emptyList(),
+                        children = emptyList(),
+                    )
+
+                    val context = this
+                    lifecycleScope.launch {
+                        val msg = usersRepository.createUser(newUser)
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    }
+
+                    Toast.makeText(this, "Signed in as ${user?.displayName}", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, StartupActivity::class.java))
                 } else {
                     Toast.makeText(this, "Authentication failed", Toast.LENGTH_SHORT).show()
                 }
