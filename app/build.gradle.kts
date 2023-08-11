@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.parental_control_app"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.parental_control_app"
@@ -52,6 +52,8 @@ android {
 }
 
 dependencies {
+
+    implementation("org.mindrot:jbcrypt:0.4")
     implementation("com.google.android.gms:play-services-auth:20.6.0")
     implementation("androidx.navigation:navigation-fragment-ktx:2.6.0")
     implementation("androidx.navigation:navigation-ui-ktx:2.6.0")
@@ -63,6 +65,8 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.2.2"))
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
+
+    implementation("androidx.compose.material3:material3:1.2.0-alpha04")
 
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")

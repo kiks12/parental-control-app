@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import com.example.parental_control_app.googleauth.GoogleOAuthActivity
+import com.example.parental_control_app.googleauth.GoogleOAuthActivityType
 import com.example.parental_control_app.login.LoginActivity
 import com.example.parental_control_app.startup.StartupActivity
 import com.example.parental_control_app.toasthelper.ToastHelper
@@ -37,6 +38,9 @@ class RegistrationActivity : AppCompatActivity() {
 
     private fun signUpWithGoogle() {
         val googleOAuthActivity = Intent(this, GoogleOAuthActivity::class.java)
+        val bundle = Bundle()
+        bundle.putString("TYPE", GoogleOAuthActivityType.SIGNUP.name)
+        googleOAuthActivity.putExtra("Extras", bundle)
         startActivity(googleOAuthActivity)
     }
 

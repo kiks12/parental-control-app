@@ -26,13 +26,18 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+
+enum class GoogleOAuthActivityType {
+    SIGNIN,
+    SIGNUP
+}
 
 class GoogleOAuthActivity(
     private val usersRepository: UsersRepository = UsersRepository()
 ) : AppCompatActivity() {
 
+    private lateinit var type: String
     private lateinit var oneTapClient: SignInClient
     private lateinit var request: BeginSignInRequest
     private lateinit var auth: FirebaseAuth
@@ -48,6 +53,9 @@ class GoogleOAuthActivity(
 
         auth = Firebase.auth
         firestore = Firebase.firestore
+
+        val bundle = this.intent.getBundleExtra("Extras")
+        type = bundle?.getString("TYPE").toString()
 
         val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
@@ -144,14 +152,14 @@ class GoogleOAuthActivity(
                     val newUser = UserState(
                         userId = auth.uid.toString(),
                         email = user?.email.toString(),
-                        parents = emptyList(),
-                        children = emptyList(),
                     )
 
-                    val context = this
-                    lifecycleScope.launch {
-                        val msg = usersRepository.createUser(newUser)
-                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    if (type == GoogleOAuthActivityType.SIGNUP.name) {
+                        val context = this
+                        lifecycleScope.launch {
+                            val msg = usersRepository.createUser(newUser)
+                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                        }
                     }
 
                     Toast.makeText(this, "Signed in as ${user?.displayName}", Toast.LENGTH_SHORT).show()

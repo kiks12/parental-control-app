@@ -5,8 +5,10 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import com.example.parental_control_app.googleauth.GoogleOAuthActivity
+import com.example.parental_control_app.googleauth.GoogleOAuthActivityType
 import com.example.parental_control_app.registration.RegistrationActivity
 import com.example.parental_control_app.startup.StartupActivity
+import com.example.parental_control_app.toasthelper.ToastHelper
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -24,8 +26,11 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
-        val loginViewModel = LoginViewModel()
+
+        val toastHelper = ToastHelper(this)
+        val loginViewModel = LoginViewModel(toastHelper)
         loginViewModel.setSignInCallback { startStartupActivity() }
+
         setContent {
             ParentalcontrolappTheme {
                 LoginScreen(
@@ -45,6 +50,9 @@ class LoginActivity : AppCompatActivity() {
 
     private fun signInWithGoogle() {
         val googleOAuthActivity = Intent(this, GoogleOAuthActivity::class.java)
+        val bundle = Bundle()
+        bundle.putString("TYPE", GoogleOAuthActivityType.SIGNIN.name)
+        googleOAuthActivity.putExtra("Extras", bundle)
         startActivity(googleOAuthActivity)
     }
 

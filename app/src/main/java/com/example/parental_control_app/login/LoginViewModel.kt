@@ -1,15 +1,16 @@
 package com.example.parental_control_app.login
 
-import android.content.ContentValues.TAG
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.parental_control_app.emailpasswordauth.EmailPasswordState
+import com.example.parental_control_app.toasthelper.ToastHelper
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(
+    private val toastHelper: ToastHelper
+) : ViewModel() {
 
     private lateinit var signInCallback: () -> Unit
     private var auth : FirebaseAuth = Firebase.auth
@@ -34,13 +35,12 @@ class LoginViewModel : ViewModel() {
         auth.signInWithEmailAndPassword(credentialState.value.email, credentialState.value.password)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
-                    Log.w(TAG, it.result.user?.uid.toString())
+                    toastHelper.makeToast("Signed in as ${it.result.user?.email.toString()}")
                     signInCallback()
                 } else {
-                    Log.w(TAG, it.toString())
+                    toastHelper.makeToast(it.exception?.localizedMessage.toString())
                 }
             }
     }
 
-//    fun loginWithGoogle() {}
 }

@@ -8,6 +8,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import com.example.parental_control_app.R
 import com.example.parental_control_app.login.LoginActivity
+import com.example.parental_control_app.toasthelper.ToastHelper
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -20,14 +21,21 @@ class StartupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         auth = Firebase.auth
-        val startupViewModel = StartupViewModel()
+        val toastHelper = ToastHelper(this)
+        val startupViewModel = StartupViewModel(toastHelper)
         startupViewModel.setSignOutCallback{ signOut() }
+        startupViewModel.setRefreshCallback{ refresh() }
 
         setContent {
             ParentalcontrolappTheme {
                 StartupScreen(startupViewModel)
             }
         }
+    }
+
+    fun refresh() {
+        finish()
+        startActivity(intent)
     }
 
     fun signOut() {

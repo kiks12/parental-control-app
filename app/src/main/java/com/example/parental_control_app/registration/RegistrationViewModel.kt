@@ -51,8 +51,6 @@ class RegistrationViewModel(
                     val newUser = UserState(
                         userId = auth.uid.toString(),
                         email = user?.email.toString(),
-                        parents = emptyList(),
-                        children = emptyList()
                     )
 
                     viewModelScope.launch {
