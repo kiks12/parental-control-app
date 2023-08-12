@@ -1,8 +1,5 @@
 package com.example.parental_control_app.users
 
-import android.content.ContentValues.TAG
-import android.util.Log
-import com.google.firebase.firestore.auth.User
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CompletableDeferred
@@ -46,8 +43,6 @@ class UsersRepository {
                         child = doc.data?.get("child") as Boolean,
                         password = doc.data?.get("password").toString(),
                     ))
-                    Log.w(TAG, doc.data.toString())
-                    Log.w(TAG, list.toString())
                 }
             }
             val jobTwo : Job = launch {

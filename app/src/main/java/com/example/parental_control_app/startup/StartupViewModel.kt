@@ -1,10 +1,13 @@
 package com.example.parental_control_app.startup
 
+import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.parental_control_app.sharedpreferences.SharedPreferencesHelper
 import com.example.parental_control_app.toasthelper.ToastHelper
 import com.example.parental_control_app.users.UserProfile
 import com.example.parental_control_app.users.UsersRepository
@@ -37,6 +40,9 @@ class StartupViewModel(
 
     private lateinit var signOutCallback: () -> Unit
     private lateinit var refresh: () -> Unit
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var startParentActivity: () -> Unit
+    private lateinit var startChildActivity: () -> Unit
 
     init {
         updateUser()
@@ -68,6 +74,18 @@ class StartupViewModel(
         refresh = callback
     }
 
+    fun setSharedPreferences(preferences: SharedPreferences) {
+        sharedPreferences = preferences
+    }
+
+    fun setStartParentActivity(callback: () -> Unit) {
+        startParentActivity = callback
+    }
+
+    fun setStartChildActivity(callback: () -> Unit) {
+        startChildActivity = callback
+    }
+
     fun signOut() {
         signOutCallback()
     }
@@ -80,6 +98,10 @@ class StartupViewModel(
         viewModelScope.launch {
             val msgTwo = usersRepository.updateFirstSignIn(_uiState.value.user.userId)
             toastHelper.makeToast(msgTwo)
+        }
+        viewModelScope.launch {
+            updateUser()
+            updateProfiles()
         }
     }
     fun createProfile(closeBottomSheet: () -> Unit) {
@@ -128,6 +150,15 @@ class StartupViewModel(
             parent = newType == UserProfileType.PARENT.name,
             child = newType == UserProfileType.CHILD.name,
         ))
+    }
+
+    @SuppressLint("CommitPrefEdits")
+    fun onProfileClick(profile: UserProfile) {
+        val editor = sharedPreferences.edit()
+        editor.putString(SharedPreferencesHelper.PROFILE_KEY, SharedPreferencesHelper.createJsonString(profile))
+        editor.apply()
+        if (profile.child) startChildActivity()
+        if (profile.parent) startParentActivity()
     }
 
 }

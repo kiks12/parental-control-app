@@ -13,7 +13,13 @@
         android:theme="@style/Theme.Parentalcontrolapp"
         tools:targetApi="31">
         <activity
-            android:name=".emailpasswordauth.EmailPasswordActivity"
+            android:name=".startup.BufferActivity"
+            android:exported="false" />
+        <activity
+            android:name=".parent.ParentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".children.ChildrenActivity"
             android:exported="false" />
         <activity
             android:name=".googleauth.GoogleOAuthActivity"
@@ -21,14 +27,6 @@
         <activity
             android:name=".startup.StartupActivity"
             android:exported="false" />
-        <activity
-            android:name=".googleauth.GoogleSignUpActivity"
-            android:exported="false" />
-        <activity
-            android:name=".googleauth.GoogleSignInActivity"
-            android:exported="false"
-            android:label="@string/title_activity_google_sign_in"
-            android:theme="@style/Theme.Parentalcontrolapp" />
         <activity
             android:name=".registration.RegistrationActivity"
             android:exported="false" />

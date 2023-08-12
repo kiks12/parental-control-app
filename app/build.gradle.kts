@@ -53,6 +53,7 @@ android {
 
 dependencies {
 
+    implementation("com.google.code.gson:gson:2.9.0")
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("com.google.android.gms:play-services-auth:20.6.0")
     implementation("androidx.navigation:navigation-fragment-ktx:2.6.0")

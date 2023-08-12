@@ -44,9 +44,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-enum class UserProfileType(name: String) {
-    PARENT("Parent"),
-    CHILD("Child"),
+enum class UserProfileType {
+    PARENT,
+    CHILD,
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,7 +80,8 @@ fun StartupScreen(viewModel: StartupViewModel) {
                 Text("Profiles")
                 ProfilesGrid(
                     uiState,
-                    onAddProfile = { scope.launch { bottomSheetState.show() } }
+                    onAddProfile = { scope.launch { bottomSheetState.show() } },
+                    viewModel,
                 )
 
                 if (uiState.user.isFirstSignIn) {
@@ -100,7 +101,8 @@ fun StartupScreen(viewModel: StartupViewModel) {
 @Composable
 fun ProfilesGrid(
     state: StartupState,
-    onAddProfile: () -> Unit
+    onAddProfile: () -> Unit,
+    viewModel: StartupViewModel,
 ) {
     val colors = listOf(
         MaterialTheme.colorScheme.primaryContainer,
@@ -115,8 +117,9 @@ fun ProfilesGrid(
             item {
                 val index = Random.nextInt(0, colors.size)
                 ProfileCard(
-                    it.name,
-                    colors[index]
+                    username = it.name,
+                    color = colors[index],
+                    onClick =  { viewModel.onProfileClick(it) }
                 )
             }
         }
@@ -237,11 +240,13 @@ fun AddProfileCard(onClick: () -> Unit) {
 }
 
 @Composable
-fun ProfileCard(username: String, color: Color) {
+fun ProfileCard(username: String, color: Color, onClick: () -> Unit) {
     Card (
         modifier = Modifier
             .padding(10.dp)
-            .aspectRatio(1f),
+            .aspectRatio(1f)
+            .clickable { onClick() }
+        ,
         colors = CardDefaults.cardColors(
             containerColor = color
         )
