@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.parental_control_app"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -52,6 +52,28 @@ android {
 }
 
 dependencies {
+
+    val work_version = "2.8.1"
+
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.5.0")
+
+    // (Java only)
+    implementation("androidx.work:work-runtime:$work_version")
+
+    // Kotlin + coroutines
+    implementation("androidx.work:work-runtime-ktx:$work_version")
+
+    // optional - RxJava2 support
+    implementation("androidx.work:work-rxjava2:$work_version")
+
+    // optional - GCMNetworkManager support
+    implementation("androidx.work:work-gcm:$work_version")
+
+    // optional - Test helpers
+    androidTestImplementation("androidx.work:work-testing:$work_version")
+
+    // optional - Multiprocess support
+    implementation("androidx.work:work-multiprocess:$work_version")
 
     implementation("com.google.code.gson:gson:2.9.0")
     implementation("org.mindrot:jbcrypt:0.4")

@@ -2,41 +2,63 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.ACTION_MANAGE_OVERLAY_PERMISSION" />
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="ManifestOrder,QueryAllPackagesPermission" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Parentalcontrolapp"
-        tools:targetApi="31">
+        android:windowSoftInputMode="adjustResize"
+        tools:targetApi="tiramisu">
         <activity
-            android:name=".startup.BufferActivity"
+            android:name=".activities.LockActivity"
             android:exported="false" />
         <activity
-            android:name=".parent.ParentActivity"
+            android:name=".activities.parent.ParentMainActivity"
             android:exported="false" />
         <activity
-            android:name=".children.ChildrenActivity"
+            android:name=".activities.children.ChildrenMainActivity"
             android:exported="false" />
         <activity
-            android:name=".googleauth.GoogleOAuthActivity"
+            android:name=".activities.GoogleOAuthActivity"
             android:exported="false" />
         <activity
-            android:name=".startup.StartupActivity"
+            android:name=".activities.StartupActivity"
             android:exported="false" />
         <activity
-            android:name=".registration.RegistrationActivity"
+            android:name=".activities.RegistrationActivity"
             android:exported="false" />
         <activity
-            android:name=".login.LoginActivity"
+            android:name=".activities.LoginActivity"
             android:exported="false" />
+        <activity
+            android:name=".activities.children.ChildrenAppsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.children.ChildrenBlockedAppsActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Parentalcontrolapp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -44,6 +66,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".service.AppLockerService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="TODO" />
+        <service
+            android:name=".service.AppSaverService"
+            android:enabled="true" />
     </application>
 
 </manifest>
