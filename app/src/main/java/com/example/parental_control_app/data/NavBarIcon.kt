@@ -5,6 +5,11 @@ enum class ChildrenScreenBottomNavRoutes {
     SETTINGS
 }
 
+enum class ParentScreenBottomNavRoutes {
+    HOME,
+    SETTINGS
+}
+
 data class NavBarIcon (
     val name: String,
     val route: String,
