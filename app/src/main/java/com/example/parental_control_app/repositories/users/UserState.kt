@@ -15,20 +15,15 @@ data class UserProfile(
     val restricted: List<AppState>? = null,
     val phoneNumber: String? = null,
     val password: String? = null,
+    val maturityLevel: String? = null
 )
-//data class ParentState(
-//    val parentId: String,
-//    val name: String,
-//    val phoneNumber: String? = null,
-//    val mpin: String? = null,
-//)
-//data class ChildState(
-//    val childId: String,
-//    val name: String,
-//    val apps: List<AppState>,
-//    val restricted: List<AppState>,
-//    val phoneNumber: String? = null,
-//)
+
+enum class UserMaturityLevel{
+    BELOW_AVERAGE,
+    AVERAGE,
+    ABOVE_AVERAGE
+}
+
 data class AppState(
     val appId: String,
     val name: String,

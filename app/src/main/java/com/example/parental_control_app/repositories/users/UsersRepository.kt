@@ -36,14 +36,51 @@ class UsersRepository {
                     val doc = query.documents[index]
                     list = list.plus(
                         UserProfile(
-                        profileId = doc.data?.get("profileId").toString(),
-                        name = doc.data?.get("name").toString(),
-                        userId = doc.data?.get("userId").toString(),
-                        phoneNumber = doc.data?.get("phoneNumber").toString(),
-                        parent = doc.data?.get("parent") as Boolean,
-                        child = doc.data?.get("child") as Boolean,
-                        password = doc.data?.get("password").toString(),
+                            profileId = doc.data?.get("profileId").toString(),
+                            name = doc.data?.get("name").toString(),
+                            userId = doc.data?.get("userId").toString(),
+                            phoneNumber = doc.data?.get("phoneNumber").toString(),
+                            parent = doc.data?.get("parent") as Boolean,
+                            child = doc.data?.get("child") as Boolean,
+                            password = doc.data?.get("password").toString(),
+                        )
                     )
+                }
+            }
+            val jobTwo : Job = launch {
+                completable.complete(list)
+            }
+            job.joinAll()
+            jobTwo.join()
+        }
+
+        return completable.await()
+    }
+
+    suspend fun findUserKidProfiles(userId: String): List<UserProfile> {
+        val completable = CompletableDeferred<List<UserProfile>>()
+        var list = listOf<UserProfile>()
+        val query = db.collection("profiles")
+            .whereEqualTo("userId", userId)
+            .whereEqualTo("child", true)
+            .get()
+            .await()
+
+        runBlocking {
+            val job : List<Job> = (0 until query.documents.size).map { index ->
+                launch {
+                    val doc = query.documents[index]
+                    list = list.plus(
+                        UserProfile(
+                            profileId = doc.data?.get("profileId").toString(),
+                            name = doc.data?.get("name").toString(),
+                            userId = doc.data?.get("userId").toString(),
+                            phoneNumber = doc.data?.get("phoneNumber").toString(),
+                            parent = doc.data?.get("parent") as Boolean,
+                            child = doc.data?.get("child") as Boolean,
+                            password = doc.data?.get("password").toString(),
+                            maturityLevel = doc.data?.get("maturityLevel").toString()
+                        )
                     )
                 }
             }
