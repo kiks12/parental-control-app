@@ -9,15 +9,6 @@ enum class ChildrenFeatureIcons {
     LOCATION
 }
 
-enum class ParentFeatureIcons {
-    APPS,
-    SCREEN_TIME,
-    BLOCKED_APPS,
-    SMS,
-    NOTIFICATIONS,
-    LOCATION
-}
-
 data class FeatureIcon(
     val name: String,
     val route: ChildrenFeatureIcons,

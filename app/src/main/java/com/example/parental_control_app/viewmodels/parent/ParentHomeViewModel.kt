@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.parental_control_app.repositories.AppsRepository
+//import com.example.parental_control_app.repositories.AppsRepository
 import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.repositories.users.UsersRepository
 import com.google.firebase.auth.FirebaseUser
@@ -15,11 +15,12 @@ import kotlinx.coroutines.launch
 
 class ParentHomeViewModel(
     private val usersRepository: UsersRepository = UsersRepository(),
-    private val appRepository: AppsRepository = AppsRepository()
+//    private val appRepository: AppsRepository = AppsRepository()
 ) : ViewModel() {
 
     private val auth = Firebase.auth
     private var currentUser : FirebaseUser? = null
+    private lateinit var onChildrenCardClick : (profileId: String) -> Unit
     var kidsProfile = mutableStateListOf<UserProfile>()
 
     init {
@@ -32,6 +33,14 @@ class ParentHomeViewModel(
                 Log.w("KID PROFILE LIST", kidsProfile.toString())
             }.await()
         }
+    }
+
+    fun addOnChildrenCardClick(callback: (profileId: String) -> Unit) {
+        onChildrenCardClick = callback
+    }
+
+    fun getOnChildrenCardClick(): (profileId: String) -> Unit {
+        return onChildrenCardClick
     }
 
 }

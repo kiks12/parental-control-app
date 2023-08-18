@@ -15,6 +15,8 @@ import androidx.navigation.compose.rememberNavController
 class ParentNavigationViewModel : ViewModel(){
 
     private var controller : NavHostController? = null
+    private lateinit var parentHomeViewModel: ParentHomeViewModel
+    lateinit var  onSignOut: () -> Unit
 
     companion object {
         val bottomNavBarIcons = listOf(
@@ -27,5 +29,17 @@ class ParentNavigationViewModel : ViewModel(){
     fun getController() : NavHostController{
         if (controller == null) controller = rememberNavController()
         return controller!!
+    }
+
+    fun setParentHomeViewModel(viewModel: ParentHomeViewModel) {
+        parentHomeViewModel = viewModel
+    }
+
+    fun getParentHomeViewModel(): ParentHomeViewModel {
+        return parentHomeViewModel
+    }
+
+    fun addOnSignOut(callback: () -> Unit) {
+        onSignOut = callback
     }
 }

@@ -40,7 +40,7 @@ class StartupActivity : AppCompatActivity() {
         startupViewModel.setStartParentActivity{ startParentActivity() }
         startupViewModel.setStartChildActivity{ startChildActivity() }
 
-        if (profile != null) {
+        if (profile != null && profile?.child!!) {
             startService(Intent(this, AppSaverService::class.java).also {
                 it.putExtra("profileId", profile!!.profileId)
             })
@@ -79,12 +79,12 @@ class StartupActivity : AppCompatActivity() {
         if (profileIsChild()) startChildActivity()
     }
 
-    fun refresh() {
+    private fun refresh() {
         finish()
         startActivity(intent)
     }
 
-    fun signOut() {
+    private fun signOut() {
         auth.signOut()
         startActivity(Intent(this, LoginActivity::class.java))
         finish()

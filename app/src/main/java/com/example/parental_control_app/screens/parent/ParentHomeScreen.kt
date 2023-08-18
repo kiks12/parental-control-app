@@ -33,19 +33,25 @@ fun ParentHomeScreen(viewModel: ParentHomeViewModel) {
         ){
             Text("Welcome! ")
             profiles.forEach { profile ->
-                ChildrenCard(profile = profile)
+                ChildrenCard(
+                    profile = profile,
+                    onChildrenClick = viewModel.getOnChildrenCardClick()
+                )
             }
         }
     }
 }
 
 @Composable
-private fun ChildrenCard(profile: UserProfile) {
+private fun ChildrenCard(
+    profile: UserProfile,
+    onChildrenClick: (profileId: String) -> Unit
+) {
     ElevatedCard (
         modifier = Modifier
             .padding(5.dp)
             .fillMaxWidth()
-            .clickable {  }
+            .clickable { onChildrenClick(profile.profileId) }
     ){
         Column(
             modifier = Modifier.padding(10.dp)

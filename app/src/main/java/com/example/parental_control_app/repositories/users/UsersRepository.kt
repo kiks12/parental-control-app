@@ -4,6 +4,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -30,7 +31,7 @@ class UsersRepository {
             .get()
             .await()
 
-        runBlocking {
+        coroutineScope {
             val job : List<Job> = (0 until query.documents.size).map { index ->
                 launch {
                     val doc = query.documents[index]

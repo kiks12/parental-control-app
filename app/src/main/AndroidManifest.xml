@@ -29,6 +29,15 @@
         android:windowSoftInputMode="adjustResize"
         tools:targetApi="tiramisu">
         <activity
+            android:name=".activities.parent.ParentChildBlockedAppsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.parent.ParentChildAppsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.parent.ParentChildFeaturesActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.LockActivity"
             android:exported="false" />
         <activity

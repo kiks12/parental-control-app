@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -24,7 +25,6 @@ import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
 import com.example.parental_control_app.viewmodels.parent.ParentHomeViewModel
 import com.example.parental_control_app.viewmodels.parent.ParentNavigationViewModel
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ParentNavigationScreen(viewModel: ParentNavigationViewModel) {
     val controller = viewModel.getController()
@@ -40,8 +40,12 @@ fun ParentNavigationScreen(viewModel: ParentNavigationViewModel) {
                     navController = controller,
                     startDestination = ParentScreenBottomNavRoutes.HOME.toString()
                 ) {
-                    composable(ParentScreenBottomNavRoutes.HOME.toString()) { ParentHomeScreen(ParentHomeViewModel()) }
-                    composable(ParentScreenBottomNavRoutes.SETTINGS.toString()) { Text("SETTINGS") }
+                    composable(ParentScreenBottomNavRoutes.HOME.toString()) { ParentHomeScreen(viewModel.getParentHomeViewModel()) }
+                    composable(ParentScreenBottomNavRoutes.SETTINGS.toString()) {
+                        Button(onClick = { viewModel.onSignOut() }) {
+                            Text("Sign Out")
+                        }
+                    }
                 }
             }
         }

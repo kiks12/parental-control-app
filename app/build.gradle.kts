@@ -56,6 +56,8 @@ dependencies {
     val work_version = "2.8.1"
 
     implementation("androidx.compose.ui:ui-text-google-fonts:1.5.0")
+    implementation("com.google.firebase:firebase-storage-ktx")
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
     // (Java only)
     implementation("androidx.work:work-runtime:$work_version")
