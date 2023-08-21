@@ -56,7 +56,15 @@ fun ParentChildBlockedAppsScreen(viewModel: ParentChildBlockedAppsViewModel) {
                         Text("Loading")
                     }
                 }
-            } else {
+            } else if (apps.isEmpty()) {
+                Column (
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ){
+                    Text("No apps to show")
+                }
+            }
+            else {
                 LazyColumn(
                     modifier = Modifier.padding(innerPadding)
                 ) {
@@ -76,9 +84,6 @@ fun ParentChildBlockedAppsScreen(viewModel: ParentChildBlockedAppsViewModel) {
             }
         }
     }
-
-
-    TODO("Parent Child Blocked Apps Screen - No Apps Available Condition")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
