@@ -8,13 +8,15 @@ import android.content.Intent
 import android.provider.Settings
 import android.util.Log
 import androidx.work.CoroutineWorker
-import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.example.parental_control_app.activities.LockActivity
+import com.example.parental_control_app.activities.children.ChildrenMainActivity
 
 
-class AppLockWorker(
+class AppLockWorker (
     appContext: Context,
     workerParameters: WorkerParameters
 ) : CoroutineWorker(appContext, workerParameters){
@@ -54,12 +56,15 @@ class AppLockWorker(
 
     override suspend fun doWork(): Result {
 
+        val blockedAppNames = inputData.getStringArray(ChildrenMainActivity.BLOCKED_APPS_KEY)
+        Log.w("BLOCKED APP NAMES", blockedAppNames.toString())
+
         if (!isUsageStatsPermissionGranted()) {
             openUsageAccessSettings(applicationContext)
         } else {
             val currentAppPackageName = getCurrentRunningAppPackageName(applicationContext)
             if (currentAppPackageName != null) {
-                if (currentAppPackageName.contains("youtube")) {
+                if (blockedAppNames != null && blockedAppNames.contains(currentAppPackageName)) {
                     Log.w("APP LOCK WORKER", "Current Running App Package Name: $currentAppPackageName")
                     val intent = Intent(applicationContext, LockActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -70,7 +75,13 @@ class AppLockWorker(
             }
         }
 
-        val workRequest = OneTimeWorkRequestBuilder<AppLockWorker>().build()
+        val workRequest = OneTimeWorkRequest.Builder(AppLockWorker::class.java)
+            .setInputData(
+                Data.Builder()
+                    .putStringArray(ChildrenMainActivity.BLOCKED_APPS_KEY, blockedAppNames!!)
+                    .build()
+            )
+            .build()
         WorkManager.getInstance(applicationContext).enqueue(workRequest)
         return Result.success()
     }

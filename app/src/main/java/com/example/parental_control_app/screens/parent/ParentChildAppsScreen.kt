@@ -31,6 +31,7 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
     val loading = viewModel.loadingState
     val appsState = viewModel.appState
     val iconState = viewModel.iconState
+    val totalScreenTime = viewModel.totalScreeTimeState
 
     ParentalcontrolappTheme {
         Scaffold(
@@ -55,7 +56,16 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
                         Text("Loading")
                     }
                 }
-            } else {
+            }
+            else if (appsState.isEmpty()) {
+                Column (
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ){
+                    Text("No Apps to show")
+                }
+            }
+            else {
                 LazyColumn(
                     modifier = Modifier.padding(innerPadding)
                 ) {
@@ -65,6 +75,7 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
                                 AppCard(
                                     app = it,
                                     appIcon = it1,
+                                    totalScreenTime = totalScreenTime,
                                     onCheckedChange = viewModel::updateAppRestriction
                                 )
                             }

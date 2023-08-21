@@ -29,7 +29,7 @@ class ChildrenViewModel(
 ) : ViewModel(){
 
     companion object {
-        val feautureIcons = listOf(
+        val featureIcons = listOf(
             FeatureIcon("Apps", ChildrenFeatureIcons.APPS, Icons.Outlined.Menu),
             FeatureIcon("Screen Time", ChildrenFeatureIcons.SCREEN_TIME, Icons.Outlined.List),
             FeatureIcon("Blocked Apps", ChildrenFeatureIcons.BLOCKED_APPS, Icons.Outlined.Lock),
@@ -87,8 +87,16 @@ class ChildrenViewModel(
     private fun startBlockedApps() {
         activityStarterHelper.startNewActivity(ChildrenBlockedAppsActivity::class.java)
     }
-    private fun startScreenTime() {}
-    private fun startSMS() {}
-    private fun startNotifications() {}
-    private fun startLocation() {}
+    private fun startScreenTime() {
+        TODO("Children View Model - implement startScreenTime function")
+    }
+    private fun startSMS() {
+        TODO("Children View Model - implement startSMS function")
+    }
+    private fun startNotifications() {
+        TODO("Children View Model - implement startNotifications function")
+    }
+    private fun startLocation() {
+        TODO("Children View Model - implement startLocation function")
+    }
 }

@@ -2,11 +2,14 @@ package com.example.parental_control_app.uicomponents
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,11 +21,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.parental_control_app.data.UserApps
+import java.util.concurrent.TimeUnit
 
 @Composable
 fun AppCard(
     app: UserApps,
     appIcon: String,
+    totalScreenTime: Long,
     onCheckedChange: (appName: String, newRestriction: Boolean) -> Unit,
 ) {
 
@@ -38,21 +43,35 @@ fun AppCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .height(50.dp)
-                        .width(50.dp)
+            Column {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    AsyncImage(model = appIcon, contentDescription = "")
+                    Box(
+                        modifier = Modifier
+                            .height(50.dp)
+                            .width(50.dp)
+                    ) {
+                        AsyncImage(model = appIcon, contentDescription = "")
+                    }
+                    Text(
+                        modifier = Modifier.padding(horizontal = 10.dp),
+                        text = app.name,
+                        fontSize = 10.sp
+                    )
                 }
-                Text(
-                    modifier = Modifier.padding(horizontal = 10.dp),
-                    text = app.name,
-                    fontSize = 10.sp
-                )
+                Spacer(modifier = Modifier.height(10.dp))
+                if (app.screenTime.toInt() == 0) {
+                    LinearProgressIndicator(progress = 0f)
+                    Text("00:00:00", fontSize = 10.sp)
+                } else {
+                    LinearProgressIndicator(progress = totalScreenTime / app.screenTime.toFloat())
+                    Text(String.format("%d:%d:%d",
+                        TimeUnit.MILLISECONDS.toHours(app.screenTime),
+                        TimeUnit.MILLISECONDS.toMinutes(app.screenTime),
+                        TimeUnit.MILLISECONDS.toSeconds(app.screenTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(app.screenTime))
+                    ), fontSize = 10.sp)
+                }
             }
             Switch(
                 checked = restricted.value, onCheckedChange = {

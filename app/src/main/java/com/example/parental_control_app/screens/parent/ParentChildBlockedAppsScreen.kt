@@ -31,6 +31,8 @@ fun ParentChildBlockedAppsScreen(viewModel: ParentChildBlockedAppsViewModel) {
     val loading = viewModel.loadingState
     val apps = viewModel.appsState
     val icons = viewModel.iconsState
+    
+
     ParentalcontrolappTheme {
         Scaffold(
             topBar = { TopBar(onBackClick = viewModel.onBackClick() )}
@@ -64,6 +66,7 @@ fun ParentChildBlockedAppsScreen(viewModel: ParentChildBlockedAppsViewModel) {
                                 AppCard(
                                     app = it,
                                     appIcon = it1,
+                                    totalScreenTime = 1,
                                     onCheckedChange = viewModel::updateAppRestriction
                                 )
                             }
@@ -73,6 +76,9 @@ fun ParentChildBlockedAppsScreen(viewModel: ParentChildBlockedAppsViewModel) {
             }
         }
     }
+
+
+    TODO("Parent Child Blocked Apps Screen - No Apps Available Condition")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

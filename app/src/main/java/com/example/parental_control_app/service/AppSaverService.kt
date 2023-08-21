@@ -3,7 +3,6 @@ package com.example.parental_control_app.service
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
 import com.example.parental_control_app.data.UserAppIcon
 import com.example.parental_control_app.data.UserApps
@@ -54,10 +53,5 @@ class AppSaverService @Inject constructor(private val appsRepository: AppsReposi
 
         return START_STICKY
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
 
 }

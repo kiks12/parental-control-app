@@ -13,6 +13,7 @@ class ParentChildAppsViewModel(
     private val appsRepository: AppsRepository = AppsRepository()
 ) : ViewModel(){
 
+    private val _totalScreenTimeState = mutableStateOf<Long>(0)
     private val _loadingState = mutableStateOf(true)
     private val _appsState = mutableStateOf(listOf<UserApps>())
     private val _iconsState = mutableStateOf(mapOf<String, String>())
@@ -26,10 +27,14 @@ class ParentChildAppsViewModel(
     val loadingState : Boolean
         get() = _loadingState.value
 
+    val totalScreeTimeState : Long
+        get() = _totalScreenTimeState.value
+
     init {
         viewModelScope.launch {
             async { _iconsState.value = appsRepository.getAppIcons(profileId) }.await()
             async { _appsState.value = appsRepository.getApps(profileId) }.await()
+            async { calculateTotalScreenTime() }.await()
             async { _loadingState.value = false }.await()
         }
     }
@@ -47,6 +52,12 @@ class ParentChildAppsViewModel(
             async {
                 appsRepository.updateAppRestriction(profileId, appName, newRestriction)
             }.await()
+        }
+    }
+
+    private fun calculateTotalScreenTime() {
+        _appsState.value.forEach {app ->
+            _totalScreenTimeState.value = _totalScreenTimeState.value + app.screenTime
         }
     }
 }

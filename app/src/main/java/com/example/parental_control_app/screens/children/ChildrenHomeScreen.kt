@@ -28,7 +28,7 @@ import com.example.parental_control_app.viewmodels.children.ChildrenViewModel
 fun ChildrenHomeScreen(
     viewModel: ChildrenViewModel,
 ) {
-    val icons = ChildrenViewModel.feautureIcons
+    val icons = ChildrenViewModel.featureIcons
     val profile = viewModel.getProfile()
 
     Surface {

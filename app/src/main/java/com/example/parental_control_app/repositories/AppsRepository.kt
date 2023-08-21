@@ -85,7 +85,7 @@ class AppsRepository {
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    private suspend fun getAppNames(uid: String) : List<String> {
+    suspend fun getAppNames(uid: String) : List<String> {
         val completable = CompletableDeferred<List<String>>()
         var list = listOf<String>()
 
@@ -104,7 +104,29 @@ class AppsRepository {
         return completable.await()
     }
 
-    private suspend fun getProfileUID(profileId: String) : String {
+    @OptIn(DelicateCoroutinesApi::class)
+    suspend fun getBlockedAppNames(uid: String) : List<String> {
+        val completable = CompletableDeferred<List<String>>()
+        var list = listOf<String>()
+
+        GlobalScope.launch(Dispatchers.IO) {
+            async {
+                val apps = db.collection("profiles/$uid/apps")
+                    .whereEqualTo("restricted", true)
+                    .get().await()
+                apps.documents.forEach {app ->
+                    list = list.plus(app.data?.get("name").toString())
+                }
+            }.await()
+            async {
+                completable.complete(list)
+            }.await()
+        }
+
+        return completable.await()
+    }
+
+    suspend fun getProfileUID(profileId: String) : String {
         val uid = CompletableDeferred<String>()
         db.collection("profiles")
             .whereEqualTo("profileId", profileId)
@@ -181,6 +203,25 @@ class AppsRepository {
                         .update("restricted", newRestriction).await()
                 }
             }.await()
+        }
+    }
+
+    suspend fun updateAppScreenTime(uid: String, apps: List<UserApps>) {
+        val batch = db.batch()
+        coroutineScope {
+            async {
+                apps.forEach {app ->
+                    val query = db.collection("profiles/$uid/apps")
+                        .whereEqualTo("name", app.name)
+                    val docs = query.get().await()
+                    docs.forEach { document ->
+                        val ref = db.collection("profiles/$uid/apps")
+                            .document(document.id)
+                        batch.update(ref, "screenTime", app.screenTime)
+                    }
+                }
+            }.await()
+            async { batch.commit() }.await()
         }
     }
 }

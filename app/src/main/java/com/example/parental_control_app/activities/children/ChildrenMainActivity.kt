@@ -14,14 +14,26 @@ import com.example.parental_control_app.viewmodels.children.ChildrenViewModel
 import com.example.parental_control_app.helpers.SignOutHelper
 import com.example.parental_control_app.helpers.SharedPreferencesHelper
 import com.example.parental_control_app.helpers.ActivityStarterHelper
+import com.example.parental_control_app.repositories.AppsRepository
 import com.example.parental_control_app.service.AppLockerService
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 class ChildrenMainActivity : AppCompatActivity() {
 
     private lateinit var signOutHelper: SignOutHelper
     private lateinit var sharedPreferences: SharedPreferences
+    private val appsRepository = AppsRepository()
 
+    companion object {
+        const val BLOCKED_APPS_KEY = "BLOCKED_APPS_KEY"
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -35,7 +47,18 @@ class ChildrenMainActivity : AppCompatActivity() {
         childrenViewModel.setSignOutFunction { signOutHelper.signOut() }
         childrenViewModel.setProfile(profile!!)
 
-//        startForegroundService(Intent(this, AppLockerService::class.java))
+        GlobalScope.launch(Dispatchers.IO) {
+            var uid = ""
+            var list = listOf<String>()
+            async { uid = appsRepository.getProfileUID(profile.profileId) }.await()
+            async { list = appsRepository.getBlockedAppNames(uid) }.await()
+            async {
+                startForegroundService(
+                    Intent(applicationContext, AppLockerService::class.java)
+                        .putExtra(BLOCKED_APPS_KEY, list.toTypedArray())
+                )
+            }.await()
+        }
 
         setContent {
             ParentalcontrolappTheme {
