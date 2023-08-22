@@ -1,5 +1,6 @@
 package com.example.parental_control_app
 
+import android.Manifest
 import android.app.AppOpsManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -11,10 +12,15 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.example.parental_control_app.activities.LoginActivity
 
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        private const val PERMISSION_REQUEST_SMS = 1001 // Define your request code here
+    }
 
     private fun isUsagePermissionGranted(): Boolean {
         return try {
@@ -36,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun isNotificationPermissionGranted(): Boolean {
+    private fun isNotificationPermissionGranted(): Boolean {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManager.areNotificationsEnabled()
@@ -65,7 +71,7 @@ class MainActivity : AppCompatActivity() {
         if (isOverlayPermissionGranted().not()) {
             val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
                 putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
-                putExtra(Settings.EXTRA_CHANNEL_ID, mChannel.getId())
+                putExtra(Settings.EXTRA_CHANNEL_ID, mChannel.id)
             }
             startActivity(intent)
         }
@@ -73,7 +79,7 @@ class MainActivity : AppCompatActivity() {
         if (isUsagePermissionGranted().not()) {
             val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
                 putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
-                putExtra(Settings.EXTRA_CHANNEL_ID, mChannel.getId())
+                putExtra(Settings.EXTRA_CHANNEL_ID, mChannel.id)
             }
             startActivity(intent)
         }
@@ -89,6 +95,19 @@ class MainActivity : AppCompatActivity() {
             }
             startActivity(intent)
         }
+
+        if (checkSelfPermission(Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED ||
+            checkSelfPermission(Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS),
+                PERMISSION_REQUEST_SMS
+            )
+        } else {
+            // Permissions are already granted
+            // Register the BroadcastReceiver
+        }
+
 
         val loginActivity = Intent(this, LoginActivity::class.java)
         startActivity(loginActivity)
