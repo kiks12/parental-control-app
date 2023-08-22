@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import com.example.parental_control_app.data.UserAppIcon
 import com.example.parental_control_app.data.UserApps
+import com.example.parental_control_app.repositories.users.UsersRepository
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -21,6 +22,7 @@ class AppsRepository {
 
     private val db = Firebase.firestore
     private val storage = Firebase.storage
+    private val usersRepository = UsersRepository()
 
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun getApps(profileId: String) : List<UserApps> {
@@ -28,7 +30,7 @@ class AppsRepository {
         var uid : String? = null
 
         GlobalScope.launch(Dispatchers.IO) {
-            async { uid = getProfileUID(profileId) }.await()
+            async { uid = usersRepository.getProfileUID(profileId) }.await()
             async {
                 val collection = db.collection("profiles/$uid/apps")
                 val query = collection.get().await()
@@ -46,7 +48,7 @@ class AppsRepository {
         var uid : String? = null
 
         GlobalScope.launch(Dispatchers.IO) {
-            async { uid = getProfileUID(profileId) }.await()
+            async { uid = usersRepository.getProfileUID(profileId) }.await()
             async {
                 val collection = db.collection("profiles/$uid/apps")
                 val query = collection.whereEqualTo("restricted", true)
@@ -66,7 +68,7 @@ class AppsRepository {
         val ref = storage.reference
 
         GlobalScope.launch(Dispatchers.IO){
-            async { uid = getProfileUID(profileId) }.await()
+            async { uid = usersRepository.getProfileUID(profileId) }.await()
             async {
                 val uidRef = ref.child(uid!!)
                 val list = uidRef.listAll().await()
@@ -126,17 +128,17 @@ class AppsRepository {
         return completable.await()
     }
 
-    suspend fun getProfileUID(profileId: String) : String {
-        val uid = CompletableDeferred<String>()
-        db.collection("profiles")
-            .whereEqualTo("profileId", profileId)
-            .get()
-            .addOnSuccessListener {
-                uid.complete(it.documents[0].id)
-            }
-            .addOnFailureListener {  }
-        return uid.await()
-    }
+//    suspend fun getProfileUID(profileId: String) : String {
+//        val uid = CompletableDeferred<String>()
+//        db.collection("profiles")
+//            .whereEqualTo("profileId", profileId)
+//            .get()
+//            .addOnSuccessListener {
+//                uid.complete(it.documents[0].id)
+//            }
+//            .addOnFailureListener {  }
+//        return uid.await()
+//    }
 
     suspend fun saveApps(profileId: String, apps: List<UserApps>) {
         var appNames = listOf<String>()
@@ -144,7 +146,7 @@ class AppsRepository {
         val batch = db.batch()
 
         coroutineScope {
-            async { uid = getProfileUID(profileId) }.await()
+            async { uid = usersRepository.getProfileUID(profileId) }.await()
             async { appNames = getAppNames(uid!!) }.await()
             async {
                 apps.forEach { app ->
@@ -160,7 +162,7 @@ class AppsRepository {
                         Log.w("SAVE APP", "SUCCESS")
                     }
                     .addOnFailureListener {
-                        Log.w("SAVE APP ERROR", it.localizedMessage)
+                        Log.w("SAVE APP ERROR", it.localizedMessage!!)
                     }
             }.await()
         }
@@ -172,7 +174,7 @@ class AppsRepository {
         val ref = storage.reference
 
         coroutineScope {
-            async { uid = getProfileUID(profileId) }.await()
+            async { uid = usersRepository.getProfileUID(profileId) }.await()
             async { appNames = getAppNames(uid!!) }.await()
             async {
                 icons.forEach {userAppIcon ->
@@ -193,7 +195,7 @@ class AppsRepository {
         var uid : String? = null
 
         coroutineScope {
-            async { uid = getProfileUID(profileId) }.await()
+            async { uid = usersRepository.getProfileUID(profileId) }.await()
             async {
                 val query = db.collection("profiles/$uid/apps").whereEqualTo("name", appName)
                 val docs = query.get().await()

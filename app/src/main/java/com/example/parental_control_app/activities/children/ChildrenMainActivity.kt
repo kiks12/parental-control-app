@@ -15,6 +15,7 @@ import com.example.parental_control_app.helpers.SignOutHelper
 import com.example.parental_control_app.helpers.SharedPreferencesHelper
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.repositories.AppsRepository
+import com.example.parental_control_app.repositories.users.UsersRepository
 import com.example.parental_control_app.service.AppLockerService
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -28,6 +29,7 @@ class ChildrenMainActivity : AppCompatActivity() {
     private lateinit var signOutHelper: SignOutHelper
     private lateinit var sharedPreferences: SharedPreferences
     private val appsRepository = AppsRepository()
+    private val usersRepository = UsersRepository()
 
     companion object {
         const val BLOCKED_APPS_KEY = "BLOCKED_APPS_KEY"
@@ -50,7 +52,7 @@ class ChildrenMainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             var uid = ""
             var list = listOf<String>()
-            async { uid = appsRepository.getProfileUID(profile.profileId) }.await()
+            async { uid = usersRepository.getProfileUID(profile.profileId) }.await()
             async { list = appsRepository.getBlockedAppNames(uid) }.await()
             async {
                 startForegroundService(

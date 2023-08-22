@@ -18,12 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.parental_control_app.screens.children.FeatureIconButton
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
-import com.example.parental_control_app.viewmodels.children.ChildrenViewModel
 import com.example.parental_control_app.viewmodels.parent.ParentChildFeaturesViewModel
 
 @Composable
 fun ParentChildFeaturesScreen(viewModel: ParentChildFeaturesViewModel) {
-    val icons = ParentChildFeaturesViewModel.feautureIcons
+    val icons = ParentChildFeaturesViewModel.featureIcons
 
     ParentalcontrolappTheme {
         Scaffold (

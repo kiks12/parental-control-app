@@ -4,6 +4,7 @@ import ChildrenFeatureIcons
 import FeatureIcon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Menu
@@ -11,6 +12,10 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.lifecycle.ViewModel
 import com.example.parental_control_app.activities.parent.ParentChildAppsActivity
 import com.example.parental_control_app.activities.parent.ParentChildBlockedAppsActivity
+import com.example.parental_control_app.activities.parent.ParentChildLocationActivity
+import com.example.parental_control_app.activities.parent.ParentChildNotificationsActivity
+import com.example.parental_control_app.activities.parent.ParentChildScreenTimeActivity
+import com.example.parental_control_app.activities.parent.ParentChildSmsActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 
 class ParentChildFeaturesViewModel : ViewModel(){
@@ -20,8 +25,9 @@ class ParentChildFeaturesViewModel : ViewModel(){
     private lateinit var activityStarterHelper: ActivityStarterHelper
 
     companion object {
-        val feautureIcons = listOf(
+        val featureIcons = listOf(
             FeatureIcon("Apps", ChildrenFeatureIcons.APPS, Icons.Outlined.Menu),
+            FeatureIcon("Screen Time", ChildrenFeatureIcons.SCREEN_TIME, Icons.Outlined.List),
             FeatureIcon("Blocked Apps", ChildrenFeatureIcons.BLOCKED_APPS, Icons.Outlined.Lock),
             FeatureIcon("SMS", ChildrenFeatureIcons.SMS, Icons.Outlined.Email),
             FeatureIcon("Notifications", ChildrenFeatureIcons.NOTIFICATIONS, Icons.Outlined.Notifications),
@@ -52,11 +58,11 @@ class ParentChildFeaturesViewModel : ViewModel(){
     fun onFeatureClick(feature: ChildrenFeatureIcons) {
         when(feature) {
             ChildrenFeatureIcons.APPS -> startApps()
+            ChildrenFeatureIcons.SCREEN_TIME -> startScreenTime()
             ChildrenFeatureIcons.BLOCKED_APPS -> startBlockedApps()
             ChildrenFeatureIcons.SMS -> startSMS()
             ChildrenFeatureIcons.NOTIFICATIONS -> startNotifications()
             ChildrenFeatureIcons.LOCATION -> startLocation()
-            else -> {}
         }
     }
 
@@ -68,6 +74,7 @@ class ParentChildFeaturesViewModel : ViewModel(){
             )
         )
     }
+
     private fun startBlockedApps() {
         activityStarterHelper.startNewActivity(
             activity = ParentChildBlockedAppsActivity::class.java,
@@ -76,13 +83,40 @@ class ParentChildFeaturesViewModel : ViewModel(){
             )
         )
     }
+
+    private fun startScreenTime() {
+        activityStarterHelper.startNewActivity(
+            activity = ParentChildScreenTimeActivity::class.java,
+            extras = mapOf(
+                "kidProfileId" to kidProfileId
+            )
+        )
+    }
+
     private fun startSMS() {
-        TODO("Parent Child Features - SMS Activity")
+        activityStarterHelper.startNewActivity(
+            activity = ParentChildSmsActivity::class.java,
+            extras = mapOf(
+                "kidProfileId" to kidProfileId
+            )
+        )
     }
+
     private fun startNotifications() {
-        TODO("Parent Child Features - Notifications Activity")
+        activityStarterHelper.startNewActivity(
+            activity = ParentChildNotificationsActivity::class.java,
+            extras = mapOf(
+                "kidProfileId" to kidProfileId
+            )
+        )
     }
+
     private fun startLocation() {
-        TODO("Parent Child Features - Location Activity")
+        activityStarterHelper.startNewActivity(
+            activity = ParentChildLocationActivity::class.java,
+            extras = mapOf(
+                "kifProfileId" to kidProfileId
+            )
+        )
     }
 }

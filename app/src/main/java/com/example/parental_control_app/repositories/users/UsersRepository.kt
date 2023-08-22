@@ -19,7 +19,7 @@ class UsersRepository {
             .document(newUser.userId)
             .set(newUser)
             .addOnSuccessListener { completable.complete("Successfully registered an account") }
-            .addOnFailureListener { completable.complete(it.localizedMessage.toString()) }
+            .addOnFailureListener { completable.complete(it.localizedMessage!!) }
         return completable.await()
     }
 
@@ -121,8 +121,20 @@ class UsersRepository {
         }
         batch.commit()
             .addOnSuccessListener { completable.complete("Successfully created profiles") }
-            .addOnFailureListener { completable.complete(it.localizedMessage.toString()) }
+            .addOnFailureListener { completable.complete(it.localizedMessage!!) }
         return completable.await()
+    }
+
+    suspend fun getProfileUID(profileId: String) : String {
+        val uid = CompletableDeferred<String>()
+        db.collection("profiles")
+            .whereEqualTo("profileId", profileId)
+            .get()
+            .addOnSuccessListener {
+                uid.complete(it.documents[0].id)
+            }
+            .addOnFailureListener {  }
+        return uid.await()
     }
 
     suspend fun updateFirstSignIn(userId: String) : String {
@@ -131,7 +143,7 @@ class UsersRepository {
             .document(userId)
             .update("isFirstSignIn", false)
             .addOnSuccessListener { completable.complete("Successfully updated account") }
-            .addOnFailureListener { completable.complete(it.localizedMessage.toString()) }
+            .addOnFailureListener { completable.complete(it.localizedMessage!!) }
         return completable.await()
     }
 }

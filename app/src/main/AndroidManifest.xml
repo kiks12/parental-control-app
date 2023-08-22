@@ -2,12 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="true" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.ACTION_MANAGE_OVERLAY_PERMISSION" />
-    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -27,6 +33,18 @@
         android:theme="@style/Theme.Parentalcontrolapp"
         android:windowSoftInputMode="adjustResize"
         tools:targetApi="tiramisu">
+        <activity
+            android:name=".activities.parent.ParentChildLocationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.parent.ParentChildScreenTimeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.parent.ParentChildNotificationsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.parent.ParentChildSmsActivity"
+            android:exported="false" />
         <activity
             android:name=".activities.parent.ParentChildBlockedAppsActivity"
             android:exported="false" />
@@ -83,6 +101,17 @@
         <service
             android:name=".service.AppSaverService"
             android:enabled="true" />
+
+        <receiver
+            android:name=".broadcast.receivers.SMSReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
