@@ -29,7 +29,8 @@ class AppNotificationListenerService : NotificationListenerService() {
 
             val newNotification = ReceivedNotification(
                 packageName = packageName,
-                notification = notification,
+                title = notification.extras.getString("android.title").toString(),
+                content = notification.extras.getString("android.text").toString(),
                 timestamp = Timestamp.now()
             )
 

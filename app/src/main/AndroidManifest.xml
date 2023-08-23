@@ -34,6 +34,9 @@
         android:windowSoftInputMode="adjustResize"
         tools:targetApi="tiramisu">
         <activity
+            android:name=".activities.parent.notifications.ParentChildNotificationsPackageActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.parent.sms.ParentChildSmsMessageActivity"
             android:exported="false"
             android:label="@string/title_activity_parent_child_sms_message"
@@ -45,7 +48,7 @@
             android:name=".activities.parent.ParentChildScreenTimeActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.parent.ParentChildNotificationsActivity"
+            android:name=".activities.parent.notifications.ParentChildNotificationsActivity"
             android:exported="false" />
         <activity
             android:name=".activities.parent.sms.ParentChildSmsActivity"

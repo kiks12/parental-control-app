@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModel
 import com.example.parental_control_app.activities.parent.ParentChildAppsActivity
 import com.example.parental_control_app.activities.parent.ParentChildBlockedAppsActivity
 import com.example.parental_control_app.activities.parent.ParentChildLocationActivity
-import com.example.parental_control_app.activities.parent.ParentChildNotificationsActivity
+import com.example.parental_control_app.activities.parent.notifications.ParentChildNotificationsActivity
 import com.example.parental_control_app.activities.parent.ParentChildScreenTimeActivity
 import com.example.parental_control_app.activities.parent.sms.ParentChildSmsActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
