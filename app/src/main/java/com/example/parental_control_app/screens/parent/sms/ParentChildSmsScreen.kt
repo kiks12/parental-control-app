@@ -1,4 +1,4 @@
-package com.example.parental_control_app.screens.parent
+package com.example.parental_control_app.screens.parent.sms
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,25 +17,25 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.parental_control_app.viewmodels.parent.ParentChildNotificationsViewModel
+import com.example.parental_control_app.viewmodels.parent.sms.ParentChildSmsViewModel
 
 @Composable
-fun ParentChildNotificationsScreen(viewModel: ParentChildNotificationsViewModel) {
-    val notifications = viewModel.notificationState
+fun ParentChildSmsScreen(viewModel : ParentChildSmsViewModel) {
+    val sms = viewModel.smsState
 
     Scaffold(
-        topBar = { TopBar(onBackClick = viewModel.getOnBackClick() ) }
-    ) {innerPadding ->
+        topBar = { TopBar(onBackClick = viewModel.getOnBackClick()) }
+    ) { innerPadding ->
         Surface(
             modifier = Modifier.padding(innerPadding)
-        ) {
-            if (notifications.isEmpty()) {
-                Text("No Notifications to show")
+        ){
+            if (sms.isEmpty()) {
+                Text("No Sms to show")
             } else {
                 LazyColumn {
-                    notifications.forEach { packageName ->
+                    sms.forEach {sms ->
                         item {
-                            NotificationCard(packageName, viewModel::onNotificationClick)
+                            SmsCard(sms, viewModel::onSmsClick)
                         }
                     }
                 }
@@ -45,23 +45,23 @@ fun ParentChildNotificationsScreen(viewModel: ParentChildNotificationsViewModel)
 }
 
 @Composable
-fun NotificationCard(packageName: String, onNotificationClick: (packageName: String) -> Unit) {
-    Card (
-        modifier = Modifier.fillMaxWidth().padding(10.dp).clickable { onNotificationClick(packageName) }
+fun SmsCard(sender: String, onSmsClick: (documentId: String) -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(10.dp).clickable { onSmsClick(sender) }
     ){
-        Text(packageName)
+        Text(sender)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopBar(onBackClick: () -> Unit){
+private fun TopBar(onBackClick: () -> Unit) {
     TopAppBar(
         navigationIcon = {
             IconButton(onClick = onBackClick) {
                 Icon(Icons.Rounded.ArrowBack, "")
             }
         },
-        title = { Text("Child Notifications") }
+        title = { Text("Child SMS") }
     )
 }

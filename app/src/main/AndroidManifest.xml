@@ -34,6 +34,11 @@
         android:windowSoftInputMode="adjustResize"
         tools:targetApi="tiramisu">
         <activity
+            android:name=".activities.parent.sms.ParentChildSmsMessageActivity"
+            android:exported="false"
+            android:label="@string/title_activity_parent_child_sms_message"
+            android:theme="@style/Theme.Parentalcontrolapp" />
+        <activity
             android:name=".activities.parent.ParentChildLocationActivity"
             android:exported="false" />
         <activity
@@ -43,7 +48,7 @@
             android:name=".activities.parent.ParentChildNotificationsActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.parent.ParentChildSmsActivity"
+            android:name=".activities.parent.sms.ParentChildSmsActivity"
             android:exported="false" />
         <activity
             android:name=".activities.parent.ParentChildBlockedAppsActivity"
@@ -103,14 +108,13 @@
             android:enabled="true" />
         <service
             android:name=".service.AppNotificationListenerService"
+            android:exported="true"
             android:label="Notification Listener"
-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
-            android:exported="true">
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
-
 
         <receiver
             android:name=".broadcast.receivers.SMSReceiver"
@@ -121,7 +125,6 @@
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>

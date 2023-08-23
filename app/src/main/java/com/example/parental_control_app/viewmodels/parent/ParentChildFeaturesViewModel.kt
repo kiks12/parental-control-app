@@ -15,7 +15,7 @@ import com.example.parental_control_app.activities.parent.ParentChildBlockedApps
 import com.example.parental_control_app.activities.parent.ParentChildLocationActivity
 import com.example.parental_control_app.activities.parent.ParentChildNotificationsActivity
 import com.example.parental_control_app.activities.parent.ParentChildScreenTimeActivity
-import com.example.parental_control_app.activities.parent.ParentChildSmsActivity
+import com.example.parental_control_app.activities.parent.sms.ParentChildSmsActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 
 class ParentChildFeaturesViewModel : ViewModel(){

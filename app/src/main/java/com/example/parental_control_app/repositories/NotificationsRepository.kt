@@ -4,28 +4,54 @@ import com.example.parental_control_app.data.ReceivedNotification
 import com.example.parental_control_app.repositories.users.UsersRepository
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class NotificationsRepository {
 
     private val usersRepository = UsersRepository()
     private val db = Firebase.firestore
 
-    fun getProfileNotifications() {
-        TODO("Notifications Repository - Implement getProfileNotifications")
+    suspend fun getProfileNotifications(profileId: String) : List<String>? {
+        var uid = ""
+        val completable = CompletableDeferred<List<String>>()
+        var list = listOf<String>()
+
+        if (profileId.isEmpty()) return null
+
+        coroutineScope {
+            launch(Dispatchers.IO) {
+                async { uid = usersRepository.getProfileUID(profileId) }.await()
+                async {
+                    val reference = db.collection("profiles/$uid/notifications")
+                    val docs = reference.get().await()
+                    docs.forEach { document ->
+                        list = list.plus(document.id)
+                    }
+                }.await()
+                async { completable.complete(list) }.await()
+            }
+        }
+
+        return completable.await()
     }
 
     suspend fun saveNotification(profileId: String, notification: ReceivedNotification) {
         var uid = ""
+
+        if (profileId.isEmpty()) return
+
         coroutineScope {
             launch(Dispatchers.IO) {
                 async { uid = usersRepository.getProfileUID(profileId) }.await()
                 async {
                     val reference = db.collection("profiles/$uid/notifications").document(notification.packageName)
-                    reference.set(notification)
+                    val document = reference.collection("notifs").document()
+                    document.set(notification).await()
                 }.await()
             }
         }
