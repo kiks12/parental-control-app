@@ -1,3 +1,4 @@
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -10,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.parental_control_app"
-        minSdk = 26
+        minSdk = 21
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -48,6 +49,12 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+    packaging {
+        jniLibs.pickFirsts.add("lib/**/libc++_shared.so")
+        resources.pickFirsts.add("google/protobuf/*.proto")
+        resources.pickFirsts.add("google/protobuf")
+//        resources.excludes.add("google/protobuf/*.proto")
     }
 }
 
@@ -111,4 +118,9 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    implementation("com.tomtom.sdk.maps:map-display:0.30.1") {
+        exclude("com.google.protobuf")
+    }
+
 }

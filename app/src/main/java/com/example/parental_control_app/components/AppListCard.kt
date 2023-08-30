@@ -1,4 +1,4 @@
-package com.example.parental_control_app.uicomponents
+package com.example.parental_control_app.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

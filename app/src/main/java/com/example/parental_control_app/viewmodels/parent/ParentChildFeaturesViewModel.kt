@@ -13,9 +13,9 @@ import androidx.lifecycle.ViewModel
 import com.example.parental_control_app.activities.parent.ParentChildAppsActivity
 import com.example.parental_control_app.activities.parent.ParentChildBlockedAppsActivity
 import com.example.parental_control_app.activities.parent.ParentChildLocationActivity
-import com.example.parental_control_app.activities.parent.notifications.ParentChildNotificationsActivity
+import com.example.parental_control_app.activities.notifications.NotificationsActivity
 import com.example.parental_control_app.activities.parent.ParentChildScreenTimeActivity
-import com.example.parental_control_app.activities.parent.sms.ParentChildSmsActivity
+import com.example.parental_control_app.activities.sms.SmsActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 
 class ParentChildFeaturesViewModel : ViewModel(){
@@ -95,7 +95,7 @@ class ParentChildFeaturesViewModel : ViewModel(){
 
     private fun startSMS() {
         activityStarterHelper.startNewActivity(
-            activity = ParentChildSmsActivity::class.java,
+            activity = SmsActivity::class.java,
             extras = mapOf(
                 "kidProfileId" to kidProfileId
             )
@@ -104,7 +104,7 @@ class ParentChildFeaturesViewModel : ViewModel(){
 
     private fun startNotifications() {
         activityStarterHelper.startNewActivity(
-            activity = ParentChildNotificationsActivity::class.java,
+            activity = NotificationsActivity::class.java,
             extras = mapOf(
                 "kidProfileId" to kidProfileId
             )

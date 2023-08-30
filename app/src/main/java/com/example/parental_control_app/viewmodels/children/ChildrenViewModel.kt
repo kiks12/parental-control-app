@@ -21,6 +21,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.parental_control_app.activities.children.ChildrenAppsActivity
 import com.example.parental_control_app.activities.children.ChildrenBlockedAppsActivity
+import com.example.parental_control_app.activities.notifications.NotificationsActivity
+import com.example.parental_control_app.activities.sms.SmsActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.repositories.users.UserProfile
 
@@ -91,10 +93,20 @@ class ChildrenViewModel(
         TODO("Children View Model - implement startScreenTime function")
     }
     private fun startSMS() {
-        TODO("Children View Model - implement startSMS function")
+        activityStarterHelper.startNewActivity(
+            SmsActivity::class.java,
+            extras = mapOf(
+                "kidProfileId" to profile?.profileId!!,
+            )
+        )
     }
     private fun startNotifications() {
-        TODO("Children View Model - implement startNotifications function")
+        activityStarterHelper.startNewActivity(
+            NotificationsActivity::class.java,
+            extras = mapOf(
+                "kidProfileId" to profile?.profileId!!,
+            )
+        )
     }
     private fun startLocation() {
         TODO("Children View Model - implement startLocation function")

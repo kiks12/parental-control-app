@@ -2,10 +2,13 @@ package com.example.parental_control_app.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -29,42 +32,47 @@ fun LoginScreen(
     Column (
         modifier = Modifier
             .fillMaxWidth()
+            .fillMaxHeight()
             .padding(20.dp),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = credentialState.value.email,
-            onValueChange = viewModel::emailOnChange,
-            label = { Text("Email") }
-        )
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = credentialState.value.password,
-            onValueChange = viewModel::passwordOnChange,
-            label = { Text("Password") },
-            visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation()
-        )
-        ElevatedButton(
-            onClick = viewModel::login,
-            shape = RoundedCornerShape(10.dp),
+        Column(
             modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "Login",
-                modifier = Modifier.padding(10.dp)
+        ){
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = credentialState.value.email,
+                onValueChange = viewModel::emailOnChange,
+                label = { Text("Email") }
             )
-        }
-        ElevatedButton(
-            onClick = signInWithGoogle,
-            shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "Login with Google",
-                modifier = Modifier.padding(10.dp)
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = credentialState.value.password,
+                onValueChange = viewModel::passwordOnChange,
+                label = { Text("Password") },
+                visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation()
             )
+            Spacer(modifier = Modifier.height(20.dp))
+            Button(
+                onClick = viewModel::login,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Login",
+                    modifier = Modifier.padding(10.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            FilledTonalButton(
+                onClick = signInWithGoogle,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Login with Google",
+                    modifier = Modifier.padding(10.dp)
+                )
+            }
         }
         TextButton(onClick = startRegistrationActivity ) {
             Text(text = "Create an Account")

@@ -2,7 +2,8 @@ package com.example.parental_control_app.workers
 
 import android.app.usage.UsageStatsManager
 import android.content.Context
-import android.util.Log
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.parental_control_app.data.UserApps
@@ -34,6 +35,7 @@ class ScreenTimeGetterWorker(ctx: Context, params: WorkerParameters) : Coroutine
 
         return completable.await()
     }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     override suspend fun doWork(): Result {
         val usageStatsManager = applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
@@ -53,7 +55,6 @@ class ScreenTimeGetterWorker(ctx: Context, params: WorkerParameters) : Coroutine
         coroutineScope {
             async { appNames = fetchAppNames() }.await()
             async {
-                Log.w("APP USAGE NAMES", appNames.toString())
                 for (usageStats in usageStatsList) {
                     if (appNames.contains(usageStats.packageName)) {
                         val appData = UserApps(
@@ -61,12 +62,10 @@ class ScreenTimeGetterWorker(ctx: Context, params: WorkerParameters) : Coroutine
                             icon = "",
                             screenTime = usageStats.totalTimeInForeground
                         )
-                        Log.w("APP USAGE", appData.toString())
                         appListUpdated = appListUpdated.plus(appData)
                     }
                 }
             }.await()
-            async { Log.w("APP USAGE", appListUpdated.toString()) }.await()
             async { appsRepository.updateAppScreenTime(uid, appListUpdated)}.await()
         }
 

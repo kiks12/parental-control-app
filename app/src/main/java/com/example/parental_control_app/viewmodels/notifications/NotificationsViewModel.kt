@@ -1,15 +1,15 @@
-package com.example.parental_control_app.viewmodels.parent.notifications
+package com.example.parental_control_app.viewmodels.notifications
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.parental_control_app.activities.parent.notifications.ParentChildNotificationsPackageActivity
+import com.example.parental_control_app.activities.notifications.NotificationPackageActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.repositories.NotificationsRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-class ParentChildNotificationsViewModel(
+class NotificationsViewModel(
     private val kidProfileId: String,
     private val notificationsRepository: NotificationsRepository = NotificationsRepository(),
 ) : ViewModel(){
@@ -41,7 +41,7 @@ class ParentChildNotificationsViewModel(
 
     fun onNotificationClick(packageName: String) {
         activityStarter.startNewActivity(
-            activity = ParentChildNotificationsPackageActivity::class.java,
+            activity = NotificationPackageActivity::class.java,
             extras = mapOf(
                 "kidProfileId" to kidProfileId,
                 "packageName" to packageName

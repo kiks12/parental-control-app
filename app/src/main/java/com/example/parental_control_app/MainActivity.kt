@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.example.parental_control_app.activities.LoginActivity
@@ -20,6 +21,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val PERMISSION_REQUEST_SMS = 1001 // Define your request code here
+        private const val PERMISSION_REQUEST_LOCATION = 1002
     }
 
     private fun isUsagePermissionGranted(): Boolean {
@@ -57,6 +59,7 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -103,9 +106,10 @@ class MainActivity : AppCompatActivity() {
                 arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS),
                 PERMISSION_REQUEST_SMS
             )
-        } else {
-            // Permissions are already granted
-            // Register the BroadcastReceiver
+        }
+
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_REQUEST_LOCATION)
         }
 
 

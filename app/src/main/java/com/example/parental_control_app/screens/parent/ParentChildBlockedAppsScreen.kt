@@ -23,7 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
-import com.example.parental_control_app.uicomponents.AppCard
+import com.example.parental_control_app.components.AppCard
 import com.example.parental_control_app.viewmodels.parent.ParentChildBlockedAppsViewModel
 
 @Composable

@@ -7,9 +7,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import com.example.parental_control_app.activities.children.ChildrenMainActivity
 import com.example.parental_control_app.helpers.SharedPreferencesHelper
 import com.example.parental_control_app.helpers.SignOutHelper
 import com.example.parental_control_app.screens.parent.ParentNavigationScreen
+import com.example.parental_control_app.service.AppLockerService
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
 import com.example.parental_control_app.viewmodels.parent.ParentHomeViewModel
 import com.example.parental_control_app.viewmodels.parent.ParentNavigationViewModel
@@ -27,6 +29,8 @@ class ParentMainActivity : AppCompatActivity() {
         val parentNavigationViewModel = ParentNavigationViewModel()
         parentNavigationViewModel.setParentHomeViewModel(parentHomeViewModel)
         parentNavigationViewModel.addOnSignOut { signOutHelper.signOut() }
+
+        stopService(Intent(applicationContext, AppLockerService::class.java))
 
         setContent {
             ParentalcontrolappTheme {

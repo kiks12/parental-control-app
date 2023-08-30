@@ -20,6 +20,8 @@
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="ManifestOrder,QueryAllPackagesPermission" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -33,11 +35,14 @@
         android:theme="@style/Theme.Parentalcontrolapp"
         android:windowSoftInputMode="adjustResize"
         tools:targetApi="tiramisu">
+
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyBwIRSlo6KtO7iXky3O8_PvpKWpGJNcXiI" />
+
         <activity
-            android:name=".activities.parent.notifications.ParentChildNotificationsPackageActivity"
+            android:name=".activities.notifications.NotificationPackageActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.parent.sms.ParentChildSmsMessageActivity"
+            android:name=".activities.sms.SmsMessageActivity"
             android:exported="false"
             android:label="@string/title_activity_parent_child_sms_message"
             android:theme="@style/Theme.Parentalcontrolapp" />
@@ -48,10 +53,10 @@
             android:name=".activities.parent.ParentChildScreenTimeActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.parent.notifications.ParentChildNotificationsActivity"
+            android:name=".activities.notifications.NotificationsActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.parent.sms.ParentChildSmsActivity"
+            android:name=".activities.sms.SmsActivity"
             android:exported="false" />
         <activity
             android:name=".activities.parent.ParentChildBlockedAppsActivity"

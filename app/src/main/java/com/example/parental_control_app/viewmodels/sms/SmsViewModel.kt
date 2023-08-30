@@ -1,15 +1,15 @@
-package com.example.parental_control_app.viewmodels.parent.sms
+package com.example.parental_control_app.viewmodels.sms
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.parental_control_app.activities.parent.sms.ParentChildSmsMessageActivity
+import com.example.parental_control_app.activities.sms.SmsMessageActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.repositories.SmsRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-class ParentChildSmsViewModel(
+class SmsViewModel(
     private val kidProfileId: String,
     private val smsRepository: SmsRepository = SmsRepository(),
 ) : ViewModel() {
@@ -37,7 +37,7 @@ class ParentChildSmsViewModel(
 
     fun onSmsClick(documentId: String) {
         activityStarter.startNewActivity(
-            activity = ParentChildSmsMessageActivity::class.java,
+            activity = SmsMessageActivity::class.java,
             extras = mapOf(
                 "kidProfileId" to kidProfileId,
                 "sender" to documentId

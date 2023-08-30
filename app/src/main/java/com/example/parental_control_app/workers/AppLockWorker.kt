@@ -57,7 +57,6 @@ class AppLockWorker (
     override suspend fun doWork(): Result {
 
         val blockedAppNames = inputData.getStringArray(ChildrenMainActivity.BLOCKED_APPS_KEY)
-        Log.w("BLOCKED APP NAMES", blockedAppNames.toString())
 
         if (!isUsageStatsPermissionGranted()) {
             openUsageAccessSettings(applicationContext)
@@ -82,6 +81,7 @@ class AppLockWorker (
                     .build()
             )
             .build()
+
         WorkManager.getInstance(applicationContext).enqueue(workRequest)
         return Result.success()
     }

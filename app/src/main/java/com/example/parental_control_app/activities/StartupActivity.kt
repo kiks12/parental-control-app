@@ -5,34 +5,18 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.setContent
-import androidx.work.OneTimeWorkRequest
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.PeriodicWorkRequest
-import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import com.example.parental_control_app.activities.children.ChildrenMainActivity
 import com.example.parental_control_app.activities.parent.ParentMainActivity
 import com.example.parental_control_app.helpers.SharedPreferencesHelper
 import com.example.parental_control_app.helpers.ToastHelper
-import com.example.parental_control_app.repositories.AppsRepository
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
 import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.screens.StartupScreen
-import com.example.parental_control_app.service.AppSaverService
 import com.example.parental_control_app.viewmodels.StartupViewModel
-import com.example.parental_control_app.workers.ScreenTimeGetterWorker
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 
 class StartupActivity : AppCompatActivity() {
     private lateinit var auth : FirebaseAuth
@@ -55,16 +39,14 @@ class StartupActivity : AppCompatActivity() {
         startupViewModel.setStartParentActivity{ startParentActivity() }
         startupViewModel.setStartChildActivity{ startChildActivity() }
 
-        if (profile != null && profile?.child!!) {
-            startService(Intent(this, AppSaverService::class.java).also {
-                it.putExtra("profileId", profile!!.profileId)
-            })
-        }
-
-        val screenTimeGetterWorkRequest: WorkRequest = PeriodicWorkRequest.Builder(ScreenTimeGetterWorker::class.java, 15, TimeUnit.MINUTES).build()
-//        val screenTimeGetterWorkRequest: WorkRequest = OneTimeWorkRequest.Builder(ScreenTimeGetterWorker::class.java)
-//            .build()
-        WorkManager.getInstance(this).enqueue(screenTimeGetterWorkRequest)
+//        if (profile != null && profileIsChild()) {
+//            startService(Intent(this, AppSaverService::class.java).also {
+//                it.putExtra("profileId", profile!!.profileId)
+//            })
+//
+//            val screenTimeGetterWorkRequest: WorkRequest = PeriodicWorkRequest.Builder(ScreenTimeGetterWorker::class.java, 15, TimeUnit.MINUTES).build()
+//            WorkManager.getInstance(this).enqueue(screenTimeGetterWorkRequest)
+//        }
 
         setContent {
             ParentalcontrolappTheme {
