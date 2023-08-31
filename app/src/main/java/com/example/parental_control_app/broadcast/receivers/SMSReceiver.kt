@@ -27,21 +27,20 @@ class SMSReceiver : BroadcastReceiver(){
             val sharedPreferences = context.getSharedPreferences(SharedPreferencesHelper.PREFS_KEY, 0)
             val profile = SharedPreferencesHelper.getProfile(sharedPreferences)
 
+            if (profile?.parent!!) return
+
             for (sms in smsMessages) {
                 val messageBody = sms.messageBody
                 val senderPhoneNumber = sms.displayOriginatingAddress
 
                 val newSms = Sms(
-                    originatingAddress = sms.displayOriginatingAddress,
-                    messageBody = sms.messageBody,
+                    originatingAddress = senderPhoneNumber.toString(),
+                    messageBody = messageBody.toString(),
                     timestamp = Timestamp.now()
                 )
 
-                Log.w("MESSAGE BODY", messageBody)
-                Log.w("MESSAGE PHONE NUMBER", senderPhoneNumber)
-
                 GlobalScope.launch(Dispatchers.IO) {
-                    async { smsRepository.saveSms(profile?.profileId!!, newSms) }.await()
+                    async { smsRepository.saveSms(profile.profileId, newSms) }.await()
                 }
             }
         }

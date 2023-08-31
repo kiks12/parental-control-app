@@ -19,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.parental_control_app.activities.LocationActivity
+import com.example.parental_control_app.activities.ScreenTimeActivity
 import com.example.parental_control_app.activities.children.ChildrenAppsActivity
 import com.example.parental_control_app.activities.children.ChildrenBlockedAppsActivity
 import com.example.parental_control_app.activities.notifications.NotificationsActivity
@@ -86,12 +88,20 @@ class ChildrenViewModel(
     private fun startApps() {
         activityStarterHelper.startNewActivity(ChildrenAppsActivity::class.java)
     }
+
     private fun startBlockedApps() {
         activityStarterHelper.startNewActivity(ChildrenBlockedAppsActivity::class.java)
     }
+
     private fun startScreenTime() {
-        TODO("Children View Model - implement startScreenTime function")
+        activityStarterHelper.startNewActivity(
+            ScreenTimeActivity::class.java,
+            extras = mapOf(
+                "kidProfileId" to profile?.profileId!!,
+            )
+        )
     }
+
     private fun startSMS() {
         activityStarterHelper.startNewActivity(
             SmsActivity::class.java,
@@ -100,6 +110,7 @@ class ChildrenViewModel(
             )
         )
     }
+
     private fun startNotifications() {
         activityStarterHelper.startNewActivity(
             NotificationsActivity::class.java,
@@ -108,7 +119,13 @@ class ChildrenViewModel(
             )
         )
     }
+
     private fun startLocation() {
-        TODO("Children View Model - implement startLocation function")
+        activityStarterHelper.startNewActivity(
+            LocationActivity::class.java,
+            extras = mapOf(
+                "kidProfileId" to profile?.profileId!!,
+            )
+        )
     }
 }

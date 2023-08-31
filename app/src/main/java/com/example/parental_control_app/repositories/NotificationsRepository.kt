@@ -74,6 +74,9 @@ class NotificationsRepository {
 
     suspend fun saveNotification(profileId: String, notification: ReceivedNotification) {
         var uid = ""
+        val dummyData = mapOf(
+            "dummy" to "data"
+        )
 
         if (profileId.isEmpty()) return
 
@@ -82,8 +85,8 @@ class NotificationsRepository {
                 async { uid = usersRepository.getProfileUID(profileId) }.await()
                 async {
                     val reference = db.collection("profiles/$uid/notifications").document(notification.packageName)
-                    val document = reference.collection("notifs").document()
-                    document.set(notification).await()
+                    reference.set(dummyData).await()
+                    reference.collection("notifs").document().set(notification).await()
                 }.await()
             }
         }

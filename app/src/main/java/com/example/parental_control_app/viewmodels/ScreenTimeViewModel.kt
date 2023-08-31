@@ -1,4 +1,4 @@
-package com.example.parental_control_app.viewmodels.parent
+package com.example.parental_control_app.viewmodels
 
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -10,7 +10,7 @@ import com.example.parental_control_app.repositories.AppsRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-class ParentChildAppsViewModel(
+class ScreenTimeViewModel(
     private val profileId: String,
     private val screenTimeHelper : ScreenTimeHelper = ScreenTimeHelper(),
     private val appsRepository: AppsRepository = AppsRepository()
@@ -20,7 +20,8 @@ class ParentChildAppsViewModel(
     private val _loadingState = mutableStateOf(true)
     private val _appsState = mutableStateOf(listOf<UserApps>())
     private val _iconsState = mutableStateOf(mapOf<String, String>())
-    private lateinit var back : () -> Unit
+    lateinit var onBackClick : () -> Unit
+
     val appState : List<UserApps>
         get() = _appsState.value
 
@@ -30,10 +31,16 @@ class ParentChildAppsViewModel(
     val loadingState : Boolean
         get() = _loadingState.value
 
+    val totalScreenTimeState : Long
+        get() = _totalScreenTimeState.longValue
+
     init {
         viewModelScope.launch {
             async { _iconsState.value = appsRepository.getAppIcons(profileId) }.await()
             async { _appsState.value = appsRepository.getApps(profileId) }.await()
+            async {
+                _appsState.value = _appsState.value.sortedBy { app -> app.screenTime }
+            }.await()
             async {
                 _appsState.value.forEach {app ->
                     screenTimeHelper.addScreenTime(app.screenTime.toFloat())
@@ -45,22 +52,6 @@ class ParentChildAppsViewModel(
     }
 
     fun addOnBackClick(callback: () -> Unit) {
-        back = callback
-    }
-
-    fun onBackClick() : () -> Unit {
-        return back
-    }
-
-    fun updateAppRestriction(appName: String, newRestriction: Boolean) {
-        viewModelScope.launch {
-            async {
-                appsRepository.updateAppRestriction(profileId, appName, newRestriction)
-            }.await()
-        }
-    }
-
-    fun getTotalScreenTime() : Float {
-        return screenTimeHelper.getTotalScreenTime()
+        onBackClick = callback
     }
 }

@@ -36,7 +36,7 @@ fun AppCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp)
+            .padding(vertical = 15.dp, horizontal = 10.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -52,7 +52,7 @@ fun AppCard(
                             .height(50.dp)
                             .width(50.dp)
                     ) {
-                        AsyncImage(model = appIcon, contentDescription = "")
+                        AsyncImage(model = appIcon, contentDescription = app.name)
                     }
                     Text(
                         modifier = Modifier.padding(horizontal = 10.dp),
@@ -65,7 +65,7 @@ fun AppCard(
                     LinearProgressIndicator(progress = 0f)
                     Text("00:00:00", fontSize = 10.sp)
                 } else {
-                    LinearProgressIndicator(progress = totalScreenTime / app.screenTime.toFloat())
+                    LinearProgressIndicator(progress = app.screenTime.toFloat() / totalScreenTime)
                     Text(String.format("%d:%d:%d",
                         TimeUnit.MILLISECONDS.toHours(app.screenTime),
                         TimeUnit.MILLISECONDS.toMinutes(app.screenTime),

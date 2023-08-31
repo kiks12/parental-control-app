@@ -1,12 +1,13 @@
 package com.example.parental_control_app.viewmodels
 
-import android.annotation.SuppressLint
-import android.content.ContentValues.TAG
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.parental_control_app.activities.LoginActivity
+import com.example.parental_control_app.activities.children.ChildrenMainActivity
+import com.example.parental_control_app.activities.parent.ParentMainActivity
+import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.helpers.SharedPreferencesHelper
 import com.example.parental_control_app.helpers.ToastHelper
 import com.example.parental_control_app.repositories.users.UserProfile
@@ -26,6 +27,7 @@ data class StartupState(
 
 class StartupViewModel(
     private val toastHelper: ToastHelper,
+    private val activityStarterHelper: ActivityStarterHelper,
     private val usersRepository: UsersRepository = UsersRepository(),
 ) : ViewModel() {
 
@@ -46,18 +48,14 @@ class StartupViewModel(
     val uiState : StartupState
         get() = _uiState.value
 
-    private lateinit var signOutCallback: () -> Unit
-    private lateinit var refresh: () -> Unit
     private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var startParentActivity: () -> Unit
-    private lateinit var startChildActivity: () -> Unit
 
     init {
         updateUser()
         updateProfiles()
     }
 
-    fun updateUser() {
+    private fun updateUser() {
         viewModelScope.launch {
             val authUser = auth.currentUser
             val user = usersRepository.findUser(authUser?.uid.toString())
@@ -65,37 +63,21 @@ class StartupViewModel(
         }
     }
 
-    fun updateProfiles() {
+    private fun updateProfiles() {
         viewModelScope.launch {
             val authUser = auth.currentUser
             val profiles = usersRepository.findUserProfiles(authUser?.uid.toString())
-            Log.w(TAG, profiles.toString())
             _uiState.value = _uiState.value.copy(profiles = profiles)
         }
-    }
-
-    fun setSignOutCallback(callback: () -> Unit) {
-        signOutCallback = callback
-    }
-
-    fun setRefreshCallback(callback: () -> Unit) {
-        refresh = callback
     }
 
     fun setSharedPreferences(preferences: SharedPreferences) {
         sharedPreferences = preferences
     }
 
-    fun setStartParentActivity(callback: () -> Unit) {
-        startParentActivity = callback
-    }
-
-    fun setStartChildActivity(callback: () -> Unit) {
-        startChildActivity = callback
-    }
-
     fun signOut() {
-        signOutCallback()
+        auth.signOut()
+        activityStarterHelper.startNewActivity(LoginActivity::class.java)
     }
 
     fun saveProfiles() {
@@ -112,6 +94,7 @@ class StartupViewModel(
             updateProfiles()
         }
     }
+
     fun createProfile(closeBottomSheet: () -> Unit) {
         val profileId = _uiState.value.user.userId + _uiState.value.profileInput.name
         val plainPass = _uiState.value.profileInput.password
@@ -160,13 +143,20 @@ class StartupViewModel(
         ))
     }
 
-    @SuppressLint("CommitPrefEdits")
     fun onProfileClick(profile: UserProfile) {
         val editor = sharedPreferences.edit()
         editor.putString(SharedPreferencesHelper.PROFILE_KEY, SharedPreferencesHelper.createJsonString(profile))
         editor.apply()
         if (profile.child) startChildActivity()
         if (profile.parent) startParentActivity()
+    }
+
+    private fun startChildActivity() {
+        activityStarterHelper.startNewActivity(ChildrenMainActivity::class.java)
+    }
+
+    private fun startParentActivity() {
+        activityStarterHelper.startNewActivity(ParentMainActivity::class.java)
     }
 
 }

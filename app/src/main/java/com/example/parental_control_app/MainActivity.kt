@@ -20,8 +20,10 @@ import com.example.parental_control_app.activities.LoginActivity
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        private const val PERMISSION_REQUEST_SMS = 1001 // Define your request code here
+        private const val PERMISSION_REQUEST_SMS = 1001
         private const val PERMISSION_REQUEST_LOCATION = 1002
+        private const val PERMISSION_REQUEST_OVERLAY = 1003
+        private const val PERMISSION_REQUEST_USAGE = 1004
     }
 
     private fun isUsagePermissionGranted(): Boolean {
@@ -32,12 +34,10 @@ class MainActivity : AppCompatActivity() {
             )
             val appOpsManager = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
             var mode = 0
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-                mode = appOpsManager.checkOpNoThrow(
-                    AppOpsManager.OPSTR_GET_USAGE_STATS,
-                    applicationInfo.uid, applicationInfo.packageName
-                )
-            }
+            mode = appOpsManager.checkOpNoThrow(
+                AppOpsManager.OPSTR_GET_USAGE_STATS,
+                applicationInfo.uid, applicationInfo.packageName
+            )
             mode == AppOpsManager.MODE_ALLOWED
         } catch (e: PackageManager.NameNotFoundException) {
             false
@@ -59,10 +59,20 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
+    private fun requestPermission(permissions: Array<String>, requestCode: Int) {
+        ActivityCompat.requestPermissions(
+            this,
+            permissions,
+            requestCode,
+        )
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
+        // CREATING A NOTIFICATION CHANNEL
         val name = "app_locker"
         val descriptionText = "channel description"
         val importance = NotificationManager.IMPORTANCE_DEFAULT
@@ -70,16 +80,31 @@ class MainActivity : AppCompatActivity() {
         mChannel.description = descriptionText
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(mChannel)
+        // CREATING A NOTIFICATION CHANNEL
 
+
+
+        // REQUEST PERMISSION ON OVERLAY
         if (isOverlayPermissionGranted().not()) {
             val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
                 putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
                 putExtra(Settings.EXTRA_CHANNEL_ID, mChannel.id)
             }
             startActivity(intent)
+//            requestPermission(
+//                arrayOf(Settings.ACTION_MANAGE_OVERLAY_PERMISSION),
+//                PERMISSION_REQUEST_OVERLAY
+//            )
         }
+        // REQUEST PERMISSION ON OVERLAY
 
+
+        // REQUEST PERMISSION ON APP USAGE
         if (isUsagePermissionGranted().not()) {
+//            requestPermission(
+//                arrayOf(Settings.ACTION_USAGE_ACCESS_SETTINGS),
+//                PERMISSION_REQUEST_USAGE
+//            )
             val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
                 putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
                 putExtra(Settings.EXTRA_CHANNEL_ID, mChannel.id)
@@ -117,4 +142,22 @@ class MainActivity : AppCompatActivity() {
         startActivity(loginActivity)
         finish()
     }
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        // HANDLE REQUEST PERMISSION RESULTS
+        when (requestCode) {
+            PERMISSION_REQUEST_OVERLAY -> {
+
+            }
+        }
+
+    }
+
 }

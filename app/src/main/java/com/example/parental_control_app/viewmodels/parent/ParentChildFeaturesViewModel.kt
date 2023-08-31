@@ -10,11 +10,11 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.lifecycle.ViewModel
+import com.example.parental_control_app.activities.ScreenTimeActivity
 import com.example.parental_control_app.activities.parent.ParentChildAppsActivity
 import com.example.parental_control_app.activities.parent.ParentChildBlockedAppsActivity
-import com.example.parental_control_app.activities.parent.ParentChildLocationActivity
+import com.example.parental_control_app.activities.LocationActivity
 import com.example.parental_control_app.activities.notifications.NotificationsActivity
-import com.example.parental_control_app.activities.parent.ParentChildScreenTimeActivity
 import com.example.parental_control_app.activities.sms.SmsActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 
@@ -27,8 +27,8 @@ class ParentChildFeaturesViewModel : ViewModel(){
     companion object {
         val featureIcons = listOf(
             FeatureIcon("Apps", ChildrenFeatureIcons.APPS, Icons.Outlined.Menu),
-            FeatureIcon("Screen Time", ChildrenFeatureIcons.SCREEN_TIME, Icons.Outlined.List),
             FeatureIcon("Blocked Apps", ChildrenFeatureIcons.BLOCKED_APPS, Icons.Outlined.Lock),
+            FeatureIcon("Screen Time", ChildrenFeatureIcons.SCREEN_TIME, Icons.Outlined.List),
             FeatureIcon("SMS", ChildrenFeatureIcons.SMS, Icons.Outlined.Email),
             FeatureIcon("Notifications", ChildrenFeatureIcons.NOTIFICATIONS, Icons.Outlined.Notifications),
             FeatureIcon("Location", ChildrenFeatureIcons.LOCATION, Icons.Outlined.LocationOn),
@@ -86,7 +86,7 @@ class ParentChildFeaturesViewModel : ViewModel(){
 
     private fun startScreenTime() {
         activityStarterHelper.startNewActivity(
-            activity = ParentChildScreenTimeActivity::class.java,
+            activity = ScreenTimeActivity::class.java,
             extras = mapOf(
                 "kidProfileId" to kidProfileId
             )
@@ -113,9 +113,9 @@ class ParentChildFeaturesViewModel : ViewModel(){
 
     private fun startLocation() {
         activityStarterHelper.startNewActivity(
-            activity = ParentChildLocationActivity::class.java,
+            activity = LocationActivity::class.java,
             extras = mapOf(
-                "kifProfileId" to kidProfileId
+                "kidProfileId" to kidProfileId
             )
         )
     }

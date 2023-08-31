@@ -1,5 +1,6 @@
 package com.example.parental_control_app.repositories
 
+import android.util.Log
 import com.example.parental_control_app.data.Sms
 import com.example.parental_control_app.repositories.users.UsersRepository
 import com.google.firebase.Timestamp
@@ -30,7 +31,8 @@ class SmsRepository {
                 async {
                     val reference = db.collection("profiles/$uid/sms")
                     val docs = reference.get().await()
-                    docs.forEach {document ->
+                    docs.documents.forEach {document ->
+                        Log.w("MESSAGE DOC ID", document.id)
                         list = list.plus(document.id)
                     }
                 }.await()
@@ -72,6 +74,9 @@ class SmsRepository {
 
     suspend fun saveSms(profileId: String, sms: Sms){
         var uid = ""
+        val dummyData = mapOf(
+            "dummy" to "data"
+        )
 
         if (profileId.isEmpty()) return
 
@@ -80,8 +85,8 @@ class SmsRepository {
                 async { uid = usersRepository.getProfileUID(profileId)}.await()
                 async {
                     val reference = db.collection("profiles/$uid/sms").document(sms.originatingAddress)
-                    val document = reference.collection("messages").document()
-                    document.set(sms).await()
+                    reference.set(dummyData).await()
+                    reference.collection("messages").document().set(sms).await()
                 }.await()
             }
         }

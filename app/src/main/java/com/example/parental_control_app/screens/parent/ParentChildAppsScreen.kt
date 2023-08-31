@@ -1,7 +1,6 @@
 package com.example.parental_control_app.screens.parent
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -31,7 +30,7 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
     val loading = viewModel.loadingState
     val appsState = viewModel.appState
     val iconState = viewModel.iconState
-    val totalScreenTime = viewModel.totalScreeTimeState
+    val totalScreenTime = viewModel.getTotalScreenTime()
 
     ParentalcontrolappTheme {
         Scaffold(
@@ -46,13 +45,7 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ){
-                        Box (
-                            modifier = Modifier
-                                .height(50.dp)
-                                .width(50.dp)
-                        ){
-                            CircularProgressIndicator()
-                        }
+                        CircularProgressIndicator()
                         Text("Loading")
                     }
                 }
@@ -75,7 +68,7 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
                                 AppCard(
                                     app = it,
                                     appIcon = it1,
-                                    totalScreenTime = totalScreenTime,
+                                    totalScreenTime = totalScreenTime.toLong(),
                                     onCheckedChange = viewModel::updateAppRestriction
                                 )
                             }
@@ -92,7 +85,7 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
 private fun TopBar(onBackClick: () -> Unit) {
     TopAppBar(
         navigationIcon = { IconButton(onClick = { onBackClick() }) {
-            Icon(Icons.Rounded.ArrowBack, "")
+            Icon(Icons.Rounded.ArrowBack, "back")
         } },
         title = { Text("Child Apps") }
     )

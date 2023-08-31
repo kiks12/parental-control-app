@@ -22,6 +22,7 @@
         tools:ignore="ManifestOrder,QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -47,16 +48,16 @@
             android:label="@string/title_activity_parent_child_sms_message"
             android:theme="@style/Theme.Parentalcontrolapp" />
         <activity
-            android:name=".activities.parent.ParentChildLocationActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.parent.ParentChildScreenTimeActivity"
+            android:name=".activities.LocationActivity"
             android:exported="false" />
         <activity
             android:name=".activities.notifications.NotificationsActivity"
             android:exported="false" />
         <activity
             android:name=".activities.sms.SmsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.ScreenTimeActivity"
             android:exported="false" />
         <activity
             android:name=".activities.parent.ParentChildBlockedAppsActivity"

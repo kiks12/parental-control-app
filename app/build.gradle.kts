@@ -123,4 +123,7 @@ dependencies {
         exclude("com.google.protobuf")
     }
 
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
+
 }
