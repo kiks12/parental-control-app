@@ -1,9 +1,9 @@
 package com.example.parental_control_app.repositories
 
-import android.util.Log
 import com.example.parental_control_app.data.Sms
 import com.example.parental_control_app.repositories.users.UsersRepository
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CompletableDeferred
@@ -32,7 +32,6 @@ class SmsRepository {
                     val reference = db.collection("profiles/$uid/sms")
                     val docs = reference.get().await()
                     docs.documents.forEach {document ->
-                        Log.w("MESSAGE DOC ID", document.id)
                         list = list.plus(document.id)
                     }
                 }.await()
@@ -54,7 +53,7 @@ class SmsRepository {
             launch(Dispatchers.IO) {
                 async { uid = usersRepository.getProfileUID(profileId) }.await()
                 async {
-                    val reference = db.collection("profiles/$uid/sms/$sender/messages")
+                    val reference = db.collection("profiles/$uid/sms/$sender/messages").orderBy("timestamp", Query.Direction.DESCENDING)
                     val docs = reference.get().await()
                     docs.documents.forEach { document ->
                         val sms = Sms(

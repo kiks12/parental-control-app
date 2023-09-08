@@ -3,9 +3,7 @@ package com.example.parental_control_app.workers
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -31,23 +29,27 @@ class LocationWorker(
         val profileId = inputData.getString(LocationActivity.LOCATION_PROFILE_KEY).toString()
         val locationClient = LocationServices.getFusedLocationProviderClient(ctx)
 
-        if (ActivityCompat.checkSelfPermission(
-                ctx,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                ctx,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-        }
+        if (ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+        {
+//            Log.w("LOCATION WORKER", "PERMISSION GRANTED")
 
-        locationClient.lastLocation.addOnSuccessListener {location ->
-            val lat = location.latitude
-            val long = location.longitude
-            val point = GeoPoint(lat, long)
+            locationClient.getCurrentLocation(100, null).addOnSuccessListener { location ->
+                if (location == null) return@addOnSuccessListener
+                Log.w("LOCATION WORKER", location.toString())
 
-            GlobalScope.launch(Dispatchers.IO) {
-                async { locationRepository.saveLocation(profileId, point) }.await()
+                val lat = location.latitude
+                val long = location.longitude
+                val point = GeoPoint(lat, long)
+
+                Log.w("LOCATION WORKER", point.toString())
+                Log.w("LOCATION WORKER", profileId)
+
+
+                GlobalScope.launch(Dispatchers.IO) {
+                    async { locationRepository.saveLocation(profileId, point) }.await()
+                    async { Log.w("LOCATION WORKER", "Location Saved") }.await()
+                }
             }
         }
 

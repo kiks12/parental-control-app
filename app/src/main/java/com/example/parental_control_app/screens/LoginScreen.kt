@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,9 +16,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.parental_control_app.viewmodels.LoginViewModel
 
 @Composable
@@ -31,8 +34,7 @@ fun LoginScreen(
 
     Column (
         modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxSize()
             .padding(20.dp),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -40,6 +42,8 @@ fun LoginScreen(
         Column(
             modifier = Modifier.fillMaxWidth()
         ){
+            Text("Login", fontSize = 25.sp, fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.height(15.dp))
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = credentialState.value.email,
@@ -74,8 +78,17 @@ fun LoginScreen(
                 )
             }
         }
-        TextButton(onClick = startRegistrationActivity ) {
-            Text(text = "Create an Account")
+
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            Text("Don't have an account?", fontSize = 12.sp)
+            TextButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = startRegistrationActivity
+            ) {
+                Text(text = "Create an Account")
+            }
         }
     }
 

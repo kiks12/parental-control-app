@@ -14,5 +14,5 @@ data class UserApps (
 
 data class UserAppIcon (
     val name: String,
-    val icon: Bitmap,
+    val icon: Bitmap?,
 )

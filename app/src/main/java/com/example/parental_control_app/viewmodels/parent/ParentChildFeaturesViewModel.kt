@@ -17,10 +17,12 @@ import com.example.parental_control_app.activities.LocationActivity
 import com.example.parental_control_app.activities.notifications.NotificationsActivity
 import com.example.parental_control_app.activities.sms.SmsActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
+import com.example.parental_control_app.repositories.users.UserProfile
 
 class ParentChildFeaturesViewModel : ViewModel(){
     private lateinit var profileId: String
     private lateinit var kidProfileId: String
+    private lateinit var kidProfile : UserProfile
     private lateinit var onBackClick: () -> Unit
     private lateinit var activityStarterHelper: ActivityStarterHelper
 
@@ -45,6 +47,14 @@ class ParentChildFeaturesViewModel : ViewModel(){
 
     fun setKidProfileId(id: String) {
         kidProfileId = id
+    }
+
+    fun setKidProfile(profile: UserProfile) {
+        kidProfile = profile
+    }
+
+    fun getKidProfile() : UserProfile{
+        return kidProfile
     }
 
     fun addOnBackClick(callback: () -> Unit) {

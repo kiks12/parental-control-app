@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">parental-control-app</string>
     <string name="your_web_client_id">1070977860106-bspkga5agq5ueusdiqithial219tiqf9.apps.googleusercontent.com</string>
+    <string name="map_key">MpHFM3SfVoeUVYKbQTu9dIy9qPg4YrZW</string>
     <string name="title_activity_google_sign_in">GoogleSignInActivity</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>

@@ -128,18 +128,6 @@ class AppsRepository {
         return completable.await()
     }
 
-//    suspend fun getProfileUID(profileId: String) : String {
-//        val uid = CompletableDeferred<String>()
-//        db.collection("profiles")
-//            .whereEqualTo("profileId", profileId)
-//            .get()
-//            .addOnSuccessListener {
-//                uid.complete(it.documents[0].id)
-//            }
-//            .addOnFailureListener {  }
-//        return uid.await()
-//    }
-
     suspend fun saveApps(profileId: String, apps: List<UserApps>) {
         var appNames = listOf<String>()
         var uid : String? = null
@@ -181,9 +169,9 @@ class AppsRepository {
                     if (!appNames.contains(userAppIcon.name).not()) {
                         val uidRef = ref.child("$uid/${userAppIcon.name}.png")
                         val bitmap = userAppIcon.icon
-                        val baos = ByteArrayOutputStream()
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
-                        val data = baos.toByteArray()
+                        val byteArray = ByteArrayOutputStream()
+                        bitmap?.compress(Bitmap.CompressFormat.PNG, 100, byteArray)
+                        val data = byteArray.toByteArray()
                         uidRef.putBytes(data).await()
                     }
                 }

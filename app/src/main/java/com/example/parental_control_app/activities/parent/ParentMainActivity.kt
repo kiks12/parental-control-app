@@ -9,7 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.example.parental_control_app.activities.children.ChildrenMainActivity
 import com.example.parental_control_app.helpers.SharedPreferencesHelper
-import com.example.parental_control_app.helpers.SignOutHelper
+import com.example.parental_control_app.helpers.ProfileSignOutHelper
 import com.example.parental_control_app.screens.parent.ParentNavigationScreen
 import com.example.parental_control_app.service.AppLockerService
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
@@ -21,16 +21,14 @@ class ParentMainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val sharedPreferences = getSharedPreferences(SharedPreferencesHelper.PREFS_KEY, MODE_PRIVATE)
-        val signOutHelper = SignOutHelper(this, sharedPreferences)
+        val profileSignOutHelper = ProfileSignOutHelper(this, sharedPreferences)
 
         val parentHomeViewModel = ParentHomeViewModel()
         parentHomeViewModel.addOnChildrenCardClick(this::onChildrenCardClick)
 
         val parentNavigationViewModel = ParentNavigationViewModel()
         parentNavigationViewModel.setParentHomeViewModel(parentHomeViewModel)
-        parentNavigationViewModel.addOnSignOut { signOutHelper.signOut() }
-
-        stopService(Intent(applicationContext, AppLockerService::class.java))
+        parentNavigationViewModel.addOnSignOut { profileSignOutHelper.signOut() }
 
         setContent {
             ParentalcontrolappTheme {

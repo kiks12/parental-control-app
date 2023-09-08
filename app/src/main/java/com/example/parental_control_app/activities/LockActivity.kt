@@ -29,7 +29,7 @@ class LockActivity : AppCompatActivity() {
 }
 
 @Composable
-fun LockScreen() {
+private fun LockScreen() {
     Surface(
         modifier = Modifier.fillMaxSize()
     ){
@@ -45,7 +45,7 @@ fun LockScreen() {
 
 @Preview
 @Composable
-fun LockScreenPreview() {
+private fun LockScreenPreview() {
     ParentalcontrolappTheme {
         LockScreen()
     }

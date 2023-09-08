@@ -5,7 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import com.example.parental_control_app.activities.StartupActivity
 
-class SignOutHelper(
+class ProfileSignOutHelper(
     private val context: Context,
     private val sharedPreferences: SharedPreferences
 ){

@@ -1,14 +1,11 @@
 package com.example.parental_control_app.repositories
 
-import android.util.Log
 import com.example.parental_control_app.repositories.users.UsersRepository
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.tomtom.sdk.location.GeoPoint
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch

@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
-import android.util.Log
 import com.example.parental_control_app.data.Sms
 import com.example.parental_control_app.helpers.SharedPreferencesHelper
 import com.example.parental_control_app.repositories.SmsRepository

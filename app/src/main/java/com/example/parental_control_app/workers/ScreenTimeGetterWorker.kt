@@ -3,11 +3,10 @@ package com.example.parental_control_app.workers
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.example.parental_control_app.activities.children.ChildrenAppsActivity
 import com.example.parental_control_app.data.UserApps
-import com.example.parental_control_app.helpers.SharedPreferencesHelper
 import com.example.parental_control_app.repositories.AppsRepository
 import com.example.parental_control_app.repositories.users.UsersRepository
 import kotlinx.coroutines.CompletableDeferred
@@ -22,12 +21,11 @@ class ScreenTimeGetterWorker(ctx: Context, params: WorkerParameters) : Coroutine
     private var uid = ""
 
     private suspend fun fetchAppNames() : List<String> {
-        val sharedPreferences = applicationContext.getSharedPreferences(SharedPreferencesHelper.PREFS_KEY, 0)
-        val profile = SharedPreferencesHelper.getProfile(sharedPreferences)
+        val profileId = inputData.getString(ChildrenAppsActivity.APP_PROFILE_ID_KEY).toString()
         val completable = CompletableDeferred<List<String>>()
 
         coroutineScope {
-            async { uid = usersRepository.getProfileUID(profile?.profileId!!) }.await()
+            async { uid = usersRepository.getProfileUID(profileId) }.await()
             async {
                 completable.complete(appsRepository.getAppNames(uid))
             }.await()
@@ -35,9 +33,13 @@ class ScreenTimeGetterWorker(ctx: Context, params: WorkerParameters) : Coroutine
 
         return completable.await()
     }
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+
     override suspend fun doWork(): Result {
-        val usageStatsManager = applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val usageStatsManager = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        } else {
+            TODO("VERSION.SDK_INT < LOLLIPOP_MR1")
+        }
 
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, 0)

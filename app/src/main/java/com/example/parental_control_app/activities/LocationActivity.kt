@@ -1,11 +1,11 @@
 package com.example.parental_control_app.activities
 
 import android.Manifest
-import android.os.Build
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.work.Data
 import androidx.work.PeriodicWorkRequest
@@ -26,55 +26,83 @@ import java.util.concurrent.TimeUnit
 
 class LocationActivity : AppCompatActivity() {
 
+    private val mapOptions = MapOptions(mapKey = "MpHFM3SfVoeUVYKbQTu9dIy9qPg4YrZW")
     private lateinit var mapFragment: MapFragment
     private val locationRepository = LocationRepository()
+    private var permissions = listOf<String>()
 
     companion object {
         const val LOCATION_PROFILE_KEY = "LOCATION_PROFILE_KEY"
+        const val PERMISSION_LOCATION_KEY = 10002
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_parent_child_location)
+    private fun isLocationPermissionGranted() : Boolean {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED)
+            permissions = permissions.plus(Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_DENIED)
+            permissions = permissions.plus(Manifest.permission.ACCESS_COARSE_LOCATION)
 
-        val kidProfileId = intent.getStringExtra("kidProfileId")
+        return permissions.isEmpty()
+    }
 
-        val locationPermissionRequest = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissions ->
-            when {
-                permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {}
-                permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {}
-                else -> {}
-            }
+    private fun requestLocationPermission() {
+        if (permissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissions.toTypedArray(), PERMISSION_LOCATION_KEY)
         }
+    }
 
-        locationPermissionRequest.launch(arrayOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION))
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        val kidProfileId = intent.getStringExtra("kidProfileId").toString()
 
+        when(requestCode) {
+            PERMISSION_LOCATION_KEY -> {
+                permissions.forEachIndexed{ index, _ ->
+                    if (grantResults[index] == PackageManager.PERMISSION_GRANTED) {
+                        initializeMap()
+                        createPeriodicLocationWorker(kidProfileId)
+                        getChildLocation(kidProfileId)
+                    }
+                }
+            }
+            else -> {}
+        }
+    }
+
+    private fun createPeriodicLocationWorker(kidProfileId: String) {
         val data = Data.Builder()
             .putString(LOCATION_PROFILE_KEY, kidProfileId)
             .build()
 
-        val worker = PeriodicWorkRequest.Builder(
+        val periodicLocationWorker = PeriodicWorkRequest.Builder(
             LocationWorker::class.java,
             15,
-            TimeUnit.MINUTES
+            TimeUnit.MINUTES,
         ).setInputData(data).build()
-        WorkManager.getInstance(this).enqueue(worker)
 
-        val mapOptions = MapOptions(mapKey = "MpHFM3SfVoeUVYKbQTu9dIy9qPg4YrZW")
+        // USE FOR TESTING
+//        val oneTimeLocationWorker = OneTimeWorkRequest.Builder(LocationWorker::class.java)
+//            .setInputData(data)
+//            .build()
+
+        WorkManager.getInstance(this).enqueue(periodicLocationWorker)
+    }
+
+    private fun initializeMap() {
         mapFragment = MapFragment.newInstance(mapOptions)
-
         supportFragmentManager.beginTransaction()
             .replace(R.id.map_container, mapFragment)
             .commit()
+    }
 
+    private fun getChildLocation(kidProfileId: String) {
         lifecycleScope.launch {
             var location : GeoPoint? = null
-            async { location = locationRepository.getProfileLocation(kidProfileId!!) }.await()
+            async { location = locationRepository.getProfileLocation(kidProfileId) }.await()
             async {
                 if (location == null) return@async
 
@@ -82,17 +110,35 @@ class LocationActivity : AppCompatActivity() {
                     map.addCircle(
                         CircleOptions(
                             coordinate = location!!,
-                            radius = Radius(10.0, RadiusUnit.DensityPixel)
+                            radius = Radius(10.0, RadiusUnit.DensityPixel),
                         )
                     )
                     map.moveCamera(
                         CameraOptions(
-                            position = location,
+                            position = location!!,
                             zoom = 15.0
                         )
                     )
                 }
             }.await()
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_parent_child_location)
+        val kidProfileId = intent.getStringExtra("kidProfileId").toString()
+
+        if (!isLocationPermissionGranted()) {
+            requestLocationPermission()
+        } else {
+//            Log.w("LOCATION ACTIVITY", "Initialize Map")
+//            Log.w("LOCATION ACTIVITY", "Create Location Worker")
+//            Log.w("LOCATION ACTIVITY", "Get Child Location")
+//            Log.w("LOCATION ACTIVITY", "Kid Profile Id $kidProfileId")
+            initializeMap()
+            createPeriodicLocationWorker(kidProfileId)
+            getChildLocation(kidProfileId)
         }
     }
 }
