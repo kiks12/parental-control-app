@@ -10,15 +10,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.parental_control_app.screens.SettingsScreen
-import com.example.parental_control_app.viewmodels.children.ChildrenViewModel
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.viewmodels.children.ChildrenViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -44,7 +44,7 @@ fun ChildrenScreen(viewModel: ChildrenViewModel) {
 @Composable
 fun ChildrenBottomNavigationBar(controller: NavHostController) {
     var selectedIndex by remember {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
     val icons = ChildrenViewModel.bottomNavBarIcons
 

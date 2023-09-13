@@ -1,4 +1,4 @@
-package com.example.parental_control_app.viewmodels.parent
+package com.example.parental_control_app.viewmodels
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -8,7 +8,7 @@ import com.example.parental_control_app.repositories.AppsRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-class ParentChildBlockedAppsViewModel(
+class BlockedAppsViewModel(
     private val profileId: String,
     private val appsRepository: AppsRepository = AppsRepository(),
 ) : ViewModel(){

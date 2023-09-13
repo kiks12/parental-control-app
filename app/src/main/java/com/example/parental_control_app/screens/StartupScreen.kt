@@ -156,7 +156,7 @@ fun ProfilesGrid(
                 onClick = {
                     viewModel.setSharedPreferencesProfile(profile)
                     if (profile.child) viewModel.startChildActivity()
-                    else viewModel.getParentPassword(profile.password.toString())
+                    else viewModel.getParentPassword(profile.password)
                 }
             )
         }
@@ -295,7 +295,7 @@ fun CreateProfileForm(
             Column {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = uiState.profileInput.password!!,
+                    value = uiState.profileInput.password,
                     onValueChange = viewModel::onPasswordChange,
                     label = { Text("Password") },
                 )

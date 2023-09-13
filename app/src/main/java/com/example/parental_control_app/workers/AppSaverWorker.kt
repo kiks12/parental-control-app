@@ -9,7 +9,6 @@ import com.example.parental_control_app.activities.children.ChildrenAppsActivity
 import com.example.parental_control_app.data.UserAppIcon
 import com.example.parental_control_app.data.UserApps
 import com.example.parental_control_app.repositories.AppsRepository
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -28,13 +27,12 @@ class AppSaverWorker(private val ctx: Context, params: WorkerParameters) : Corou
 
         installedApplications.forEach { app ->
             if (ctx.packageManager.getLaunchIntentForPackage(app.packageName!!) == null) return@forEach
-            val gson = Gson()
             val icon = ctx.packageManager.getApplicationIcon(app)
             Log.w("APP SAVER WORKER", icon.toString())
             appList.add(
                 UserApps(
-                    name = app.packageName,
-                    icon = gson.toJson(icon)
+                    label = ctx.packageManager.getApplicationLabel(app).toString(),
+                    packageName = app.packageName,
                 )
             )
             iconList.add(

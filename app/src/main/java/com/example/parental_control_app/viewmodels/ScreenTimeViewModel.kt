@@ -46,7 +46,7 @@ class ScreenTimeViewModel(
                 for (index in 0..4) {
                     _donutChartState.value = _donutChartState.value.copy(
                         items = _donutChartState.value.items.plus(
-                            DonutChartData(sortedApps[index].screenTime.toFloat(), COLORS[index], sortedApps[index].name)
+                            DonutChartData(sortedApps[index].screenTime.toFloat(), COLORS[index], sortedApps[index].label)
                         )
                     )
                 }

@@ -19,12 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import androidx.work.WorkManager
 import com.example.parental_control_app.activities.LocationActivity
 import com.example.parental_control_app.activities.ScreenTimeActivity
 import com.example.parental_control_app.activities.children.ChildrenAppsActivity
-import com.example.parental_control_app.activities.children.ChildrenBlockedAppsActivity
 import com.example.parental_control_app.activities.notifications.NotificationsActivity
+import com.example.parental_control_app.activities.BlockedAppsActivity
 import com.example.parental_control_app.activities.sms.SmsActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.repositories.users.UserProfile
@@ -91,7 +90,12 @@ class ChildrenViewModel(
     }
 
     private fun startBlockedApps() {
-        activityStarterHelper.startNewActivity(ChildrenBlockedAppsActivity::class.java)
+        activityStarterHelper.startNewActivity(
+            BlockedAppsActivity::class.java,
+            extras = mapOf(
+                "kidProfileId" to profile?.profileId!!,
+            )
+        )
     }
 
     private fun startScreenTime() {

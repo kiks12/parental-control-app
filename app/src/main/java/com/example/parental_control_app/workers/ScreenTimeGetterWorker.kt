@@ -60,8 +60,7 @@ class ScreenTimeGetterWorker(ctx: Context, params: WorkerParameters) : Coroutine
                 for (usageStats in usageStatsList) {
                     if (appNames.contains(usageStats.packageName)) {
                         val appData = UserApps(
-                            name = usageStats.packageName,
-                            icon = "",
+                            packageName = usageStats.packageName,
                             screenTime = usageStats.totalTimeInForeground
                         )
                         appListUpdated = appListUpdated.plus(appData)

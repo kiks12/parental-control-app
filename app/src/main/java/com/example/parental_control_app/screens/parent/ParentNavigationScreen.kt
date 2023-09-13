@@ -1,8 +1,6 @@
 package com.example.parental_control_app.screens.parent
 
 import ParentScreenBottomNavRoutes
-import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -14,7 +12,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -22,7 +20,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
-import com.example.parental_control_app.viewmodels.parent.ParentHomeViewModel
 import com.example.parental_control_app.viewmodels.parent.ParentNavigationViewModel
 
 @Composable
@@ -56,7 +53,7 @@ fun ParentNavigationScreen(viewModel: ParentNavigationViewModel) {
 @Composable
 private fun ParentNavigationBar(controller: NavHostController) {
     var selectedIndex by remember {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
     val icons = ParentNavigationViewModel.bottomNavBarIcons
 

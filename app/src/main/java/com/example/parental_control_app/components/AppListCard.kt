@@ -36,7 +36,7 @@ fun AppCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 15.dp, horizontal = 10.dp)
+            .padding(bottom = 25.dp, end = 10.dp, start = 10.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -52,31 +52,37 @@ fun AppCard(
                             .height(50.dp)
                             .width(50.dp)
                     ) {
-                        AsyncImage(model = appIcon, contentDescription = app.name)
+                        AsyncImage(model = appIcon, contentDescription = app.packageName)
                     }
-                    Text(
-                        modifier = Modifier.padding(horizontal = 10.dp),
-                        text = app.name,
-                        fontSize = 10.sp
-                    )
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-                if (app.screenTime.toInt() == 0) {
-                    LinearProgressIndicator(progress = 0f)
-                    Text("00:00:00", fontSize = 10.sp)
-                } else {
-                    LinearProgressIndicator(progress = app.screenTime.toFloat() / totalScreenTime)
-                    Text(String.format("%d:%d:%d",
-                        TimeUnit.MILLISECONDS.toHours(app.screenTime),
-                        TimeUnit.MILLISECONDS.toMinutes(app.screenTime),
-                        TimeUnit.MILLISECONDS.toSeconds(app.screenTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(app.screenTime))
-                    ), fontSize = 10.sp)
+                    Column {
+                        Text(
+                            modifier = Modifier.padding(horizontal = 10.dp),
+                            text = app.label,
+                            fontSize = 12.sp
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Column (
+                            modifier = Modifier.padding(start = 10.dp)
+                        ){
+                            if (app.screenTime.toInt() == 0) {
+                                LinearProgressIndicator(progress = 0f)
+                                Text("00:00:00", fontSize = 10.sp)
+                            } else {
+                                LinearProgressIndicator(progress = app.screenTime.toFloat() / totalScreenTime)
+                                Text(String.format("%d:%d:%d",
+                                    TimeUnit.MILLISECONDS.toHours(app.screenTime),
+                                    TimeUnit.MILLISECONDS.toMinutes(app.screenTime),
+                                    TimeUnit.MILLISECONDS.toSeconds(app.screenTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(app.screenTime))
+                                ), fontSize = 10.sp)
+                            }
+                        }
+                    }
                 }
             }
             Switch(
                 checked = restricted.value, onCheckedChange = {
                     restricted.value = it
-                    onCheckedChange(app.name, it)
+                    onCheckedChange(app.packageName, it)
                 }
             )
         }

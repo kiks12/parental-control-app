@@ -2,6 +2,7 @@ package com.example.parental_control_app.repositories
 
 import android.graphics.Bitmap
 import android.util.Log
+import com.example.parental_control_app.AppRestriction
 import com.example.parental_control_app.data.UserAppIcon
 import com.example.parental_control_app.data.UserApps
 import com.example.parental_control_app.repositories.users.UsersRepository
@@ -9,9 +10,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -24,13 +23,12 @@ class AppsRepository {
     private val storage = Firebase.storage
     private val usersRepository = UsersRepository()
 
-    @OptIn(DelicateCoroutinesApi::class)
-    suspend fun getApps(profileId: String) : List<UserApps> {
+    suspend fun getApps(uid: String) : List<UserApps> {
         val completable = CompletableDeferred<List<UserApps>>()
-        var uid : String? = null
+//        var uid : String? = null
 
-        GlobalScope.launch(Dispatchers.IO) {
-            async { uid = usersRepository.getProfileUID(profileId) }.await()
+        coroutineScope  {
+//            async { uid = usersRepository.getProfileUID(profileId) }.await()
             async {
                 val collection = db.collection("profiles/$uid/apps")
                 val query = collection.get().await()
@@ -42,12 +40,11 @@ class AppsRepository {
         return completable.await()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     suspend fun getBlockedApps(profileId: String) : List<UserApps> {
         val completable = CompletableDeferred<List<UserApps>>()
         var uid : String? = null
 
-        GlobalScope.launch(Dispatchers.IO) {
+        coroutineScope {
             async { uid = usersRepository.getProfileUID(profileId) }.await()
             async {
                 val collection = db.collection("profiles/$uid/apps")
@@ -60,17 +57,16 @@ class AppsRepository {
         return completable.await()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    suspend fun getAppIcons(profileId: String) : Map<String, String> {
+    suspend fun getAppIcons(uid: String) : Map<String, String> {
         val completable = CompletableDeferred<Map<String, String>>()
         var iconMap = mapOf<String, String>()
-        var uid : String? = null
+//        var uid : String? = null
         val ref = storage.reference
 
-        GlobalScope.launch(Dispatchers.IO){
-            async { uid = usersRepository.getProfileUID(profileId) }.await()
+        coroutineScope {
+//            async { uid = usersRepository.getProfileUID(profileId) }.await()
             async {
-                val uidRef = ref.child(uid!!)
+                val uidRef = ref.child(uid)
                 val list = uidRef.listAll().await()
                 list.items.forEach { storageReference ->
                     var name = storageReference.name
@@ -86,16 +82,15 @@ class AppsRepository {
         return completable.await()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     suspend fun getAppNames(uid: String) : List<String> {
         val completable = CompletableDeferred<List<String>>()
         var list = listOf<String>()
 
-        GlobalScope.launch(Dispatchers.IO) {
+        coroutineScope {
             async {
                 val apps = db.collection("profiles/$uid/apps").get().await()
                 apps.documents.forEach {app ->
-                    list = list.plus(app.data?.get("name").toString())
+                    list = list.plus(app.data?.get("packageName").toString())
                 }
             }.await()
             async {
@@ -106,12 +101,11 @@ class AppsRepository {
         return completable.await()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     suspend fun getBlockedAppNames(uid: String) : List<String> {
         val completable = CompletableDeferred<List<String>>()
         var list = listOf<String>()
 
-        GlobalScope.launch(Dispatchers.IO) {
+        coroutineScope {
             async {
                 val apps = db.collection("profiles/$uid/apps")
                     .whereEqualTo("restricted", true)
@@ -138,7 +132,7 @@ class AppsRepository {
             async { appNames = getAppNames(uid!!) }.await()
             async {
                 apps.forEach { app ->
-                    if (appNames.contains(app.name).not()) {
+                    if (!appNames.contains(app.packageName)) {
                         val collection = db.collection("profiles/$uid/apps").document()
                         batch.set(collection, app)
                     }
@@ -185,7 +179,7 @@ class AppsRepository {
         coroutineScope {
             async { uid = usersRepository.getProfileUID(profileId) }.await()
             async {
-                val query = db.collection("profiles/$uid/apps").whereEqualTo("name", appName)
+                val query = db.collection("profiles/$uid/apps").whereEqualTo("packageName", appName)
                 val docs = query.get().await()
                 docs.documents.forEach { document ->
                     db.collection("profiles/$uid/apps")
@@ -202,7 +196,7 @@ class AppsRepository {
             async {
                 apps.forEach {app ->
                     val query = db.collection("profiles/$uid/apps")
-                        .whereEqualTo("name", app.name)
+                        .whereEqualTo("packageName", app.packageName)
                     val docs = query.get().await()
                     docs.forEach { document ->
                         val ref = db.collection("profiles/$uid/apps")
@@ -214,4 +208,47 @@ class AppsRepository {
             async { batch.commit() }.await()
         }
     }
+
+
+
+    /*
+     * suggestions collection related methods
+     */
+    suspend fun saveAppRestrictions(list: List<AppRestriction>) {
+        val batch = db.batch()
+        coroutineScope {
+            launch(Dispatchers.IO) {
+                async {
+                    list.forEach { appRestriction ->
+                        val document = db.collection("suggestions").document()
+                        batch.set(document, appRestriction)
+                    }
+                }.await()
+                async {
+                    batch.commit()
+                }.await()
+            }
+        }
+    }
+
+    suspend fun getSuggestedAppRestriction(age: Int) : List<String> {
+        val completable = CompletableDeferred<List<String>>()
+        var list = listOf<String>()
+
+        coroutineScope {
+            launch(Dispatchers.IO) {
+                val query = db.collection("suggestions").whereGreaterThanOrEqualTo("age", age)
+                val docs = query.get().await()
+                docs.forEach {  document ->
+                    list = list.plus(document.data["packageName"].toString())
+                }
+                completable.complete(list)
+            }
+        }
+
+        return completable.await()
+    }
+    /*
+     * suggestions collection related methods
+     */
 }

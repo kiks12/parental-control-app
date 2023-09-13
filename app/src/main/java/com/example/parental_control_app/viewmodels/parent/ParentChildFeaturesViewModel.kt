@@ -12,7 +12,7 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.lifecycle.ViewModel
 import com.example.parental_control_app.activities.ScreenTimeActivity
 import com.example.parental_control_app.activities.parent.ParentChildAppsActivity
-import com.example.parental_control_app.activities.parent.ParentChildBlockedAppsActivity
+import com.example.parental_control_app.activities.BlockedAppsActivity
 import com.example.parental_control_app.activities.LocationActivity
 import com.example.parental_control_app.activities.notifications.NotificationsActivity
 import com.example.parental_control_app.activities.sms.SmsActivity
@@ -87,7 +87,7 @@ class ParentChildFeaturesViewModel : ViewModel(){
 
     private fun startBlockedApps() {
         activityStarterHelper.startNewActivity(
-            activity = ParentChildBlockedAppsActivity::class.java,
+            activity = BlockedAppsActivity::class.java,
             extras = mapOf(
                 "kidProfileId" to kidProfileId
             )

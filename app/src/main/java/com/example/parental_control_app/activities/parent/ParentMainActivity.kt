@@ -1,17 +1,15 @@
 package com.example.parental_control_app.activities.parent
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.parental_control_app.activities.children.ChildrenMainActivity
-import com.example.parental_control_app.helpers.SharedPreferencesHelper
 import com.example.parental_control_app.helpers.ProfileSignOutHelper
+import com.example.parental_control_app.helpers.SharedPreferencesHelper
 import com.example.parental_control_app.screens.parent.ParentNavigationScreen
-import com.example.parental_control_app.service.AppLockerService
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
 import com.example.parental_control_app.viewmodels.parent.ParentHomeViewModel
 import com.example.parental_control_app.viewmodels.parent.ParentNavigationViewModel

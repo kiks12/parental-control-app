@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -40,7 +41,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.work.Data
 import androidx.work.PeriodicWorkRequest
@@ -145,7 +145,7 @@ class ChildrenAppsActivity : AppCompatActivity() {
                                 Text("No Apps to Show")
                             }
                         } else {
-                            AppGrid(apps = apps)
+                            AppGrid(apps, packageManager)
                         }
                     }
                 }
@@ -196,11 +196,13 @@ class ChildrenAppsActivity : AppCompatActivity() {
 
 
 @Composable
-private fun AppGrid(apps: List<Map<String, Any>>) {
+private fun AppGrid(apps: List<Map<String, Any>>, packageManager: PackageManager) {
     LazyColumn(
         modifier = Modifier.padding(20.dp),
     ) {
         items(items = apps) {
+            val app = it["app"] as ApplicationInfo
+            val label = packageManager.getApplicationLabel(app).toString()
             Row (
                 modifier = Modifier.padding(vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -217,8 +219,7 @@ private fun AppGrid(apps: List<Map<String, Any>>) {
                     }
                 }
                 Text(
-                    (it["app"] as ApplicationInfo).packageName,
-                    fontSize = 10.sp,
+                    label,
                     modifier = Modifier.padding(start = 10.dp)
                 )
             }

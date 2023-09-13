@@ -1,4 +1,4 @@
-package com.example.parental_control_app.screens.parent
+package com.example.parental_control_app.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,10 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
 import com.example.parental_control_app.components.AppCard
-import com.example.parental_control_app.viewmodels.parent.ParentChildBlockedAppsViewModel
+import com.example.parental_control_app.viewmodels.BlockedAppsViewModel
 
 @Composable
-fun ParentChildBlockedAppsScreen(viewModel: ParentChildBlockedAppsViewModel) {
+fun BlockedAppsScreen(viewModel: BlockedAppsViewModel) {
     val loading = viewModel.loadingState
     val apps = viewModel.appsState
     val icons = viewModel.iconsState
@@ -35,7 +35,7 @@ fun ParentChildBlockedAppsScreen(viewModel: ParentChildBlockedAppsViewModel) {
 
     ParentalcontrolappTheme {
         Scaffold(
-            topBar = { TopBar(onBackClick = viewModel.onBackClick() )}
+            topBar = { BlockedAppsTopBar(onBackClick = viewModel.onBackClick() ) }
         ){ innerPadding ->
             if (loading) {
                 Surface(modifier = Modifier.fillMaxSize()) {
@@ -70,7 +70,7 @@ fun ParentChildBlockedAppsScreen(viewModel: ParentChildBlockedAppsViewModel) {
                 ) {
                     apps.forEach {
                         item {
-                            icons[it.name]?.let { it1 ->
+                            icons[it.packageName]?.let { it1 ->
                                 AppCard(
                                     app = it,
                                     appIcon = it1,
@@ -88,11 +88,11 @@ fun ParentChildBlockedAppsScreen(viewModel: ParentChildBlockedAppsViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopBar(onBackClick: () -> Unit) {
+private fun BlockedAppsTopBar(onBackClick: () -> Unit) {
     TopAppBar(
         navigationIcon = { IconButton(onClick = { onBackClick() }) {
             Icon(Icons.Rounded.ArrowBack, "")
         } },
-        title = { Text("Child Blocked Apps") }
+        title = { Text("Blocked Apps") }
     )
 }

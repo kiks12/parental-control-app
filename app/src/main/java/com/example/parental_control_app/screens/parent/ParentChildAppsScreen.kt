@@ -34,7 +34,12 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
 
     ParentalcontrolappTheme {
         Scaffold(
-            topBar = { TopBar(onBackClick = viewModel.onBackClick() )}
+            topBar = {
+                TopBar(
+                    appSize = appsState.size,
+                    onBackClick = viewModel.onBackClick()
+                )
+            }
         ){ innerPadding ->
             if (loading) {
                 Surface(modifier = Modifier.fillMaxSize()) {
@@ -46,12 +51,12 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
                         verticalArrangement = Arrangement.Center
                     ){
                         CircularProgressIndicator()
-                        Text("Loading")
                     }
                 }
             }
             else if (appsState.isEmpty()) {
                 Column (
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ){
@@ -64,7 +69,7 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
                 ) {
                     appsState.forEach {
                         item {
-                            iconState[it.name]?.let { it1 ->
+                            iconState[it.packageName]?.let { it1 ->
                                 AppCard(
                                     app = it,
                                     appIcon = it1,
@@ -82,11 +87,14 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopBar(onBackClick: () -> Unit) {
+private fun TopBar(appSize: Int, onBackClick: () -> Unit) {
     TopAppBar(
         navigationIcon = { IconButton(onClick = { onBackClick() }) {
             Icon(Icons.Rounded.ArrowBack, "back")
         } },
-        title = { Text("Child Apps") }
+        title = { Text("Child Apps") },
+        actions = {
+            Text("$appSize Apps", modifier = Modifier.padding(end = 10.dp))
+        }
     )
 }
