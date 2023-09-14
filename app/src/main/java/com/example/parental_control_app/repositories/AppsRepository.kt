@@ -25,10 +25,8 @@ class AppsRepository {
 
     suspend fun getApps(uid: String) : List<UserApps> {
         val completable = CompletableDeferred<List<UserApps>>()
-//        var uid : String? = null
 
         coroutineScope  {
-//            async { uid = usersRepository.getProfileUID(profileId) }.await()
             async {
                 val collection = db.collection("profiles/$uid/apps")
                 val query = collection.get().await()
@@ -40,46 +38,42 @@ class AppsRepository {
         return completable.await()
     }
 
-    suspend fun getBlockedApps(profileId: String) : List<UserApps> {
+    suspend fun getBlockedApps(uid: String) : List<UserApps> {
         val completable = CompletableDeferred<List<UserApps>>()
-        var uid : String? = null
 
         coroutineScope {
-            async { uid = usersRepository.getProfileUID(profileId) }.await()
-            async {
-                val collection = db.collection("profiles/$uid/apps")
-                val query = collection.whereEqualTo("restricted", true)
-                val apps = query.get().await().toObjects(UserApps::class.java)
-                completable.complete(apps)
-            }.await()
+            val collection = db.collection("profiles/$uid/apps")
+            val query = collection.whereEqualTo("restricted", true)
+            val apps = query.get().await().toObjects(UserApps::class.java)
+            completable.complete(apps)
         }
 
         return completable.await()
     }
 
-    suspend fun getAppIcons(uid: String) : Map<String, String> {
-        val completable = CompletableDeferred<Map<String, String>>()
-        var iconMap = mapOf<String, String>()
-//        var uid : String? = null
+    suspend fun getAppIcons(uid: String, apps: List<UserApps>) : Map<String, String> {
+        val iconMap = mutableMapOf<String, String>()
         val ref = storage.reference
 
         coroutineScope {
-//            async { uid = usersRepository.getProfileUID(profileId) }.await()
             async {
                 val uidRef = ref.child(uid)
-                val list = uidRef.listAll().await()
-                list.items.forEach { storageReference ->
-                    var name = storageReference.name
-                    name = name.subSequence(0, name.length - 4).toString()
-                    val imageUrl = storageReference.downloadUrl.await().toString()
-
-                    iconMap = iconMap.plus(Pair(name, imageUrl))
+                apps.forEach { app ->
+                    val imageUrl = uidRef.child("${app.packageName}.png").downloadUrl.await().toString()
+                    iconMap += Pair(app.packageName, imageUrl)
                 }
+//                val list = uidRef.listAll().await()
+//                list.items.forEach { storageReference ->
+//                    var name = storageReference.name
+//                    name = name.subSequence(0, name.length - 4).toString()
+//                    val imageUrl = storageReference.downloadUrl.await().toString()
+//
+//                    iconMap += Pair(name, imageUrl)
+//                }
             }.await()
-            async { completable.complete(iconMap) }.await()
         }
 
-        return completable.await()
+        return iconMap
     }
 
     suspend fun getAppNames(uid: String) : List<String> {
@@ -111,7 +105,7 @@ class AppsRepository {
                     .whereEqualTo("restricted", true)
                     .get().await()
                 apps.documents.forEach {app ->
-                    list = list.plus(app.data?.get("name").toString())
+                    list = list.plus(app.data?.get("packageName").toString())
                 }
             }.await()
             async {
@@ -173,20 +167,13 @@ class AppsRepository {
         }
     }
 
-    suspend fun updateAppRestriction(profileId: String, appName: String, newRestriction: Boolean) {
-        var uid : String? = null
-
+    suspend fun updateAppRestriction(uid: String, appName: String, newRestriction: Boolean) {
         coroutineScope {
-            async { uid = usersRepository.getProfileUID(profileId) }.await()
-            async {
-                val query = db.collection("profiles/$uid/apps").whereEqualTo("packageName", appName)
-                val docs = query.get().await()
-                docs.documents.forEach { document ->
-                    db.collection("profiles/$uid/apps")
-                        .document(document.id)
-                        .update("restricted", newRestriction).await()
-                }
-            }.await()
+            val query = db.collection("profiles/$uid/apps").whereEqualTo("packageName", appName).limit(1)
+            val docs = query.get().await()
+            db.collection("profiles/$uid/apps")
+                .document(docs.documents[0].id)
+                .update("restricted", newRestriction).await()
         }
     }
 

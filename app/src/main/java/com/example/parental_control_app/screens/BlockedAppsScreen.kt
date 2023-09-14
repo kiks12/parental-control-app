@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
 import com.example.parental_control_app.components.AppCard
+import com.example.parental_control_app.components.AppCardType
 import com.example.parental_control_app.viewmodels.BlockedAppsViewModel
 
 @Composable
@@ -35,25 +36,21 @@ fun BlockedAppsScreen(viewModel: BlockedAppsViewModel) {
 
     ParentalcontrolappTheme {
         Scaffold(
-            topBar = { BlockedAppsTopBar(onBackClick = viewModel.onBackClick() ) }
+            topBar = {
+                BlockedAppsTopBar(
+                    blockedAppsCount = apps.size,
+                    onBackClick = viewModel.onBackClick()
+                )
+            }
         ){ innerPadding ->
             if (loading) {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    Column(
+                    Box (
                         modifier = Modifier
-                            .height(70.dp)
-                            .width(50.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                            .height(50.dp)
+                            .width(50.dp)
                     ){
-                        Box (
-                            modifier = Modifier
-                                .height(50.dp)
-                                .width(50.dp)
-                        ){
-                            CircularProgressIndicator()
-                        }
-                        Text("Loading")
+                        CircularProgressIndicator()
                     }
                 }
             } else if (apps.isEmpty()) {
@@ -75,6 +72,7 @@ fun BlockedAppsScreen(viewModel: BlockedAppsViewModel) {
                                     app = it,
                                     appIcon = it1,
                                     totalScreenTime = 1,
+                                    type = AppCardType.APP,
                                     onCheckedChange = viewModel::updateAppRestriction
                                 )
                             }
@@ -86,13 +84,17 @@ fun BlockedAppsScreen(viewModel: BlockedAppsViewModel) {
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BlockedAppsTopBar(onBackClick: () -> Unit) {
+private fun BlockedAppsTopBar(blockedAppsCount: Int, onBackClick: () -> Unit) {
     TopAppBar(
         navigationIcon = { IconButton(onClick = { onBackClick() }) {
             Icon(Icons.Rounded.ArrowBack, "")
         } },
-        title = { Text("Blocked Apps") }
+        title = { Text("Blocked Apps") },
+        actions = {
+            Text("$blockedAppsCount Apps", modifier = Modifier.padding(end = 10.dp))
+        }
     )
 }

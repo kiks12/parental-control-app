@@ -1,7 +1,7 @@
 package com.example.parental_control_app.viewmodels.parent
 
-import android.util.Log
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,7 +11,6 @@ import com.example.parental_control_app.repositories.AppsRepository
 import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.repositories.users.UsersRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -25,11 +24,16 @@ class ParentChildAppsViewModel(
     private val _profile = mutableStateOf(UserProfile())
     private val _totalScreenTimeState = mutableLongStateOf(0)
     private val _loadingState = mutableStateOf(true)
-    private val _appsState = mutableStateOf(listOf<UserApps>())
+    private val _suggestionsState = mutableStateListOf<UserApps>()
+    private val _appsState = mutableStateListOf<UserApps>()
     private val _iconsState = mutableStateOf(mapOf<String, String>())
     private lateinit var back : () -> Unit
-    val appState : List<UserApps>
-        get() = _appsState.value
+
+    val suggestionsState : List<UserApps>
+        get() = _suggestionsState
+
+    val appsState : List<UserApps>
+        get() = _appsState
 
     val iconState : Map<String, String>
         get() = _iconsState.value
@@ -37,18 +41,28 @@ class ParentChildAppsViewModel(
     val loadingState : Boolean
         get() = _loadingState.value
 
+
     init {
         viewModelScope.launch {
             val uid = usersRepository.getProfileUID(profileId)
-            _iconsState.value = appsRepository.getAppIcons(uid)
-            _appsState.value = appsRepository.getApps(uid)
             _profile.value = usersRepository.getProfile(uid)
 
             val suggestions = appsRepository.getSuggestedAppRestriction(_profile.value.age.toInt())
-            Log.w("SUGGESTIONS", suggestions.toString())
+            val apps = appsRepository.getApps(uid)
+            _iconsState.value = appsRepository.getAppIcons(uid, apps)
+
+            withContext(Dispatchers.Default) {
+                apps.forEach { app ->
+                    if (suggestions.contains(app.packageName)) {
+                        _suggestionsState.add(app)
+                    } else {
+                        _appsState.add(app)
+                    }
+                }
+            }
 
             withContext(Dispatchers.Default)  {
-                _appsState.value.forEach {app ->
+                _appsState.forEach {app ->
                     screenTimeHelper.addScreenTime(app.screenTime.toFloat())
                 }
                 _totalScreenTimeState.longValue = screenTimeHelper.getTotalScreenTime().toLong()
@@ -70,9 +84,8 @@ class ParentChildAppsViewModel(
 
     fun updateAppRestriction(appName: String, newRestriction: Boolean) {
         viewModelScope.launch {
-            async {
-                appsRepository.updateAppRestriction(profileId, appName, newRestriction)
-            }.await()
+            val uid = usersRepository.getProfileUID(profileId)
+            appsRepository.updateAppRestriction(uid, appName, newRestriction)
         }
     }
 

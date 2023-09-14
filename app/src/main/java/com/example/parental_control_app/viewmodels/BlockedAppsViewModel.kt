@@ -5,17 +5,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.parental_control_app.data.UserApps
 import com.example.parental_control_app.repositories.AppsRepository
+import com.example.parental_control_app.repositories.users.UsersRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class BlockedAppsViewModel(
     private val profileId: String,
     private val appsRepository: AppsRepository = AppsRepository(),
+    private val usersRepository: UsersRepository = UsersRepository(),
 ) : ViewModel(){
 
     private val _loadingState = mutableStateOf(true)
     private val _appsState = mutableStateOf(listOf<UserApps>())
     private val _iconsState = mutableStateOf(mapOf<String, String>())
+
     val appsState : List<UserApps>
         get() = _appsState.value
 
@@ -29,8 +32,9 @@ class BlockedAppsViewModel(
 
     init {
         viewModelScope.launch {
-            async { _appsState.value = appsRepository.getBlockedApps(profileId) }.await()
-            async { _iconsState.value = appsRepository.getAppIcons(profileId) }.await()
+            val uid = usersRepository.getProfileUID(profileId)
+            _appsState.value = appsRepository.getBlockedApps(uid)
+            _iconsState.value = appsRepository.getAppIcons(uid, _appsState.value)
             async { _loadingState.value = false }.await()
         }
     }
@@ -45,9 +49,7 @@ class BlockedAppsViewModel(
 
     fun updateAppRestriction(appName: String, newRestriction: Boolean) {
         viewModelScope.launch {
-            async {
-                appsRepository.updateAppRestriction(profileId, appName, newRestriction)
-            }.await()
+            appsRepository.updateAppRestriction(profileId, appName, newRestriction)
         }
     }
 }

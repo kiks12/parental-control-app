@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
@@ -60,7 +61,10 @@ class ChildrenMainActivity : AppCompatActivity() {
             var list = listOf<String>()
             async { toastHelper.makeToast("Starting App Blocker Worker") }.await()
             async { uid = usersRepository.getProfileUID(profile.profileId) }.await()
-            async { list = appsRepository.getBlockedAppNames(uid) }.await()
+            async {
+                list = appsRepository.getBlockedAppNames(uid)
+                Log.w("APP LOCK SERVICE LIST", list.toString())
+            }.await()
             async {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     // Stopping Service to ensure only one App locker service is working

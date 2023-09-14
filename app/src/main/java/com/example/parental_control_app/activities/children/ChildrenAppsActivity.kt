@@ -19,6 +19,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -26,6 +27,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +36,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +45,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.lifecycleScope
 import androidx.work.Data
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
@@ -51,6 +55,9 @@ import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
 import com.example.parental_control_app.workers.AppSaverWorker
 import com.example.parental_control_app.workers.ScreenTimeGetterWorker
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.TimeUnit
 
@@ -59,6 +66,9 @@ class ChildrenAppsActivity : AppCompatActivity() {
     private lateinit var profileSignOutHelper: ProfileSignOutHelper
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var profile: UserProfile
+
+    private val loading = mutableStateOf(true)
+    private val apps = mutableListOf<Map<String, Any>>()
 
     companion object {
         const val APP_PROFILE_ID_KEY = "APP_PROFILE_ID_KEY"
@@ -104,59 +114,37 @@ class ChildrenAppsActivity : AppCompatActivity() {
         WorkManager.getInstance(applicationContext).enqueue(periodicAppSaverWorker)
     }
 
-    private fun initializeUI() {
-        val list = mutableListOf<Map<String, Any>>()
+    private fun getUserInstalledApps() {
         val packages = packageManager.getInstalledApplications(0)
 
-        packages.forEach {
-            if (packageManager.getLaunchIntentForPackage(it.packageName!!) == null) return@forEach
+        lifecycleScope.launch(Dispatchers.Default) {
+            packages.forEach {
+                if (packageManager.getLaunchIntentForPackage(it.packageName!!) == null) return@forEach
 
-            val icon = it.loadIcon(packageManager)
+                val icon = it.loadIcon(packageManager)
 
-            if (icon != null) {
-                val bitmap = icon.toBitmap()
-                val byteArrayOutputStream = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+                if (icon != null) {
+                    val bitmap = icon.toBitmap()
+                    val byteArrayOutputStream = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
 
-                list.add(
-                    mapOf(
-                        "app" to it,
-                        "icon" to bitmap.asImageBitmap()
+                    apps.add(
+                        mapOf(
+                            "app" to it,
+                            "icon" to bitmap.asImageBitmap()
+                        )
                     )
-                )
-            }
-        }
-
-        setContent {
-            val apps = remember { list }
-
-            ParentalcontrolappTheme {
-                Scaffold (
-                    topBar = { TopBar(onBackClick = { finish() }) },
-                ){ innerPadding ->
-                    Surface (
-                        modifier = Modifier.padding(innerPadding)
-                    ){
-                        if (apps.isEmpty()) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ){
-                                Text("No Apps to Show")
-                            }
-                        } else {
-                            AppGrid(apps, packageManager)
-                        }
-                    }
                 }
             }
+
+            async { loading.value = false }.await()
         }
     }
 
-    private fun enqueueWorkerAndInitializeUI() {
+    private fun enqueueWorkerFetchData() {
         enqueueAppSaverWorker()
         enqueueScreenTimeGetterWorker()
-        initializeUI()
+        getUserInstalledApps()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -169,27 +157,49 @@ class ChildrenAppsActivity : AppCompatActivity() {
         when (isUsagePermissionGranted()) {
             true -> {
                 Log.w("PERMISSION", "Usage Permission Granted")
-                enqueueWorkerAndInitializeUI()
+                enqueueWorkerFetchData()
             }
             else -> {
                 Log.w("PERMISSION", "Usage Permission Denied")
                 val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                    if (result.resultCode == Activity.RESULT_OK) enqueueWorkerAndInitializeUI()
+                    if (result.resultCode == Activity.RESULT_OK) enqueueWorkerFetchData()
                 }
-
                 val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
 
                 resultLauncher.launch(intent)
             }
         }
-    }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        setContent {
+            val rememberedApps = remember { apps }
+
+            ParentalcontrolappTheme {
+                Scaffold (
+                    topBar = { TopBar(onBackClick = { finish() }) },
+                ){ innerPadding ->
+                    if (loading.value) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    } else {
+                        Surface (
+                            modifier = Modifier.padding(innerPadding)
+                        ){
+                            if (rememberedApps.isEmpty()) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ){
+                                    Text("No Apps to Show")
+                                }
+                            } else {
+                                AppGrid(rememberedApps, packageManager)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -204,7 +214,7 @@ private fun AppGrid(apps: List<Map<String, Any>>, packageManager: PackageManager
             val app = it["app"] as ApplicationInfo
             val label = packageManager.getApplicationLabel(app).toString()
             Row (
-                modifier = Modifier.padding(vertical = 10.dp),
+                modifier = Modifier.padding(vertical = 10.dp).fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ){
                 Box(modifier = Modifier

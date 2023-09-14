@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
@@ -23,20 +24,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
 import com.example.parental_control_app.components.AppCard
+import com.example.parental_control_app.components.AppCardType
 import com.example.parental_control_app.viewmodels.parent.ParentChildAppsViewModel
 
 @Composable
 fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
     val loading = viewModel.loadingState
-    val appsState = viewModel.appState
-    val iconState = viewModel.iconState
+    val suggestions = viewModel.suggestionsState
+    val apps = viewModel.appsState
+    val icons = viewModel.iconState
     val totalScreenTime = viewModel.getTotalScreenTime()
 
     ParentalcontrolappTheme {
         Scaffold(
             topBar = {
                 TopBar(
-                    appSize = appsState.size,
+                    appsCount = suggestions.size + apps.size,
                     onBackClick = viewModel.onBackClick()
                 )
             }
@@ -54,30 +57,40 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
                     }
                 }
             }
-            else if (appsState.isEmpty()) {
-                Column (
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ){
-                    Text("No Apps to show")
-                }
-            }
             else {
                 LazyColumn(
                     modifier = Modifier.padding(innerPadding)
                 ) {
-                    appsState.forEach {
-                        item {
-                            iconState[it.packageName]?.let { it1 ->
-                                AppCard(
-                                    app = it,
-                                    appIcon = it1,
-                                    totalScreenTime = totalScreenTime.toLong(),
-                                    onCheckedChange = viewModel::updateAppRestriction
-                                )
-                            }
+                    item { Text("Suggestions", modifier = Modifier.padding(horizontal = 10.dp)) }
+
+                    if (suggestions.isNotEmpty()) {
+                        items(suggestions) { suggestion ->
+                            AppCard(
+                                app = suggestion,
+                                appIcon = icons[suggestion.packageName]!!,
+                                totalScreenTime = totalScreenTime.toLong(),
+                                type = AppCardType.SUGGESTIONS,
+                                onCheckedChange = viewModel::updateAppRestriction,
+                            )
                         }
+                    } else {
+                        item { Text("No Suggestions available", modifier = Modifier.padding(horizontal = 10.dp)) }
+                    }
+
+                    item { Text("Apps", modifier = Modifier.padding(horizontal = 10.dp)) }
+
+                    if (apps.isNotEmpty()) {
+                        items(apps) {app ->
+                            AppCard(
+                                app = app,
+                                appIcon = icons[app.packageName]!!,
+                                totalScreenTime = totalScreenTime.toLong(),
+                                type = AppCardType.APP,
+                                onCheckedChange = viewModel::updateAppRestriction
+                            )
+                        }
+                    } else {
+                        item { Text("No Apps available", modifier = Modifier.padding(horizontal = 10.dp)) }
                     }
                 }
             }
@@ -87,14 +100,14 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopBar(appSize: Int, onBackClick: () -> Unit) {
+private fun TopBar(appsCount: Int, onBackClick: () -> Unit) {
     TopAppBar(
         navigationIcon = { IconButton(onClick = { onBackClick() }) {
             Icon(Icons.Rounded.ArrowBack, "back")
         } },
         title = { Text("Child Apps") },
         actions = {
-            Text("$appSize Apps", modifier = Modifier.padding(end = 10.dp))
+            Text("$appsCount Apps", modifier = Modifier.padding(end = 10.dp))
         }
     )
 }

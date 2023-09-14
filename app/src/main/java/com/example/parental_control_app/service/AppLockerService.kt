@@ -29,7 +29,7 @@ class AppLockerService : Service(){
             TODO("VERSION.SDK_INT < LOLLIPOP_MR1")
         }
 
-        val usageEvents = usageStatsManager.queryEvents(currentTime - 2000, System.currentTimeMillis())
+        val usageEvents = usageStatsManager.queryEvents(currentTime - 1000, System.currentTimeMillis())
         val event = UsageEvents.Event()
 
         while (usageEvents.hasNextEvent()) {
@@ -62,10 +62,10 @@ class AppLockerService : Service(){
     private fun monitorRunningApp(blockedAppNames : List<String>?) {
         runnable = Runnable {
             val currentAppPackageName = getCurrentRunningAppPackageName(applicationContext)
-            Log.w("APP LOCK SERVICE B", blockedAppNames.toString())
+            Log.w("APP LOCK SERVICE APPS", blockedAppNames.toString())
             if (currentAppPackageName != null) {
                 if (blockedAppNames != null && blockedAppNames.contains(currentAppPackageName)) {
-                    Log.w("APP LOCK SERVICE", "Current Running App Package Name: $currentAppPackageName")
+                    Log.w("APP LOCK SERVICE CURR", "Current Running App Package Name: $currentAppPackageName")
                     val intent = Intent(applicationContext, LockActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     applicationContext.startActivity(intent)
