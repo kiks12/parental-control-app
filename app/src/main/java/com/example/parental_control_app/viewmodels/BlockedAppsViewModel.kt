@@ -18,6 +18,7 @@ class BlockedAppsViewModel(
     private val _loadingState = mutableStateOf(true)
     private val _appsState = mutableStateOf(listOf<UserApps>())
     private val _iconsState = mutableStateOf(mapOf<String, String>())
+    private val _uidState = mutableStateOf<String?>(null)
 
     val appsState : List<UserApps>
         get() = _appsState.value
@@ -35,6 +36,7 @@ class BlockedAppsViewModel(
             val uid = usersRepository.getProfileUID(profileId)
             _appsState.value = appsRepository.getBlockedApps(uid)
             _iconsState.value = appsRepository.getAppIcons(uid, _appsState.value)
+            async { _uidState.value = uid }.await()
             async { _loadingState.value = false }.await()
         }
     }
@@ -49,7 +51,7 @@ class BlockedAppsViewModel(
 
     fun updateAppRestriction(appName: String, newRestriction: Boolean) {
         viewModelScope.launch {
-            appsRepository.updateAppRestriction(profileId, appName, newRestriction)
+            appsRepository.updateAppRestriction(_uidState.value!!, appName, newRestriction)
         }
     }
 }

@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -22,7 +24,7 @@ import androidx.work.WorkManager
 import com.example.parental_control_app.screens.children.ChildrenScreen
 import com.example.parental_control_app.viewmodels.children.ChildrenViewModel
 import com.example.parental_control_app.helpers.ProfileSignOutHelper
-import com.example.parental_control_app.helpers.SharedPreferencesHelper
+import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.helpers.ToastHelper
 import com.example.parental_control_app.repositories.AppsRepository
@@ -43,7 +45,7 @@ class ChildrenMainActivity : AppCompatActivity() {
     private val usersRepository = UsersRepository()
 
     companion object {
-        const val BLOCKED_APPS_KEY = "BLOCKED_APPS_KEY"
+//        const val BLOCKED_APPS_KEY = "BLOCKED_APPS_KEY"
         const val NOTIFICATION_PERMISSION_CODE = 10
     }
 
@@ -55,26 +57,51 @@ class ChildrenMainActivity : AppCompatActivity() {
         return true
     }
 
+    private fun isOnline(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+            } else {
+                TODO("VERSION.SDK_INT < M")
+            }
+        if (capabilities != null) {
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
+                return true
+            }
+        }
+        return false
+    }
+
     private fun startAppLockerForegroundService() {
         lifecycleScope.launch {
-            var uid = ""
-            var list = listOf<String>()
             async { toastHelper.makeToast("Starting App Blocker Worker") }.await()
-            async { uid = usersRepository.getProfileUID(profile.profileId) }.await()
-            async {
-                list = appsRepository.getBlockedAppNames(uid)
+
+            if (isOnline(this@ChildrenMainActivity)) {
+                Log.w("APP LOCK SERVICE LIST", "IS ONLINE")
+                val uid = usersRepository.getProfileUID(profile.profileId)
+                val list = appsRepository.getBlockedAppNames(uid)
                 Log.w("APP LOCK SERVICE LIST", list.toString())
-            }.await()
+
+                SharedPreferencesManager.storeBlockedApps(sharedPreferences, list)
+            }
+
             async {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     // Stopping Service to ensure only one App locker service is working
                     stopService(Intent(applicationContext, AppLockerService::class.java))
-                    startForegroundService(
-                        Intent(applicationContext, AppLockerService::class.java)
-                            .putExtra(BLOCKED_APPS_KEY, list.toTypedArray())
-                    )
+                    startForegroundService(Intent(applicationContext, AppLockerService::class.java))
                 }
             }.await()
+
             async { toastHelper.makeToast("App Blocker Worker Running") }.await()
         }
     }
@@ -94,14 +121,14 @@ class ChildrenMainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        sharedPreferences = getSharedPreferences(SharedPreferencesHelper.PREFS_KEY, Context.MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences(SharedPreferencesManager.PREFS_KEY, Context.MODE_PRIVATE)
         profileSignOutHelper = ProfileSignOutHelper(this, sharedPreferences)
-        profile = SharedPreferencesHelper.getProfile(sharedPreferences)!!
+        profile = SharedPreferencesManager.getProfile(sharedPreferences)!!
 
         val activityStarterHelper = ActivityStarterHelper(this)
         val childrenViewModel = ChildrenViewModel(activityStarterHelper)
         childrenViewModel.setSignOutFunction {
-            stopService(Intent(applicationContext, AppLockerService::class.java))
+//            stopService(Intent(applicationContext, AppLockerService::class.java))
             WorkManager.getInstance(applicationContext).cancelAllWork()
             profileSignOutHelper.signOut()
         }

@@ -49,7 +49,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.work.Data
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import com.example.parental_control_app.helpers.SharedPreferencesHelper
+import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.helpers.ProfileSignOutHelper
 import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
@@ -150,9 +150,9 @@ class ChildrenAppsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        sharedPreferences = getSharedPreferences(SharedPreferencesHelper.PREFS_KEY, Context.MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences(SharedPreferencesManager.PREFS_KEY, Context.MODE_PRIVATE)
         profileSignOutHelper = ProfileSignOutHelper(this, sharedPreferences)
-        profile = SharedPreferencesHelper.getProfile(sharedPreferences)!!
+        profile = SharedPreferencesManager.getProfile(sharedPreferences)!!
 
         when (isUsagePermissionGranted()) {
             true -> {

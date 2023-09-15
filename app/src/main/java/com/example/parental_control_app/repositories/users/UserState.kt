@@ -13,6 +13,7 @@ data class UserProfile(
     val name: String,
     val userId: String,
     val age: String = "",
+    val birthday: Long = 0,
     val parent: Boolean = false,
     val child: Boolean = false,
     val phoneNumber: String? = null,

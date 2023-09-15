@@ -13,7 +13,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.parental_control_app.R
 import com.example.parental_control_app.activities.LockActivity
-import com.example.parental_control_app.activities.children.ChildrenMainActivity
+import com.example.parental_control_app.managers.SharedPreferencesManager
 
 class AppLockerService : Service(){
 
@@ -45,7 +45,9 @@ class AppLockerService : Service(){
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        val blockedApps = intent?.getStringArrayExtra(ChildrenMainActivity.BLOCKED_APPS_KEY)
+        val sharedPreferences = getSharedPreferences(SharedPreferencesManager.PREFS_KEY, MODE_PRIVATE)
+        val blockedApps = SharedPreferencesManager.getBlockedApps(sharedPreferences)
+
         val notification = NotificationCompat.Builder(this, "app_locker_channel")
             .setContentTitle("App Locker")
             .setContentText("Locking Blocked Apps")
@@ -54,7 +56,7 @@ class AppLockerService : Service(){
 
         startForeground(1, notification)
 
-        monitorRunningApp(blockedApps?.toList())
+        monitorRunningApp(blockedApps)
 
         return START_STICKY
     }

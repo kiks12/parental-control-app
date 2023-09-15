@@ -25,14 +25,19 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -42,13 +47,13 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -66,6 +71,9 @@ import com.example.parental_control_app.viewmodels.StartupState
 import com.example.parental_control_app.viewmodels.StartupViewModel
 import com.example.parental_control_app.viewmodels.SurveyAnswers
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.random.Random
 
 
@@ -219,116 +227,167 @@ fun PasswordBottomSheet(
 
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateProfileForm(
     uiState: StartupState,
     viewModel: StartupViewModel,
 ) {
 
-    var isParent by remember {
-        mutableStateOf(true)
-    }
+    val isParent = remember { mutableStateOf(true) }
+    val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.ROOT)
+    val openDateDialog = remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp)
+            .padding(horizontal = 25.dp, vertical = 10.dp)
     ){
-        Text("Create new Profile", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = uiState.profileInput.name,
-            onValueChange = viewModel::onNameChange,
-            label = { Text("Name")}
-        )
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = uiState.profileInput.age,
-            onValueChange = viewModel::onAgeChange,
-            label = { Text("Age")},
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = uiState.profileInput.phoneNumber!!,
-            onValueChange = viewModel::onPhoneNumberChange,
-            label = { Text("Phone Number")}
-        )
 
-        Spacer(modifier = Modifier.height(20.dp))
-        Text("Profile Type:")
-        Row(
-            Modifier
-                .selectableGroup()
-                .fillMaxWidth()) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
-                    selected = isParent,
-                    onClick = {
-                        isParent = true
-                        viewModel.changeProfileType(true)
+        if (openDateDialog.value) {
+            item {
+                val confirmEnabled = remember { derivedStateOf { datePickerState.selectedDateMillis != null } }
+                DatePickerDialog(
+                    onDismissRequest = {
+                        openDateDialog.value = false
+                        datePickerState.selectedDateMillis = null
                     },
-                    modifier = Modifier.semantics { contentDescription = "Parent Profile" }
-                )
-                Text("Parent")
-            }
-            Spacer(modifier = Modifier.width(20.dp))
-            Row (
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                RadioButton(
-                    selected = !isParent,
-                    onClick = {
-                        isParent = false
-                        viewModel.changeProfileType(false)
+                    confirmButton = {
+                        TextButton(onClick = { openDateDialog.value = false }, enabled = confirmEnabled.value) {
+                            viewModel.onBirthdayChange(datePickerState.selectedDateMillis!!)
+                            Text("OK")
+                        }
                     },
-                    modifier = Modifier.semantics { contentDescription = "Child Profile" }
-                )
-                Text("Child")
-            }
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-
-        AnimatedVisibility(isParent) {
-            Column {
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = uiState.profileInput.password,
-                    onValueChange = viewModel::onPasswordChange,
-                    label = { Text("Password") },
-                )
-                Text(
-                    text = "Password is required to parents profile to ensure that child users will not be able to access parent specific features.",
-                    fontSize = 12.sp
-                    )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(50.dp))
-
-        Row {
-            FilledTonalButton(onClick = viewModel::stopCreatingProfile) {
-                Text(
-                    modifier = Modifier.padding(horizontal = 10.dp),
-                    text = "Cancel"
-                )
-            }
-            Spacer(modifier = Modifier.width(10.dp))
-            if (isParent) {
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = viewModel::createProfile
+                    dismissButton = {
+                        TextButton(onClick = { openDateDialog.value = false }) {
+                            datePickerState.selectedDateMillis = null
+                            Text("Cancel")
+                        }
+                    }
                 ) {
-                    Text("Create Profile")
+                    DatePicker(state = datePickerState)
                 }
-            } else {
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = viewModel::startAnsweringSurvey
+            }
+        }
+
+        item { Text("Create new Profile", fontSize = 20.sp, fontWeight = FontWeight.SemiBold) }
+        item {
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth().padding(bottom = 15.dp),
+                value = uiState.profileInput.name,
+                onValueChange = viewModel::onNameChange,
+                label = { Text("Name")}
+            )
+        }
+        item {
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 15.dp),
+                value = if (datePickerState.selectedDateMillis != null) formatter.format(Date(datePickerState.selectedDateMillis!!)) else "MM/DD/YYYY",
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Birthday") },
+                trailingIcon = { IconButton(onClick = { openDateDialog.value = true }) {
+                    Icon(Icons.Rounded.DateRange, "date picker")
+                } }
+            )
+        }
+        item {
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth().padding(bottom = 15.dp),
+                value = uiState.profileInput.age,
+                onValueChange = viewModel::onAgeChange,
+                label = { Text("Age")},
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+        }
+        item {
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth().padding(bottom = 20.dp),
+                value = uiState.profileInput.phoneNumber!!,
+                onValueChange = viewModel::onPhoneNumberChange,
+                label = { Text("Phone Number")}
+            )
+        }
+        item { Text("Profile Type:") }
+        item {
+            Row(
+                Modifier
+                    .selectableGroup()
+                    .fillMaxWidth()) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Next")
+                    RadioButton(
+                        selected = isParent.value,
+                        onClick = {
+                            isParent.value = true
+                            viewModel.changeProfileType(true)
+                        },
+                        modifier = Modifier.semantics { contentDescription = "Parent Profile" }
+                    )
+                    Text("Parent")
+                }
+                Spacer(modifier = Modifier.width(20.dp))
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    RadioButton(
+                        selected = !isParent.value,
+                        onClick = {
+                            isParent.value = false
+                            viewModel.changeProfileType(false)
+                        },
+                        modifier = Modifier.semantics { contentDescription = "Child Profile" }
+                    )
+                    Text("Child")
+                }
+            }
+        }
+        item {
+            AnimatedVisibility(isParent.value) {
+                Column {
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .fillMaxWidth().padding(bottom = 20.dp),
+                        value = uiState.profileInput.password,
+                        onValueChange = viewModel::onPasswordChange,
+                        label = { Text("Password") },
+                    )
+                    Text(
+                        text = "Password is required to parents profile to ensure that child users will not be able to access parent specific features.",
+                        fontSize = 12.sp
+                    )
+                }
+            }
+        }
+        item { Spacer(modifier = Modifier.height(50.dp)) }
+        item {
+            Row {
+                FilledTonalButton(onClick = viewModel::stopCreatingProfile) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = 10.dp),
+                        text = "Cancel"
+                    )
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                if (isParent.value) {
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = viewModel::createProfile
+                    ) {
+                        Text("Create Profile")
+                    }
+                } else {
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = viewModel::startAnsweringSurvey
+                    ) {
+                        Text("Next")
+                    }
                 }
             }
         }

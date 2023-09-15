@@ -43,7 +43,7 @@ fun BlockedAppsScreen(viewModel: BlockedAppsViewModel) {
                 )
             }
         ){ innerPadding ->
-            if (loading) {
+            if (loading && apps.isEmpty() && icons.isEmpty()) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Box (
                         modifier = Modifier
@@ -55,6 +55,7 @@ fun BlockedAppsScreen(viewModel: BlockedAppsViewModel) {
                 }
             } else if (apps.isEmpty()) {
                 Column (
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ){

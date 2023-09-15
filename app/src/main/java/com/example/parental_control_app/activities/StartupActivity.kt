@@ -11,7 +11,7 @@ import androidx.activity.compose.setContent
 import com.example.parental_control_app.activities.children.ChildrenMainActivity
 import com.example.parental_control_app.activities.parent.ParentMainActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
-import com.example.parental_control_app.helpers.SharedPreferencesHelper
+import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.helpers.ProfileSignOutHelper
 import com.example.parental_control_app.helpers.ToastHelper
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
@@ -35,8 +35,8 @@ class StartupActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        sharedPreferences = getSharedPreferences(SharedPreferencesHelper.PREFS_KEY, Context.MODE_PRIVATE)
-        profile = SharedPreferencesHelper.getProfile(sharedPreferences)
+        sharedPreferences = getSharedPreferences(SharedPreferencesManager.PREFS_KEY, Context.MODE_PRIVATE)
+        profile = SharedPreferencesManager.getProfile(sharedPreferences)
 
         toastHelper = ToastHelper(this)
         activityStarterHelper = ActivityStarterHelper(this)

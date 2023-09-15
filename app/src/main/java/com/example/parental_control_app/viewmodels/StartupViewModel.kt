@@ -10,7 +10,7 @@ import com.example.parental_control_app.activities.LoginActivity
 import com.example.parental_control_app.activities.children.ChildrenMainActivity
 import com.example.parental_control_app.activities.parent.ParentMainActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
-import com.example.parental_control_app.helpers.SharedPreferencesHelper
+import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.helpers.ProfileSignOutHelper
 import com.example.parental_control_app.helpers.ToastHelper
 import com.example.parental_control_app.repositories.users.UserMaturityLevel
@@ -193,6 +193,10 @@ class StartupViewModel(
         _uiState.value = _uiState.value.copy(profileInput = _uiState.value.profileInput.copy(age = newAge))
     }
 
+    fun onBirthdayChange(newBirthday: Long) {
+        _uiState.value = _uiState.value.copy(profileInput = _uiState.value.profileInput.copy(birthday = newBirthday))
+    }
+
     fun startCreatingProfile() {
         _uiState.value = _uiState.value.copy(
             creatingProfile = true
@@ -289,6 +293,7 @@ class StartupViewModel(
     fun createProfile() {
         if (_uiState.value.profileInput.name.isEmpty()
             || _uiState.value.profileInput.age.isEmpty()
+            || _uiState.value.profileInput.birthday == 0L
             ) {
             toastHelper.makeToast("Make sure to fill up all the fields")
             return
@@ -308,11 +313,11 @@ class StartupViewModel(
             profileInput = _uiState.value.profileInput.copy(
                 profileId = hashedProfileId,
                 password = hashedPassword,
-                userId = _uiState.value.user.userId
+                userId = _uiState.value.user.userId,
             )
         )
 
-//        if (_uiState.value.profileInput)
+        Log.w("USER PROFILE FORM", _uiState.value.profileInput.toString())
 
         _uiState.value = _uiState.value.copy(
             profiles = _uiState.value.profiles.plus(_uiState.value.profileInput),
@@ -326,7 +331,7 @@ class StartupViewModel(
             )
         )
 
-        stopCreatingProfile()
+//        stopCreatingProfile()
     }
     /**
      * Profile Creation Form related methods
@@ -336,7 +341,7 @@ class StartupViewModel(
 
     fun setSharedPreferencesProfile(profile: UserProfile) {
         val editor = sharedPreferences.edit()
-        editor.putString(SharedPreferencesHelper.PROFILE_KEY, SharedPreferencesHelper.createJsonString(profile))
+        editor.putString(SharedPreferencesManager.PROFILE_KEY, SharedPreferencesManager.createJsonString(profile))
         editor.apply()
     }
 
