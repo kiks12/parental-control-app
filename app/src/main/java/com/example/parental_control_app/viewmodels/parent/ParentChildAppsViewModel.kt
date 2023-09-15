@@ -1,12 +1,10 @@
 package com.example.parental_control_app.viewmodels.parent
 
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.parental_control_app.data.UserApps
-import com.example.parental_control_app.helpers.ScreenTimeHelper
 import com.example.parental_control_app.repositories.AppsRepository
 import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.repositories.users.UsersRepository
@@ -16,13 +14,11 @@ import kotlinx.coroutines.withContext
 
 class ParentChildAppsViewModel(
     private val profileId: String,
-    private val screenTimeHelper : ScreenTimeHelper = ScreenTimeHelper(),
     private val appsRepository: AppsRepository = AppsRepository(),
     private val usersRepository: UsersRepository = UsersRepository(),
 ) : ViewModel(){
 
     private val _profile = mutableStateOf(UserProfile())
-    private val _totalScreenTimeState = mutableLongStateOf(0)
     private val _loadingState = mutableStateOf(true)
     private val _suggestionsState = mutableStateListOf<UserApps>()
     private val _appsState = mutableStateListOf<UserApps>()
@@ -61,13 +57,6 @@ class ParentChildAppsViewModel(
                 }
             }
 
-            withContext(Dispatchers.Default)  {
-                _appsState.forEach {app ->
-                    screenTimeHelper.addScreenTime(app.screenTime.toFloat())
-                }
-                _totalScreenTimeState.longValue = screenTimeHelper.getTotalScreenTime().toLong()
-            }
-
             withContext(Dispatchers.Main) {
                 _loadingState.value = false
             }
@@ -87,9 +76,5 @@ class ParentChildAppsViewModel(
             val uid = usersRepository.getProfileUID(profileId)
             appsRepository.updateAppRestriction(uid, appName, newRestriction)
         }
-    }
-
-    fun getTotalScreenTime() : Float {
-        return screenTimeHelper.getTotalScreenTime()
     }
 }

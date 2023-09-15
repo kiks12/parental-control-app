@@ -16,11 +16,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
 import com.example.parental_control_app.components.AppCard
@@ -33,7 +38,8 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
     val suggestions = viewModel.suggestionsState
     val apps = viewModel.appsState
     val icons = viewModel.iconState
-    val totalScreenTime = viewModel.getTotalScreenTime()
+
+    val selectedTabIndex = remember { mutableIntStateOf(0) }
 
     ParentalcontrolappTheme {
         Scaffold(
@@ -58,39 +64,49 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
                 }
             }
             else {
-                LazyColumn(
-                    modifier = Modifier.padding(innerPadding)
-                ) {
-                    item { Text("Suggestions", modifier = Modifier.padding(horizontal = 10.dp)) }
-
-                    if (suggestions.isNotEmpty()) {
-                        items(suggestions) { suggestion ->
-                            AppCard(
-                                app = suggestion,
-                                appIcon = icons[suggestion.packageName]!!,
-                                totalScreenTime = totalScreenTime.toLong(),
-                                type = AppCardType.SUGGESTIONS,
-                                onCheckedChange = viewModel::updateAppRestriction,
-                            )
-                        }
-                    } else {
-                        item { Text("No Suggestions available", modifier = Modifier.padding(horizontal = 10.dp)) }
+                Column(
+                    Modifier.padding(innerPadding)
+                ){
+                    TabRow(selectedTabIndex = selectedTabIndex.intValue){
+                        Tab(
+                            selected = selectedTabIndex.intValue == 0,
+                            onClick = { selectedTabIndex.intValue = 0 },
+                            text = { Text("Apps") }
+                        )
+                        Tab(
+                            selected = selectedTabIndex.intValue == 1,
+                            onClick = { selectedTabIndex.intValue = 1 },
+                            text = { Text("Suggestions") }
+                        )
                     }
-
-                    item { Text("Apps", modifier = Modifier.padding(horizontal = 10.dp)) }
-
-                    if (apps.isNotEmpty()) {
-                        items(apps) {app ->
-                            AppCard(
-                                app = app,
-                                appIcon = icons[app.packageName]!!,
-                                totalScreenTime = totalScreenTime.toLong(),
-                                type = AppCardType.APP,
-                                onCheckedChange = viewModel::updateAppRestriction
-                            )
+                    LazyColumn(Modifier.fillMaxSize()) {
+                        if (suggestions.isNotEmpty()) {
+                            items(suggestions) { suggestion ->
+                                AppCard(
+                                    app = suggestion,
+                                    appIcon = icons[suggestion.packageName]!!,
+                                    type = AppCardType.SUGGESTIONS,
+                                    onCheckedChange = viewModel::updateAppRestriction,
+                                )
+                            }
+                        } else {
+                            item { Text("No Suggested Apps available", textAlign = TextAlign.Center) }
                         }
-                    } else {
-                        item { Text("No Apps available", modifier = Modifier.padding(horizontal = 10.dp)) }
+
+                        if (selectedTabIndex.intValue == 0) {
+                            if (apps.isNotEmpty()) {
+                                items(apps) {app ->
+                                    AppCard(
+                                        app = app,
+                                        appIcon = icons[app.packageName]!!,
+                                        type = AppCardType.APP,
+                                        onCheckedChange = viewModel::updateAppRestriction
+                                    )
+                                }
+                            } else {
+                                item { Text("No Apps available", textAlign = TextAlign.Center) }
+                            }
+                        }
                     }
                 }
             }
