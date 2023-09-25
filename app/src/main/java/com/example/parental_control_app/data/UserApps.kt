@@ -7,6 +7,7 @@ data class UserApps (
     val label: String = "",
     val restricted: Boolean = false,
     val screenTime: Long = 0,
+    var limit: Long = 0,
 ) {
     constructor() : this("")
 }

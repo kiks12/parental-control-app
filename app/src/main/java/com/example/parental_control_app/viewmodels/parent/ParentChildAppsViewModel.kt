@@ -77,4 +77,11 @@ class ParentChildAppsViewModel(
             appsRepository.updateAppRestriction(uid, appName, newRestriction)
         }
     }
+
+    fun updateAppScreenTimeLimit(appName: String, newTimeLimit: Long){
+        viewModelScope.launch {
+            val uid = usersRepository.getProfileUID(profileId)
+            appsRepository.updateAppScreenTimeLimit(uid, appName, newTimeLimit)
+        }
+    }
 }

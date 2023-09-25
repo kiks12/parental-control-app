@@ -73,7 +73,8 @@ fun BlockedAppsScreen(viewModel: BlockedAppsViewModel) {
                                     app = it,
                                     appIcon = it1,
                                     type = AppCardType.APP,
-                                    onCheckedChange = viewModel::updateAppRestriction
+                                    onCheckedChange = viewModel::updateAppRestriction,
+                                    onTimeLimitChange = viewModel::updateAppScreenTimeLimit
                                 )
                             }
                         }

@@ -54,4 +54,10 @@ class BlockedAppsViewModel(
             appsRepository.updateAppRestriction(_uidState.value!!, appName, newRestriction)
         }
     }
+
+    fun updateAppScreenTimeLimit(appName: String, newTimeLimit: Long) {
+        viewModelScope.launch {
+            appsRepository.updateAppScreenTimeLimit(_uidState.value!!, appName, newTimeLimit)
+        }
+    }
 }

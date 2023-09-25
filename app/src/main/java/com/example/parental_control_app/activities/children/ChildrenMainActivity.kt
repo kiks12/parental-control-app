@@ -45,7 +45,6 @@ class ChildrenMainActivity : AppCompatActivity() {
     private val usersRepository = UsersRepository()
 
     companion object {
-//        const val BLOCKED_APPS_KEY = "BLOCKED_APPS_KEY"
         const val NOTIFICATION_PERMISSION_CODE = 10
     }
 
@@ -88,7 +87,7 @@ class ChildrenMainActivity : AppCompatActivity() {
             if (isOnline(this@ChildrenMainActivity)) {
                 Log.w("APP LOCK SERVICE LIST", "IS ONLINE")
                 val uid = usersRepository.getProfileUID(profile.profileId)
-                val list = appsRepository.getBlockedAppNames(uid)
+                val list= appsRepository.getBlockedApps(uid)
                 Log.w("APP LOCK SERVICE LIST", list.toString())
 
                 SharedPreferencesManager.storeBlockedApps(sharedPreferences, list)
@@ -128,7 +127,6 @@ class ChildrenMainActivity : AppCompatActivity() {
         val activityStarterHelper = ActivityStarterHelper(this)
         val childrenViewModel = ChildrenViewModel(activityStarterHelper)
         childrenViewModel.setSignOutFunction {
-//            stopService(Intent(applicationContext, AppLockerService::class.java))
             WorkManager.getInstance(applicationContext).cancelAllWork()
             profileSignOutHelper.signOut()
         }

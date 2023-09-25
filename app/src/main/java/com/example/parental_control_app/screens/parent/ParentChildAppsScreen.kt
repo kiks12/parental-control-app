@@ -87,6 +87,7 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
                                     appIcon = icons[suggestion.packageName]!!,
                                     type = AppCardType.SUGGESTIONS,
                                     onCheckedChange = viewModel::updateAppRestriction,
+                                    onTimeLimitChange = viewModel::updateAppScreenTimeLimit
                                 )
                             }
                         } else {
@@ -100,7 +101,8 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
                                         app = app,
                                         appIcon = icons[app.packageName]!!,
                                         type = AppCardType.APP,
-                                        onCheckedChange = viewModel::updateAppRestriction
+                                        onCheckedChange = viewModel::updateAppRestriction,
+                                        onTimeLimitChange = viewModel::updateAppScreenTimeLimit
                                     )
                                 }
                             } else {

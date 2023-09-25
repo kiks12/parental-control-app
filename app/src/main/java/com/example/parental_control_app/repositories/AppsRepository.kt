@@ -84,23 +84,6 @@ class AppsRepository {
         return appNames
     }
 
-    suspend fun getBlockedAppNames(uid: String) : List<String> {
-        val blockedAppNames = mutableListOf<String>()
-
-        coroutineScope {
-            launch(Dispatchers.IO) {
-                val apps = db.collection("profiles/$uid/apps")
-                    .whereEqualTo("restricted", true)
-                    .get().await()
-                apps.documents.forEach {app ->
-                    blockedAppNames.add(app.data?.get("packageName").toString())
-                }
-            }
-        }
-
-        return blockedAppNames
-    }
-
     suspend fun saveApps(uid: String, apps: List<UserApps>) : String? {
         val completableMessage = CompletableDeferred<String?>(null)
         val batch = db.batch()
@@ -168,11 +151,30 @@ class AppsRepository {
     suspend fun updateAppRestriction(uid: String, appName: String, newRestriction: Boolean) {
         coroutineScope {
             launch(Dispatchers.IO) {
+                val query = db.collection("profiles/$uid/apps").whereEqualTo("packageName", appName)
+                    .limit(1)
+                val docs = query.get().await()
+                db.collection("profiles/$uid/apps")
+                    .document(docs.documents[0].id)
+                    .update(
+                        "restricted", newRestriction,
+                        "limit", 0
+                    ).await()
+            }
+        }
+    }
+
+    suspend fun updateAppScreenTimeLimit(uid: String, appName: String, newTimeLimit: Long) {
+        coroutineScope {
+            launch(Dispatchers.IO){
                 val query = db.collection("profiles/$uid/apps").whereEqualTo("packageName", appName).limit(1)
                 val docs = query.get().await()
                 db.collection("profiles/$uid/apps")
                     .document(docs.documents[0].id)
-                    .update("restricted", newRestriction).await()
+                    .update(
+                        "limit",
+                        newTimeLimit
+                    ).await()
             }
         }
     }
@@ -184,7 +186,7 @@ class AppsRepository {
                 async {
                     apps.forEach {app ->
                         val query = db.collection("profiles/$uid/apps")
-                            .whereEqualTo("packageName", app.packageName)
+                            .whereEqualTo("packageName", app.packageName).limit(1)
                         val docs = query.get().await()
                         docs.forEach { document ->
                             val ref = db.collection("profiles/$uid/apps")
