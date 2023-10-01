@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.example.parental_control_app.data
 
 import androidx.compose.ui.graphics.Color
@@ -74,8 +76,9 @@ data class DrawingAngles(val start: Float, val end: Float)
 
 
 
+@Suppress("unused")
 class DonutChartState(
-    val state: State = State.Unselected
+    private val state: State = State.Unselected
 ) {
     val stroke: Dp
         get() = when (state) {

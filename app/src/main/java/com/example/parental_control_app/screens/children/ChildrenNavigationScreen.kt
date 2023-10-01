@@ -1,6 +1,6 @@
 package com.example.parental_control_app.screens.children
 
-import ChildrenScreenBottomNavRoutes
+import com.example.parental_control_app.data.ChildrenScreenBottomNavRoutes
 import android.annotation.SuppressLint
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
@@ -17,7 +17,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.parental_control_app.screens.SettingsScreen
-import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.viewmodels.children.ChildrenViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -25,7 +25,7 @@ import com.example.parental_control_app.viewmodels.children.ChildrenViewModel
 fun ChildrenScreen(viewModel: ChildrenViewModel) {
     val controller = viewModel.getController()
 
-    ParentalcontrolappTheme {
+    ParentalControlAppTheme {
         Scaffold(
             bottomBar = { ChildrenBottomNavigationBar(controller) } ,
             content = {

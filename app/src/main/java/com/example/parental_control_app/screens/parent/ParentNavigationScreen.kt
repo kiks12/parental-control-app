@@ -1,6 +1,6 @@
 package com.example.parental_control_app.screens.parent
 
-import ParentScreenBottomNavRoutes
+import com.example.parental_control_app.data.ParentScreenBottomNavRoutes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -19,14 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.viewmodels.parent.ParentNavigationViewModel
 
 @Composable
 fun ParentNavigationScreen(viewModel: ParentNavigationViewModel) {
     val controller = viewModel.getController()
 
-    ParentalcontrolappTheme {
+    ParentalControlAppTheme {
         Scaffold (
             bottomBar = { ParentNavigationBar(controller)}
         ){ innerPadding ->

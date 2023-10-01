@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.screens.notifications.NotificationsScreen
-import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.viewmodels.notifications.NotificationsViewModel
 
 class NotificationsActivity : AppCompatActivity() {
@@ -20,7 +20,7 @@ class NotificationsActivity : AppCompatActivity() {
         notificationsViewModel.setActivityStarterHelper(activityStarterHelper)
 
         setContent {
-            ParentalcontrolappTheme {
+            ParentalControlAppTheme {
                 NotificationsScreen(notificationsViewModel)
             }
         }

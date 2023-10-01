@@ -11,6 +11,7 @@ class SharedPreferencesManager{
     companion object {
         const val PREFS_KEY = "Prefs"
         const val PROFILE_KEY = "Profile"
+        const val UID_KEY = "UID"
         private const val BLOCKED_APPS_LIMIT_KEY = "BlockedAppsLimit"
 
 
@@ -32,13 +33,16 @@ class SharedPreferencesManager{
             editor.apply()
         }
 
-        fun getBlockedApps(sharedPreferences: SharedPreferences) : List<UserApps> {
+        fun getBlockedApps(sharedPreferences: SharedPreferences): List<UserApps> {
             val gson = Gson()
             val json = sharedPreferences.getString(BLOCKED_APPS_LIMIT_KEY, "") ?: return emptyList()
             val typeToken = object : TypeToken<List<UserApps>>() {}.type
-            val list = gson.fromJson<List<UserApps>>(json, typeToken)
 
-            return list
+            return gson.fromJson(json, typeToken)
+        }
+
+        fun getUID(sharedPreferences: SharedPreferences) : String? {
+            return sharedPreferences.getString(UID_KEY, "")
         }
 
     }

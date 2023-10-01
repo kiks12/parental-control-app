@@ -343,6 +343,12 @@ class StartupViewModel(
         val editor = sharedPreferences.edit()
         editor.putString(SharedPreferencesManager.PROFILE_KEY, SharedPreferencesManager.createJsonString(profile))
         editor.apply()
+        viewModelScope.launch {
+            val newEditor = sharedPreferences.edit()
+            val uid = usersRepository.getProfileUID(profile.profileId)
+            newEditor.putString(SharedPreferencesManager.UID_KEY, uid)
+            newEditor.apply()
+        }
     }
 
     fun startChildActivity() {

@@ -30,8 +30,9 @@ import com.example.parental_control_app.helpers.ToastHelper
 import com.example.parental_control_app.repositories.AppsRepository
 import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.repositories.users.UsersRepository
-import com.example.parental_control_app.service.AppLockerService
-import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.service.AppBlockerService
+import com.example.parental_control_app.service.PhoneLockerService
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -87,7 +88,7 @@ class ChildrenMainActivity : AppCompatActivity() {
             if (isOnline(this@ChildrenMainActivity)) {
                 Log.w("APP LOCK SERVICE LIST", "IS ONLINE")
                 val uid = usersRepository.getProfileUID(profile.profileId)
-                val list= appsRepository.getBlockedApps(uid)
+                val list = appsRepository.getBlockedApps(uid)
                 Log.w("APP LOCK SERVICE LIST", list.toString())
 
                 SharedPreferencesManager.storeBlockedApps(sharedPreferences, list)
@@ -96,8 +97,10 @@ class ChildrenMainActivity : AppCompatActivity() {
             async {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     // Stopping Service to ensure only one App locker service is working
-                    stopService(Intent(applicationContext, AppLockerService::class.java))
-                    startForegroundService(Intent(applicationContext, AppLockerService::class.java))
+                    stopService(Intent(applicationContext, AppBlockerService::class.java))
+                    stopService(Intent(applicationContext, PhoneLockerService::class.java))
+                    startForegroundService(Intent(applicationContext, AppBlockerService::class.java))
+                    startForegroundService(Intent(applicationContext, PhoneLockerService::class.java))
                 }
             }.await()
 
@@ -146,7 +149,7 @@ class ChildrenMainActivity : AppCompatActivity() {
         }
 
         setContent {
-            ParentalcontrolappTheme {
+            ParentalControlAppTheme {
                 Surface (
                     modifier = Modifier.fillMaxSize()
                 ) {

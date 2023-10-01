@@ -1,7 +1,6 @@
 package com.example.parental_control_app.screens.children
 
-import ChildrenFeatureIcons
-import FeatureIcon
+import com.example.parental_control_app.data.FeatureIcons
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.parental_control_app.data.FeatureIcon
 import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.viewmodels.children.ChildrenViewModel
 
@@ -49,7 +49,7 @@ fun ChildrenHomeScreen(
 @Composable
 fun FeatureIconButton(
     icon: FeatureIcon,
-    onClick: (feature: ChildrenFeatureIcons) -> Unit
+    onClick: (feature: FeatureIcons) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -80,7 +80,7 @@ fun FeatureIconButton(
 }
 
 @Composable
-fun FeaturesComponent(profile: UserProfile, icons: List<FeatureIcon>, onFeatureClick: (feature: ChildrenFeatureIcons) -> Unit){
+fun FeaturesComponent(profile: UserProfile, icons: List<FeatureIcon>, onFeatureClick: (feature: FeatureIcons) -> Unit){
     ElevatedCard(
         modifier = Modifier
             .padding(10.dp)

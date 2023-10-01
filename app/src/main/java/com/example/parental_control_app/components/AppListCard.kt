@@ -40,7 +40,9 @@ enum class TimeLimit(val value: String, val limit: Long) {
     ONE_HOUR(value = "One Hour", limit = TimeUnit.HOURS.toMillis(1)),
     TWO_HOURS(value = "Two Hours", limit = TimeUnit.HOURS.toMillis(2)),
     THREE_HOURS(value = "Three Hours", limit = TimeUnit.HOURS.toMillis(3)),
-    CUSTOM(value = "Custom", limit = 1L),
+    FOUR_HOURS(value = "Four Hours", limit = TimeUnit.HOURS.toMillis(3)),
+    FIVE_HOURS(value = "Five Hours", limit = TimeUnit.HOURS.toMillis(3)),
+    SIX_HOURS(value = "Six Hours", limit = TimeUnit.HOURS.toMillis(3)),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,19 +59,15 @@ fun AppCard(
     var expanded by remember { mutableStateOf(false) }
     var limit by remember { mutableStateOf(
         when (app.limit) {
-            TimeLimit.ALWAYS.limit -> TimeLimit.ALWAYS
             TimeLimit.ONE_HOUR.limit -> TimeLimit.ONE_HOUR
             TimeLimit.TWO_HOURS.limit -> TimeLimit.TWO_HOURS
             TimeLimit.THREE_HOURS.limit -> TimeLimit.THREE_HOURS
-            else -> TimeLimit.CUSTOM
+            TimeLimit.FOUR_HOURS.limit -> TimeLimit.FOUR_HOURS
+            TimeLimit.FIVE_HOURS.limit -> TimeLimit.FIVE_HOURS
+            TimeLimit.SIX_HOURS.limit -> TimeLimit.SIX_HOURS
+            else -> TimeLimit.ALWAYS
         }
     ) }
-
-//    val timeLimit = if (app.limit == 0L) "Always" else String.format("%d:%d:%d",
-//            TimeUnit.MILLISECONDS.toHours(app.limit),
-//            TimeUnit.MILLISECONDS.toMinutes(app.screenTime) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(app.screenTime)),
-//            TimeUnit.MILLISECONDS.toSeconds(app.screenTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(app.screenTime))
-//        )
 
     ListItem(
         headlineContent = {
@@ -85,9 +83,9 @@ fun AppCard(
         supportingContent = {
             Column {
                 if (app.screenTime.toInt() == 0) {
-                    Text("00:00:00")
+                    Text("00h 00m 00s")
                 } else {
-                    Text(String.format("%d:%d:%d",
+                    Text(String.format("%dh %dm %ds",
                         TimeUnit.MILLISECONDS.toHours(app.screenTime),
                         TimeUnit.MILLISECONDS.toMinutes(app.screenTime) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(app.screenTime)),
                         TimeUnit.MILLISECONDS.toSeconds(app.screenTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(app.screenTime))

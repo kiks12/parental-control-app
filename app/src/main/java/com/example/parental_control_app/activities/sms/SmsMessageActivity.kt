@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import com.example.parental_control_app.screens.sms.SmsMessageScreen
-import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.viewmodels.sms.SmsMessageViewModel
 
 class SmsMessageActivity : AppCompatActivity() {
@@ -17,7 +17,7 @@ class SmsMessageActivity : AppCompatActivity() {
         smsMessageViewModel.addOnBackClick{ finish() }
 
         setContent {
-            ParentalcontrolappTheme {
+            ParentalControlAppTheme {
                 SmsMessageScreen(smsMessageViewModel)
             }
         }

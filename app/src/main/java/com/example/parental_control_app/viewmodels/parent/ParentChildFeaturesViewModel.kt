@@ -1,39 +1,51 @@
 package com.example.parental_control_app.viewmodels.parent
 
-import ChildrenFeatureIcons
-import FeatureIcon
+import com.example.parental_control_app.data.FeatureIcons
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.parental_control_app.activities.ScreenTimeActivity
 import com.example.parental_control_app.activities.parent.ParentChildAppsActivity
 import com.example.parental_control_app.activities.BlockedAppsActivity
 import com.example.parental_control_app.activities.LocationActivity
+import com.example.parental_control_app.activities.websiteFilter.WebsiteFilterActivity
 import com.example.parental_control_app.activities.notifications.NotificationsActivity
 import com.example.parental_control_app.activities.sms.SmsActivity
+import com.example.parental_control_app.data.FeatureIcon
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.repositories.users.UserProfile
+import com.example.parental_control_app.repositories.users.UsersRepository
+import kotlinx.coroutines.coroutineScope
 
 class ParentChildFeaturesViewModel : ViewModel(){
     private lateinit var profileId: String
     private lateinit var kidProfileId: String
-    private lateinit var kidProfile : UserProfile
+
+    private val _kidProfile = mutableStateOf(UserProfile())
+    val kidProfile : UserProfile
+        get() = _kidProfile.value
+
     private lateinit var onBackClick: () -> Unit
     private lateinit var activityStarterHelper: ActivityStarterHelper
 
+    private val usersRepository = UsersRepository()
+
     companion object {
         val featureIcons = listOf(
-            FeatureIcon("Apps", ChildrenFeatureIcons.APPS, Icons.Outlined.Menu),
-            FeatureIcon("Blocked Apps", ChildrenFeatureIcons.BLOCKED_APPS, Icons.Outlined.Lock),
-            FeatureIcon("Screen Time", ChildrenFeatureIcons.SCREEN_TIME, Icons.Outlined.List),
-            FeatureIcon("SMS", ChildrenFeatureIcons.SMS, Icons.Outlined.Email),
-            FeatureIcon("Notifications", ChildrenFeatureIcons.NOTIFICATIONS, Icons.Outlined.Notifications),
-            FeatureIcon("Location", ChildrenFeatureIcons.LOCATION, Icons.Outlined.LocationOn),
+            FeatureIcon("Apps", FeatureIcons.APPS, Icons.Outlined.Menu),
+            FeatureIcon("Blocked Apps", FeatureIcons.BLOCKED_APPS, Icons.Outlined.Lock),
+            FeatureIcon("Screen Time", FeatureIcons.SCREEN_TIME, Icons.Outlined.List),
+            FeatureIcon("Location", FeatureIcons.LOCATION, Icons.Outlined.LocationOn),
+            FeatureIcon("Website Filter", FeatureIcons.WEBSITE_FILTER, Icons.Outlined.Edit),
+            FeatureIcon("SMS", FeatureIcons.SMS, Icons.Outlined.Email),
+            FeatureIcon("Notifications", FeatureIcons.NOTIFICATIONS, Icons.Outlined.Notifications),
         )
     }
 
@@ -50,11 +62,7 @@ class ParentChildFeaturesViewModel : ViewModel(){
     }
 
     fun setKidProfile(profile: UserProfile) {
-        kidProfile = profile
-    }
-
-    fun getKidProfile() : UserProfile{
-        return kidProfile
+        _kidProfile.value = profile
     }
 
     fun addOnBackClick(callback: () -> Unit) {
@@ -65,14 +73,15 @@ class ParentChildFeaturesViewModel : ViewModel(){
        return onBackClick
     }
 
-    fun onFeatureClick(feature: ChildrenFeatureIcons) {
+    fun onFeatureClick(feature: FeatureIcons) {
         when(feature) {
-            ChildrenFeatureIcons.APPS -> startApps()
-            ChildrenFeatureIcons.SCREEN_TIME -> startScreenTime()
-            ChildrenFeatureIcons.BLOCKED_APPS -> startBlockedApps()
-            ChildrenFeatureIcons.SMS -> startSMS()
-            ChildrenFeatureIcons.NOTIFICATIONS -> startNotifications()
-            ChildrenFeatureIcons.LOCATION -> startLocation()
+            FeatureIcons.APPS -> startApps()
+            FeatureIcons.BLOCKED_APPS -> startBlockedApps()
+            FeatureIcons.SCREEN_TIME -> startScreenTime()
+            FeatureIcons.LOCATION -> startLocation()
+            FeatureIcons.WEBSITE_FILTER -> startWebsiteFilter()
+            FeatureIcons.SMS -> startSMS()
+            FeatureIcons.NOTIFICATIONS -> startNotifications()
         }
     }
 
@@ -128,5 +137,34 @@ class ParentChildFeaturesViewModel : ViewModel(){
                 "kidProfileId" to kidProfileId
             )
         )
+    }
+
+    private fun startWebsiteFilter() {
+        activityStarterHelper.startNewActivity(
+            activity = WebsiteFilterActivity::class.java,
+            extras = mapOf(
+                "kidProfileId" to kidProfileId
+            )
+        )
+    }
+
+    suspend fun lockChildPhone() {
+        coroutineScope {
+            val uid = usersRepository.getProfileUID(kidProfileId)
+            usersRepository.lockChildPhone(uid)
+            _kidProfile.value = _kidProfile.value.copy(
+                phoneLock = true
+            )
+        }
+    }
+
+    suspend fun unlockChildPhone() {
+        coroutineScope {
+            val uid = usersRepository.getProfileUID(kidProfileId)
+            usersRepository.unlockChildPhone(uid)
+            _kidProfile.value = _kidProfile.value.copy(
+                phoneLock = false
+            )
+        }
     }
 }

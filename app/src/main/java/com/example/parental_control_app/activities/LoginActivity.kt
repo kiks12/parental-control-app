@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.parental_control_app.helpers.ToastHelper
 import com.example.parental_control_app.screens.LoginScreen
 import com.example.parental_control_app.viewmodels.LoginViewModel
-import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -30,7 +30,7 @@ class LoginActivity : AppCompatActivity() {
         loginViewModel.setSignInCallback { startStartupActivity() }
 
         setContent {
-            ParentalcontrolappTheme {
+            ParentalControlAppTheme {
                 LoginScreen(
                     loginViewModel,
                     { signInWithGoogle() },

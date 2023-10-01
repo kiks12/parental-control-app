@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.parental_control_app.helpers.ToastHelper
 import com.example.parental_control_app.screens.RegistrationScreen
 import com.example.parental_control_app.viewmodels.RegistrationViewModel
-import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 
 class RegistrationActivity : AppCompatActivity() {
 
@@ -18,7 +18,7 @@ class RegistrationActivity : AppCompatActivity() {
         registrationViewModel.setSignUpCallback { startStartupActivity() }
 
         setContent {
-            ParentalcontrolappTheme {
+            ParentalControlAppTheme {
                 RegistrationScreen(
                     registrationViewModel,
                     { startLoginActivity() },

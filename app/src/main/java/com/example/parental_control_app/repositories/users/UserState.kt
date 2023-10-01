@@ -18,7 +18,10 @@ data class UserProfile(
     val child: Boolean = false,
     val phoneNumber: String? = null,
     val password: String = "",
-    val maturityLevel: String? = null
+    val maturityLevel: String? = null,
+    val phoneLock: Boolean = false,
+    val phoneScreenTime: Long = 0,
+    val phoneScreenTimeLimit: Long = 0,
 ) {
     constructor(): this("","","")
 }

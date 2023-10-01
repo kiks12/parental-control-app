@@ -22,7 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.components.AppCard
 import com.example.parental_control_app.components.AppCardType
 import com.example.parental_control_app.viewmodels.BlockedAppsViewModel
@@ -34,7 +34,7 @@ fun BlockedAppsScreen(viewModel: BlockedAppsViewModel) {
     val icons = viewModel.iconsState
     
 
-    ParentalcontrolappTheme {
+    ParentalControlAppTheme {
         Scaffold(
             topBar = {
                 BlockedAppsTopBar(

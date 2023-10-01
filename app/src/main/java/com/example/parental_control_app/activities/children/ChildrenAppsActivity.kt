@@ -52,7 +52,7 @@ import androidx.work.WorkManager
 import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.helpers.ProfileSignOutHelper
 import com.example.parental_control_app.repositories.users.UserProfile
-import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.workers.AppSaverWorker
 import com.example.parental_control_app.workers.ScreenTimeGetterWorker
 import kotlinx.coroutines.Dispatchers
@@ -173,7 +173,7 @@ class ChildrenAppsActivity : AppCompatActivity() {
         setContent {
             val rememberedApps = remember { apps }
 
-            ParentalcontrolappTheme {
+            ParentalControlAppTheme {
                 Scaffold (
                     topBar = { TopBar(onBackClick = { finish() }) },
                 ){ innerPadding ->

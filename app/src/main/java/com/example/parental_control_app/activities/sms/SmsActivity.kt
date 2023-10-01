@@ -10,7 +10,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.screens.sms.SmsScreen
-import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.viewmodels.sms.SmsViewModel
 
 class SmsActivity : AppCompatActivity() {
@@ -45,7 +45,7 @@ class SmsActivity : AppCompatActivity() {
         smsViewModel.setActivityStarterHelper(activityStarterHelper)
 
         setContent {
-            ParentalcontrolappTheme {
+            ParentalControlAppTheme {
                 SmsScreen(smsViewModel)
             }
         }

@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import com.example.parental_control_app.screens.notifications.NotificationPackageScreen
-import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.viewmodels.notifications.NotificationPackageViewModel
 
 class NotificationPackageActivity : AppCompatActivity() {
@@ -17,7 +17,7 @@ class NotificationPackageActivity : AppCompatActivity() {
         notificationPackageViewModel.addOnBackClick { finish() }
 
         setContent {
-            ParentalcontrolappTheme {
+            ParentalControlAppTheme {
                 NotificationPackageScreen(notificationPackageViewModel)
             }
         }

@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 
+@Suppress("unused")
 class AppsRepository {
 
     private val db = Firebase.firestore

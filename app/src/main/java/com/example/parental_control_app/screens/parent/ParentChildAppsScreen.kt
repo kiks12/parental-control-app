@@ -27,7 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.components.AppCard
 import com.example.parental_control_app.components.AppCardType
 import com.example.parental_control_app.viewmodels.parent.ParentChildAppsViewModel
@@ -41,7 +41,7 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
 
     val selectedTabIndex = remember { mutableIntStateOf(0) }
 
-    ParentalcontrolappTheme {
+    ParentalControlAppTheme {
         Scaffold(
             topBar = {
                 TopBar(

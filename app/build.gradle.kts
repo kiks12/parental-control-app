@@ -62,6 +62,7 @@ dependencies {
 
     val workVersion = "2.8.1"
 
+    //noinspection GradleDependency
     implementation("androidx.compose.ui:ui-text-google-fonts:1.5.0")
     implementation("com.google.firebase:firebase-storage-ktx")
     implementation("io.coil-kt:coil-compose:2.4.0")
@@ -86,23 +87,32 @@ dependencies {
 
     implementation("com.google.code.gson:gson:2.9.0")
     implementation("org.mindrot:jbcrypt:0.4")
+    //noinspection GradleDependency
     implementation("com.google.android.gms:play-services-auth:20.6.0")
+    //noinspection GradleDependency
     implementation("androidx.navigation:navigation-fragment-ktx:2.6.0")
+    //noinspection GradleDependency
     implementation("androidx.navigation:navigation-ui-ktx:2.6.0")
     val navVersion = "2.6.0"
 
+    //noinspection GradleDependency
     implementation("androidx.navigation:navigation-compose:$navVersion")
 
+    //noinspection GradleDependency
     implementation("com.google.firebase:firebase-firestore-ktx:24.7.0")
     implementation(platform("com.google.firebase:firebase-bom:32.2.2"))
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
 
+    //noinspection GradleDependency
     implementation("androidx.compose.material3:material3:1.2.0-alpha04")
     implementation("androidx.palette:palette-ktx:1.0.0")
+    //noinspection GradleDependency
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
 
+    //noinspection GradleDependency
     implementation("androidx.core:core-ktx:1.10.1")
+    //noinspection GradleDependency
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("androidx.activity:activity-compose:1.7.2")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))

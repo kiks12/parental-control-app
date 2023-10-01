@@ -14,7 +14,7 @@ import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.helpers.ProfileSignOutHelper
 import com.example.parental_control_app.helpers.ToastHelper
-import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.screens.StartupScreen
 import com.example.parental_control_app.viewmodels.StartupViewModel
@@ -62,7 +62,7 @@ class StartupActivity : AppCompatActivity() {
         startupViewModel.setSharedPreferences(sharedPreferences)
 
         setContent {
-            ParentalcontrolappTheme {
+            ParentalControlAppTheme {
                 StartupScreen(startupViewModel)
             }
         }

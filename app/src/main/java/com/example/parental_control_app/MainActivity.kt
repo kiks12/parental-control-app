@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.parental_control_app.activities.LoginActivity
 
+@Suppress("unused")
 data class AppRestriction(
     val label: String,
     val packageName: String,

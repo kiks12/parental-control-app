@@ -9,10 +9,10 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.util.Log
+//import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.parental_control_app.R
-import com.example.parental_control_app.activities.LockActivity
+import com.example.parental_control_app.activities.stacking.BlockActivity
 import com.example.parental_control_app.data.UserApps
 import com.example.parental_control_app.managers.SharedPreferencesManager
 import java.util.Calendar
@@ -22,7 +22,7 @@ data class AppUsage (
     val screenTime: Long,
 )
 
-class AppLockerService : Service(){
+class AppBlockerService : Service(){
 
     private val handler = Handler(Looper.getMainLooper())
     private var runnable = Runnable {}
@@ -71,8 +71,8 @@ class AppLockerService : Service(){
         val blockedApps= SharedPreferencesManager.getBlockedApps(sharedPreferences)
 
         val notification = NotificationCompat.Builder(this, "app_locker_channel")
-            .setContentTitle("App Locker")
-            .setContentText("Locking Blocked Apps")
+            .setContentTitle("App Blocker")
+            .setContentText("Blocking Selected Apps")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .build()
 
@@ -86,23 +86,23 @@ class AppLockerService : Service(){
     private fun monitorRunningApp(blockedApps: List<UserApps>) {
         runnable = Runnable {
             val currentApp = getCurrentRunningAppPackageName(applicationContext)
-            Log.w("APP LOCK SERVICE APPS", blockedApps.toString())
+//            Log.w("APP LOCK SERVICE APPS", blockedApps.toString())
             if (currentApp != null) {
                 val blockedApp = blockedApps.filter { app -> app.packageName == currentApp.packageName }
-                Log.w("APP LOCK SERVICE BLOCK", blockedApp.toString())
-                Log.w("APP LOCK SERVICE CURR", currentApp.toString())
+//                Log.w("APP LOCK SERVICE BLOCK", blockedApp.toString())
+//                Log.w("APP LOCK SERVICE CURR", currentApp.toString())
 
                 if (blockedApp.isNotEmpty()) {
-                    Log.w("SCREEN TIME", "${blockedApp[0].limit} ${currentApp.screenTime}")
+//                    Log.w("SCREEN TIME", "${blockedApp[0].limit} ${currentApp.screenTime}")
                     if (currentApp.screenTime >= blockedApp[0].limit || blockedApp[0].limit == 0L) {
-                        Log.w("APP LOCK SERVICE CURR", "Current Running App Package Name: ${currentApp.packageName}")
-                        val intent = Intent(applicationContext, LockActivity::class.java)
+//                        Log.w("APP LOCK SERVICE CURR", "Current Running App Package Name: ${currentApp.packageName}")
+                        val intent = Intent(applicationContext, BlockActivity::class.java)
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         applicationContext.startActivity(intent)
                     }
                 }
             } else {
-                Log.w("APP LOCK SERVICE","No running app found.")
+//                Log.w("APP LOCK SERVICE","No running app found.")
             }
 
             monitorRunningApp(blockedApps)

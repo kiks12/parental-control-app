@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import com.example.parental_control_app.screens.ScreenTimeScreen
-import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.viewmodels.ScreenTimeViewModel
 
 class ScreenTimeActivity : AppCompatActivity() {
@@ -14,11 +14,12 @@ class ScreenTimeActivity : AppCompatActivity() {
 
         val kidProfileId = intent.getStringExtra("kidProfileId")
         val screenTimeViewModel = ScreenTimeViewModel(kidProfileId!!)
-        screenTimeViewModel.addOnBackClick { finish() }
 
         setContent {
-            ParentalcontrolappTheme {
-                ScreenTimeScreen(screenTimeViewModel)
+            ParentalControlAppTheme {
+                ScreenTimeScreen(screenTimeViewModel) {
+                    finish()
+                }
             }
         }
     }

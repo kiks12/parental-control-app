@@ -4,4 +4,6 @@
     <!-- Strings used for fragments for navigation -->
 
     <string name="title_activity_parent_child_sms_message">ParentChildSmsMessageActivity</string>
+    <string name="access_to_location_permission_required">Access to Location Permission Required</string>
+    <string name="request_permission">Request Permission</string>
 </resources>

@@ -7,9 +7,9 @@ import androidx.compose.runtime.Composable
 import com.example.parental_control_app.viewmodels.children.ChildrenViewModel
 
 @Composable
-fun SettingsScreen(childrenViewModel: ChildrenViewModel) {
+fun SettingsScreen(ignoredChildrenViewModel: ChildrenViewModel) {
     Surface {
-        Button(onClick = childrenViewModel::signOut) {
+        Button(onClick = ignoredChildrenViewModel::signOut) {
             Text("Sign Out")
         }
     }

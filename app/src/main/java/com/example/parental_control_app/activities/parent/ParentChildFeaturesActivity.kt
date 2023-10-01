@@ -29,7 +29,6 @@ class ParentChildFeaturesActivity : AppCompatActivity() {
     private var parentChildFeaturesViewModel : ParentChildFeaturesViewModel? = null
     private val loading = mutableStateOf(true)
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

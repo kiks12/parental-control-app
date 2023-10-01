@@ -1,12 +1,12 @@
 package com.example.parental_control_app.viewmodels.children
 
-import ChildrenFeatureIcons
-import ChildrenScreenBottomNavRoutes
-import FeatureIcon
-import NavBarIcon
+import com.example.parental_control_app.data.FeatureIcons
+import com.example.parental_control_app.data.ChildrenScreenBottomNavRoutes
+import com.example.parental_control_app.data.NavBarIcon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.List
@@ -25,6 +25,8 @@ import com.example.parental_control_app.activities.children.ChildrenAppsActivity
 import com.example.parental_control_app.activities.notifications.NotificationsActivity
 import com.example.parental_control_app.activities.BlockedAppsActivity
 import com.example.parental_control_app.activities.sms.SmsActivity
+import com.example.parental_control_app.activities.websiteFilter.WebsiteFilterActivity
+import com.example.parental_control_app.data.FeatureIcon
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.repositories.users.UserProfile
 
@@ -34,12 +36,13 @@ class ChildrenViewModel(
 
     companion object {
         val featureIcons = listOf(
-            FeatureIcon("Apps", ChildrenFeatureIcons.APPS, Icons.Outlined.Menu),
-            FeatureIcon("Screen Time", ChildrenFeatureIcons.SCREEN_TIME, Icons.Outlined.List),
-            FeatureIcon("Blocked Apps", ChildrenFeatureIcons.BLOCKED_APPS, Icons.Outlined.Lock),
-            FeatureIcon("SMS", ChildrenFeatureIcons.SMS, Icons.Outlined.Email),
-            FeatureIcon("Notifications", ChildrenFeatureIcons.NOTIFICATIONS, Icons.Outlined.Notifications),
-            FeatureIcon("Location", ChildrenFeatureIcons.LOCATION, Icons.Outlined.LocationOn),
+            FeatureIcon("Apps", FeatureIcons.APPS, Icons.Outlined.Menu),
+            FeatureIcon("Blocked Apps", FeatureIcons.BLOCKED_APPS, Icons.Outlined.Lock),
+            FeatureIcon("Screen Time", FeatureIcons.SCREEN_TIME, Icons.Outlined.List),
+            FeatureIcon("Location", FeatureIcons.LOCATION, Icons.Outlined.LocationOn),
+            FeatureIcon("Website Filter", FeatureIcons.WEBSITE_FILTER, Icons.Outlined.Edit),
+            FeatureIcon("SMS", FeatureIcons.SMS, Icons.Outlined.Email),
+            FeatureIcon("Notifications", FeatureIcons.NOTIFICATIONS, Icons.Outlined.Notifications),
         )
 
         val bottomNavBarIcons = listOf(
@@ -74,14 +77,15 @@ class ChildrenViewModel(
         return profile
     }
 
-    fun onFeatureClick(feature: ChildrenFeatureIcons) {
+    fun onFeatureClick(feature: FeatureIcons) {
         when(feature) {
-            ChildrenFeatureIcons.APPS -> startApps()
-            ChildrenFeatureIcons.SCREEN_TIME -> startScreenTime()
-            ChildrenFeatureIcons.BLOCKED_APPS -> startBlockedApps()
-            ChildrenFeatureIcons.SMS -> startSMS()
-            ChildrenFeatureIcons.NOTIFICATIONS -> startNotifications()
-            ChildrenFeatureIcons.LOCATION -> startLocation()
+            FeatureIcons.APPS -> startApps()
+            FeatureIcons.BLOCKED_APPS -> startBlockedApps()
+            FeatureIcons.SCREEN_TIME -> startScreenTime()
+            FeatureIcons.LOCATION -> startLocation()
+            FeatureIcons.WEBSITE_FILTER -> startWebsiteFilter()
+            FeatureIcons.SMS -> startSMS()
+            FeatureIcons.NOTIFICATIONS -> startNotifications()
         }
     }
 
@@ -130,6 +134,15 @@ class ChildrenViewModel(
             LocationActivity::class.java,
             extras = mapOf(
                 "kidProfileId" to profile?.profileId!!,
+            )
+        )
+    }
+
+    private fun startWebsiteFilter() {
+        activityStarterHelper.startNewActivity(
+            WebsiteFilterActivity::class.java,
+            extras = mapOf(
+                "kidProfileId" to profile?.profileId!!
             )
         )
     }

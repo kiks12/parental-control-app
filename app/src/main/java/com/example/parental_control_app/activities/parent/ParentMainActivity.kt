@@ -10,13 +10,13 @@ import androidx.compose.ui.Modifier
 import com.example.parental_control_app.helpers.ProfileSignOutHelper
 import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.screens.parent.ParentNavigationScreen
-import com.example.parental_control_app.service.AppLockerService
-import com.example.parental_control_app.ui.theme.ParentalcontrolappTheme
+import com.example.parental_control_app.service.AppBlockerService
+import com.example.parental_control_app.service.PhoneLockerService
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.viewmodels.parent.ParentHomeViewModel
 import com.example.parental_control_app.viewmodels.parent.ParentNavigationViewModel
 
 class ParentMainActivity : AppCompatActivity() {
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +32,7 @@ class ParentMainActivity : AppCompatActivity() {
         parentNavigationViewModel.addOnSignOut { profileSignOutHelper.signOut() }
 
         setContent {
-            ParentalcontrolappTheme {
+            ParentalControlAppTheme {
                 Surface (
                     modifier = Modifier.fillMaxSize()
                 ){
@@ -45,7 +45,8 @@ class ParentMainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        stopService(Intent(applicationContext, AppLockerService::class.java))
+        stopService(Intent(applicationContext, AppBlockerService::class.java))
+        stopService(Intent(applicationContext, PhoneLockerService::class.java))
     }
 
     private fun onChildrenCardClick(profileId: String) {

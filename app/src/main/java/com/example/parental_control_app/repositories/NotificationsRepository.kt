@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection", "SpellCheckingInspection", "SpellCheckingInspection")
+
 package com.example.parental_control_app.repositories
 
 import com.example.parental_control_app.data.ReceivedNotification

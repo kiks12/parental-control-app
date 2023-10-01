@@ -1,7 +1,7 @@
 package com.example.parental_control_app.viewmodels.parent
 
-import NavBarIcon
-import ParentScreenBottomNavRoutes
+import com.example.parental_control_app.data.NavBarIcon
+import com.example.parental_control_app.data.ParentScreenBottomNavRoutes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
@@ -21,7 +21,7 @@ class ParentNavigationViewModel : ViewModel(){
     companion object {
         val bottomNavBarIcons = listOf(
             NavBarIcon("Home", ParentScreenBottomNavRoutes.HOME.toString(), Icons.Filled.Home, Icons.Outlined.Home),
-            NavBarIcon("Settigns", ParentScreenBottomNavRoutes.SETTINGS.toString(), Icons.Filled.Settings, Icons.Outlined.Settings)
+            NavBarIcon("Settings", ParentScreenBottomNavRoutes.SETTINGS.toString(), Icons.Filled.Settings, Icons.Outlined.Settings)
         )
     }
 

@@ -2,6 +2,7 @@ package com.example.parental_control_app.data
 
 import android.graphics.Bitmap
 
+@Suppress("unused")
 data class UserApps (
     val packageName: String,
     val label: String = "",
