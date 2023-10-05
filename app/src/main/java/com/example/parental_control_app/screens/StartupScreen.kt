@@ -162,7 +162,7 @@ fun ProfilesGrid(
                 username = profile.name,
                 color = colors[index],
                 onClick = {
-                    viewModel.setSharedPreferencesProfile(profile)
+                    viewModel.setClickedProfile(profile)
                     if (profile.child) viewModel.startChildActivity()
                     else viewModel.getParentPassword(profile.password)
                 }
@@ -275,7 +275,8 @@ fun CreateProfileForm(
         item {
             OutlinedTextField(
                 modifier = Modifier
-                    .fillMaxWidth().padding(bottom = 15.dp),
+                    .fillMaxWidth()
+                    .padding(bottom = 15.dp),
                 value = uiState.profileInput.name,
                 onValueChange = viewModel::onNameChange,
                 label = { Text("Name")}
@@ -283,7 +284,9 @@ fun CreateProfileForm(
         }
         item {
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 15.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 15.dp),
                 value = if (datePickerState.selectedDateMillis != null) formatter.format(Date(datePickerState.selectedDateMillis!!)) else "MM/DD/YYYY",
                 onValueChange = {},
                 readOnly = true,
@@ -296,7 +299,8 @@ fun CreateProfileForm(
         item {
             OutlinedTextField(
                 modifier = Modifier
-                    .fillMaxWidth().padding(bottom = 15.dp),
+                    .fillMaxWidth()
+                    .padding(bottom = 15.dp),
                 value = uiState.profileInput.age,
                 onValueChange = viewModel::onAgeChange,
                 label = { Text("Age")},
@@ -306,7 +310,8 @@ fun CreateProfileForm(
         item {
             OutlinedTextField(
                 modifier = Modifier
-                    .fillMaxWidth().padding(bottom = 20.dp),
+                    .fillMaxWidth()
+                    .padding(bottom = 20.dp),
                 value = uiState.profileInput.phoneNumber!!,
                 onValueChange = viewModel::onPhoneNumberChange,
                 label = { Text("Phone Number")}
@@ -352,7 +357,8 @@ fun CreateProfileForm(
                 Column {
                     OutlinedTextField(
                         modifier = Modifier
-                            .fillMaxWidth().padding(bottom = 20.dp),
+                            .fillMaxWidth()
+                            .padding(bottom = 20.dp),
                         value = uiState.profileInput.password,
                         onValueChange = viewModel::onPasswordChange,
                         label = { Text("Password") },

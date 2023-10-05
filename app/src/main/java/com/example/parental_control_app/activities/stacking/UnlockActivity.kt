@@ -10,7 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,8 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 
-class LockActivity : AppCompatActivity() {
-
+class UnlockActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -36,17 +36,23 @@ class LockActivity : AppCompatActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ){
-                        Icon(Icons.Filled.Lock, "Phone Lock", modifier = Modifier.size(50.dp))
+                        Icon(Icons.Outlined.Lock, "Phone Lock", modifier = Modifier.size(50.dp))
                         Spacer(Modifier.height(20.dp))
                         Text(
-                            "Time for a break!",
+                            "Phone Unlocked!",
                             fontSize = 50.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,
                             lineHeight = 60.sp
                         )
                         Spacer(Modifier.height(30.dp))
-                        Text("Your phone is locked by your parent")
+                        Text("Your phone is unlocked by your parent")
+                        Spacer(Modifier.height(50.dp))
+                        Button(onClick = {
+                            moveTaskToBack(true)
+                        }) {
+                            Text("Home")
+                        }
                     }
                 }
             }

@@ -40,9 +40,9 @@ enum class TimeLimit(val value: String, val limit: Long) {
     ONE_HOUR(value = "One Hour", limit = TimeUnit.HOURS.toMillis(1)),
     TWO_HOURS(value = "Two Hours", limit = TimeUnit.HOURS.toMillis(2)),
     THREE_HOURS(value = "Three Hours", limit = TimeUnit.HOURS.toMillis(3)),
-    FOUR_HOURS(value = "Four Hours", limit = TimeUnit.HOURS.toMillis(3)),
-    FIVE_HOURS(value = "Five Hours", limit = TimeUnit.HOURS.toMillis(3)),
-    SIX_HOURS(value = "Six Hours", limit = TimeUnit.HOURS.toMillis(3)),
+    FOUR_HOURS(value = "Four Hours", limit = TimeUnit.HOURS.toMillis(4)),
+    FIVE_HOURS(value = "Five Hours", limit = TimeUnit.HOURS.toMillis(5)),
+    SIX_HOURS(value = "Six Hours", limit = TimeUnit.HOURS.toMillis(6)),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

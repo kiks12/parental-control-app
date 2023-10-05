@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,7 +37,9 @@ fun ChildrenScreen(viewModel: ChildrenViewModel) {
                     composable(ChildrenScreenBottomNavRoutes.HOME.toString()) { ChildrenHomeScreen(viewModel) }
                     composable(ChildrenScreenBottomNavRoutes.SETTINGS.toString()) { SettingsScreen(viewModel) }
                 }
-            }
+            },
+            containerColor = Color.White,
+            contentColor = Color.Black,
         )
     }
 }

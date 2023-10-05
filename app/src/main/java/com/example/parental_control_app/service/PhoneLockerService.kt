@@ -14,6 +14,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.parental_control_app.R
 import com.example.parental_control_app.activities.stacking.LockActivity
+import com.example.parental_control_app.activities.stacking.UnlockActivity
+import com.example.parental_control_app.data.AppUsage
 import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.repositories.users.UserProfile
 import com.google.firebase.firestore.ktx.firestore
@@ -43,9 +45,9 @@ class PhoneLockerService : Service() {
         val sharedPreferences = getSharedPreferences(SharedPreferencesManager.PREFS_KEY, MODE_PRIVATE)
         val uid = SharedPreferencesManager.getUID(sharedPreferences)
 
-        val notification = NotificationCompat.Builder(this, "app_locker_channel")
+        val notification = NotificationCompat.Builder(this, "Phone Locker")
             .setContentTitle("Phone Locker")
-            .setContentText("Your parent is locking your phone")
+            .setContentText("Your parent might lock your phone anytime")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .build()
 
@@ -62,6 +64,13 @@ class PhoneLockerService : Service() {
         documentRef.addSnapshotListener{ snapshot, _ ->
             val profile = snapshot?.toObject(UserProfile::class.java)
             shouldLock = profile?.phoneLock == true
+
+            if (!shouldLock && isLocked) {
+                val unlockIntent = Intent(applicationContext, UnlockActivity::class.java)
+                unlockIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                applicationContext.startActivity(unlockIntent)
+            }
+
             isLocked = false
             screenTimeLimit = profile?.phoneScreenTimeLimit!!
         }

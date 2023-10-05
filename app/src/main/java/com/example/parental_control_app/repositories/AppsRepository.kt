@@ -1,6 +1,7 @@
 package com.example.parental_control_app.repositories
 
 import android.graphics.Bitmap
+import android.util.Log
 import com.example.parental_control_app.AppRestriction
 import com.example.parental_control_app.data.UserAppIcon
 import com.example.parental_control_app.data.UserApps
@@ -21,7 +22,6 @@ class AppsRepository {
 
     private val db = Firebase.firestore
     private val storage = Firebase.storage
-//    private val usersRepository = UsersRepository()
 
     suspend fun getApps(uid: String) : List<UserApps> {
         val completable = CompletableDeferred<List<UserApps>>()
@@ -54,20 +54,34 @@ class AppsRepository {
     }
 
     suspend fun getAppIcons(uid: String, apps: List<UserApps>) : Map<String, String> {
+        val icons  = CompletableDeferred<Map<String, String>>()
         val iconMap = mutableMapOf<String, String>()
         val ref = storage.reference
 
         coroutineScope {
             launch(Dispatchers.IO) {
-                val uidRef = ref.child(uid)
-                apps.forEach { app ->
-                    val imageUrl = uidRef.child("${app.packageName}.png").downloadUrl.await().toString()
-                    iconMap += Pair(app.packageName, imageUrl)
-                }
+                async {
+                    val uidRef = ref.child(uid)
+                    apps.forEach { app ->
+                        val iconsPair = CompletableDeferred<Pair<String, String>>()
+                        uidRef.child("${app.packageName}.png").downloadUrl
+                            .addOnSuccessListener {
+                                iconsPair.complete(Pair(app.packageName, it.toString()))
+                            }
+                            .addOnFailureListener {
+                                iconsPair.complete(Pair(app.packageName, "NOT_FOUND"))
+                            }
+                        iconMap += iconsPair.await()
+                    }
+                }.await()
+                async {
+                    Log.w("APP ICONS", iconMap.toString())
+                    icons.complete(iconMap)
+                }.await()
             }
         }
 
-        return iconMap
+        return icons.await()
     }
 
     suspend fun getAppNames(uid: String) : List<String> {

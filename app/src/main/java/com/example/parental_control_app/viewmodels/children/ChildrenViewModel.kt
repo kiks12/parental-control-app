@@ -6,9 +6,10 @@ import com.example.parental_control_app.data.NavBarIcon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Lock
@@ -19,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.parental_control_app.activities.ActivityLogActivity
 import com.example.parental_control_app.activities.LocationActivity
 import com.example.parental_control_app.activities.ScreenTimeActivity
 import com.example.parental_control_app.activities.children.ChildrenAppsActivity
@@ -41,7 +43,8 @@ class ChildrenViewModel(
             FeatureIcon("Screen Time", FeatureIcons.SCREEN_TIME, Icons.Outlined.List),
             FeatureIcon("Location", FeatureIcons.LOCATION, Icons.Outlined.LocationOn),
             FeatureIcon("Website Filter", FeatureIcons.WEBSITE_FILTER, Icons.Outlined.Edit),
-            FeatureIcon("SMS", FeatureIcons.SMS, Icons.Outlined.Email),
+            FeatureIcon("Activity Log", FeatureIcons.ACTIVITY_LOG, Icons.Outlined.Info),
+            FeatureIcon("SMS", FeatureIcons.SMS, Icons.Outlined.Call),
             FeatureIcon("Notifications", FeatureIcons.NOTIFICATIONS, Icons.Outlined.Notifications),
         )
 
@@ -84,6 +87,7 @@ class ChildrenViewModel(
             FeatureIcons.SCREEN_TIME -> startScreenTime()
             FeatureIcons.LOCATION -> startLocation()
             FeatureIcons.WEBSITE_FILTER -> startWebsiteFilter()
+            FeatureIcons.ACTIVITY_LOG -> startActivityLog()
             FeatureIcons.SMS -> startSMS()
             FeatureIcons.NOTIFICATIONS -> startNotifications()
         }
@@ -141,6 +145,15 @@ class ChildrenViewModel(
     private fun startWebsiteFilter() {
         activityStarterHelper.startNewActivity(
             WebsiteFilterActivity::class.java,
+            extras = mapOf(
+                "kidProfileId" to profile?.profileId!!
+            )
+        )
+    }
+
+    private fun startActivityLog() {
+        activityStarterHelper.startNewActivity(
+            ActivityLogActivity::class.java,
             extras = mapOf(
                 "kidProfileId" to profile?.profileId!!
             )

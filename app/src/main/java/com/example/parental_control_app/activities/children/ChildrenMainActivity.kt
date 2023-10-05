@@ -47,6 +47,11 @@ class ChildrenMainActivity : AppCompatActivity() {
 
     companion object {
         const val NOTIFICATION_PERMISSION_CODE = 10
+
+        private const val APP_BLOCKER_NAME = "App Blocker"
+        private const val APP_BLOCKER_DESCRIPTION = "ENTER APP BLOCKER DESCRIPTION"
+        private const val PHONE_LOCKER_NAME = "Phone Locker"
+        private const val PHONE_LOCKER_DESCRIPTION = "ENTER PHONE LOCKER DESCRIPTION"
     }
 
     private fun isNotificationPermissionGranted() : Boolean {
@@ -96,7 +101,7 @@ class ChildrenMainActivity : AppCompatActivity() {
 
             async {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    // Stopping Service to ensure only one App locker service is working
+                    // Stopping Service to ensure only one service per category is working
                     stopService(Intent(applicationContext, AppBlockerService::class.java))
                     stopService(Intent(applicationContext, PhoneLockerService::class.java))
                     startForegroundService(Intent(applicationContext, AppBlockerService::class.java))
@@ -110,13 +115,17 @@ class ChildrenMainActivity : AppCompatActivity() {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "app_locker"
-            val descriptionText = "channel description"
             val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val mChannel = NotificationChannel("app_locker_channel", name, importance)
-            mChannel.description = descriptionText
+
+            val appBlockerChannel = NotificationChannel("App Blocker", APP_BLOCKER_NAME, importance)
+            appBlockerChannel.description = APP_BLOCKER_DESCRIPTION
+
+            val phoneLockerChannel = NotificationChannel("Phone Locker", PHONE_LOCKER_NAME, importance)
+            phoneLockerChannel.description = PHONE_LOCKER_DESCRIPTION
+
             val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(mChannel)
+            notificationManager.createNotificationChannel(appBlockerChannel)
+            notificationManager.createNotificationChannel(phoneLockerChannel)
         }
     }
 

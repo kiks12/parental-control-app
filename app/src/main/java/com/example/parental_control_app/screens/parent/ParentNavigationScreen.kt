@@ -58,7 +58,7 @@ private fun ParentNavigationBar(controller: NavHostController) {
     val icons = ParentNavigationViewModel.bottomNavBarIcons
 
     BottomAppBar {
-        NavigationBar {
+        NavigationBar{
             icons.forEachIndexed { index, navBarIcon ->
                 NavigationBarItem(
                     selected = selectedIndex == index,

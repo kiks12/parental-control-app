@@ -8,6 +8,7 @@ import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.viewmodels.sms.SmsMessageViewModel
 
 class SmsMessageActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -22,4 +23,5 @@ class SmsMessageActivity : AppCompatActivity() {
             }
         }
     }
+
 }

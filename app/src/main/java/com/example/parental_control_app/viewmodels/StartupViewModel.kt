@@ -73,6 +73,7 @@ class StartupViewModel(
     private val usersRepository: UsersRepository = UsersRepository(),
 ) : ViewModel() {
 
+    private val _clickedProfile = mutableStateOf(UserProfile())
     private val auth = Firebase.auth
     private val _uiState = mutableStateOf(
         StartupState(
@@ -338,8 +339,13 @@ class StartupViewModel(
      */
 
 
+    fun setClickedProfile(profile: UserProfile) {
+        _clickedProfile.value = profile
+    }
 
-    fun setSharedPreferencesProfile(profile: UserProfile) {
+    private fun setSharedPreferencesProfile() {
+        val profile = _clickedProfile.value
+
         val editor = sharedPreferences.edit()
         editor.putString(SharedPreferencesManager.PROFILE_KEY, SharedPreferencesManager.createJsonString(profile))
         editor.apply()
@@ -352,6 +358,7 @@ class StartupViewModel(
     }
 
     fun startChildActivity() {
+        setSharedPreferencesProfile()
         activityStarterHelper.startNewActivity(ChildrenMainActivity::class.java)
     }
 
@@ -401,6 +408,7 @@ class StartupViewModel(
     }
 
     private fun startParentActivity() {
+        setSharedPreferencesProfile()
         activityStarterHelper.startNewActivity(ParentMainActivity::class.java)
     }
     /*

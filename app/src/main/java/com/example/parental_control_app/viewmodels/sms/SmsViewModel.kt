@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.parental_control_app.activities.sms.SmsMessageActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.repositories.SmsRepository
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class SmsViewModel(
@@ -15,7 +14,6 @@ class SmsViewModel(
 ) : ViewModel() {
 
     private lateinit var activityStarter: ActivityStarterHelper
-    private lateinit  var onBackClick: () -> Unit
 
     private val _smsState = mutableStateOf<List<String>>(listOf())
     val smsState : List<String>
@@ -23,16 +21,8 @@ class SmsViewModel(
 
     init {
         viewModelScope.launch {
-            async { _smsState.value = smsRepository.getProfileSms(kidProfileId)!! }.await()
+             _smsState.value = smsRepository.getProfileSms(kidProfileId)!!
         }
-    }
-
-    fun addOnBackClick(callback: () -> Unit) {
-        onBackClick = callback
-    }
-
-    fun getOnBackClick(): () -> Unit {
-        return onBackClick
     }
 
     fun onSmsClick(documentId: String) {

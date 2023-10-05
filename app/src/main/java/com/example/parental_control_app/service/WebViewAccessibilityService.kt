@@ -3,12 +3,18 @@ package com.example.parental_control_app.service
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
+//import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import com.example.parental_control_app.data.ActivityLog
 import com.example.parental_control_app.data.Site
 import com.example.parental_control_app.managers.SharedPreferencesManager
+import com.example.parental_control_app.repositories.ActivityLogRepository
 import com.example.parental_control_app.repositories.SiteRepository
+import com.google.firebase.Timestamp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -17,6 +23,11 @@ class WebViewAccessibilityService : AccessibilityService() {
     private var prevApp: String = ""
     private var prevUrl: String = ""
     private val siteRepository = SiteRepository()
+    private val activityLogRepository = ActivityLogRepository()
+    private val job = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.IO + job)
+//    val sharedPreferences = getSharedPreferences(SharedPreferencesManager.PREFS_KEY, MODE_PRIVATE)
+//    val uid = SharedPreferencesManager.getUID(sharedPreferences)
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         when (event?.eventType) {
@@ -29,6 +40,8 @@ class WebViewAccessibilityService : AccessibilityService() {
 
     private fun resolveWindowContentChangeEvent(event: AccessibilityEvent) {
         val parentNodeInfo: AccessibilityNodeInfo = event.source ?: return
+        val sharedPreferences = getSharedPreferences(SharedPreferencesManager.PREFS_KEY, MODE_PRIVATE)
+        val uid = SharedPreferencesManager.getUID(sharedPreferences)
 
         val packageName: String = event.packageName.toString()
         prevApp = packageName
@@ -39,7 +52,7 @@ class WebViewAccessibilityService : AccessibilityService() {
 
         val capturedUrl: String? = captureUrl(parentNodeInfo, browserConfig)
 
-        Log.w("CAPTURED URL", capturedUrl.toString())
+//        Log.w("CAPTURED URL", capturedUrl.toString())
 
         if (capturedUrl == null || capturedUrl == "") {
             return
@@ -48,7 +61,11 @@ class WebViewAccessibilityService : AccessibilityService() {
         // check if the browser or url has changed since last time
         // to avoid repetitive logs
         if (packageName != prevApp || capturedUrl != prevUrl) {
+            scope.launch {
+                activityLogRepository.addActivityLog(uid!!, ActivityLog("Search: $capturedUrl", "Search: $capturedUrl", Timestamp.now()))
+            }
             if (android.util.Patterns.WEB_URL.matcher(capturedUrl).matches()) {
+//                Log.w("CAPTURED URL", shouldBeBlocked(capturedUrl).toString())
                 if (shouldBeBlocked(capturedUrl)) redirectToBlankPage()
             }
             prevUrl = capturedUrl
@@ -97,11 +114,12 @@ class WebViewAccessibilityService : AccessibilityService() {
         val sharedPreferences = getSharedPreferences(SharedPreferencesManager.PREFS_KEY, MODE_PRIVATE)
         val uid = SharedPreferencesManager.getUID(sharedPreferences)
 
+//        val sites = siteRepository.getSites(uid!!)
+//        Log.w("CAPTURED URL SITES", sites.toString())
         return siteRepository.getSites(uid!!)
     }
 
     private fun redirectToBlankPage() {
-        Log.d("REDIRECT", "redirecting to blank page")
         val blankPage: Uri = Uri.parse("about:blank")
         val intent = Intent(Intent.ACTION_VIEW, blankPage)
         intent.flags= Intent.FLAG_ACTIVITY_NEW_TASK
