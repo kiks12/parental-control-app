@@ -37,6 +37,10 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var googleSignInClient : GoogleSignInClient
     private var showOneTapUI = true
 
+    companion object {
+        private const val REQ_ONE_TAP = 9001
+    }
+
     override fun onStart() {
         super.onStart()
         val currentUser = auth.currentUser
@@ -50,7 +54,6 @@ class LoginActivity : AppCompatActivity() {
         val toastHelper = ToastHelper(this)
         val loginViewModel = LoginViewModel(toastHelper)
         loginViewModel.setSignInCallback { startStartupActivity() }
-
 
         val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
@@ -105,7 +108,7 @@ class LoginActivity : AppCompatActivity() {
             .addOnSuccessListener(this) { result ->
                 try {
                     startIntentSenderForResult(
-                        result.pendingIntent.intentSender, GoogleOAuthActivity.REQ_ONE_TAP,
+                        result.pendingIntent.intentSender, REQ_ONE_TAP,
                         null, 0, 0, 0, null)
                 } catch (e: IntentSender.SendIntentException) {
                     Log.e("ONE TAP UI", "Couldn't start One Tap UI: ${e.localizedMessage}")
@@ -113,8 +116,6 @@ class LoginActivity : AppCompatActivity() {
             }
             .addOnFailureListener(this) { e ->
                 Log.d("ONE TAP UI", e.localizedMessage as String)
-//                val signInIntent = googleSignInClient.signInIntent
-//                startActivityForResult(signInIntent, RC_SIGN_IN)
             }
     }
 
@@ -138,7 +139,7 @@ class LoginActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
-            GoogleOAuthActivity.REQ_ONE_TAP -> {
+            REQ_ONE_TAP -> {
                 try {
                     val credential = oneTapClient.getSignInCredentialFromIntent(data)
                     val idToken = credential.googleIdToken
@@ -147,8 +148,8 @@ class LoginActivity : AppCompatActivity() {
                             Log.d(ContentValues.TAG, "Got ID token.")
                             firebaseAuthWithGoogle(idToken)
                         } else -> {
-                        Log.d(ContentValues.TAG, "No ID token!")
-                    }
+                            Log.d(ContentValues.TAG, "No ID token!")
+                        }
                     }
                 } catch (e: ApiException) {
                     when (e.statusCode) {
@@ -156,13 +157,13 @@ class LoginActivity : AppCompatActivity() {
                             Log.d(ContentValues.TAG, "One-tap dialog was closed.")
                             showOneTapUI = false
                         } CommonStatusCodes.NETWORK_ERROR -> {
-                        Log.d(ContentValues.TAG, "One-tap encountered a network error.")
-                    } else -> {
-                        Log.d(
-                            ContentValues.TAG, "Couldn't get credential from result." +
-                                    " (${e.localizedMessage})"
-                        )
-                    }
+                            Log.d(ContentValues.TAG, "One-tap encountered a network error.")
+                        } else -> {
+                            Log.d(
+                                ContentValues.TAG, "Couldn't get credential from result." +
+                                        " (${e.localizedMessage})"
+                            )
+                        }
                     }
                 }
             }
