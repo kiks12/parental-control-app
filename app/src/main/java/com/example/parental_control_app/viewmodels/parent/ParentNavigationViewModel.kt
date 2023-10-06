@@ -11,12 +11,15 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.parental_control_app.viewmodels.SettingsViewModel
 
-class ParentNavigationViewModel : ViewModel(){
+class ParentNavigationViewModel(
+    settingsViewModel: SettingsViewModel
+) : ViewModel(){
 
     private var controller : NavHostController? = null
     private lateinit var parentHomeViewModel: ParentHomeViewModel
-    lateinit var  onSignOut: () -> Unit
+    val settingsViewModelProvider = settingsViewModel
 
     companion object {
         val bottomNavBarIcons = listOf(
@@ -39,7 +42,4 @@ class ParentNavigationViewModel : ViewModel(){
         return parentHomeViewModel
     }
 
-    fun addOnSignOut(callback: () -> Unit) {
-        onSignOut = callback
-    }
 }

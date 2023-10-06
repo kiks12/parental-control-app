@@ -3,7 +3,6 @@ package com.example.parental_control_app.screens.parent
 import com.example.parental_control_app.data.ParentScreenBottomNavRoutes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -19,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.parental_control_app.screens.SettingsScreen
 import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.viewmodels.parent.ParentNavigationViewModel
 
@@ -38,11 +38,7 @@ fun ParentNavigationScreen(viewModel: ParentNavigationViewModel) {
                     startDestination = ParentScreenBottomNavRoutes.HOME.toString()
                 ) {
                     composable(ParentScreenBottomNavRoutes.HOME.toString()) { ParentHomeScreen(viewModel.getParentHomeViewModel()) }
-                    composable(ParentScreenBottomNavRoutes.SETTINGS.toString()) {
-                        Button(onClick = { viewModel.onSignOut() }) {
-                            Text("Sign Out")
-                        }
-                    }
+                    composable(ParentScreenBottomNavRoutes.SETTINGS.toString()) { SettingsScreen(viewModel.settingsViewModelProvider) }
                 }
             }
         }

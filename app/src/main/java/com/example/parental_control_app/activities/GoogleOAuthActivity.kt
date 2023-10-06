@@ -15,8 +15,6 @@ import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.firebase.auth.FirebaseAuth
@@ -28,7 +26,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
 enum class GoogleOAuthActivityType {
-    SIGNIN,
+//    SIGNIN,
     SIGNUP
 }
 
@@ -42,11 +40,13 @@ class GoogleOAuthActivity(
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
     private var showOneTapUI = true
-    private lateinit var googleSignInClient : GoogleSignInClient
+//    private lateinit var googleSignInClient : GoogleSignInClient
+
     companion object {
         const val RC_SIGN_IN = 9001
         const val REQ_ONE_TAP = 2
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -56,14 +56,14 @@ class GoogleOAuthActivity(
         val bundle = this.intent.getBundleExtra("Extras")
         type = bundle?.getString("TYPE").toString()
 
-        val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .requestIdToken(getString(R.string.your_web_client_id))
-            .build()
+//        val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+//            .requestEmail()
+//            .requestIdToken(getString(R.string.your_web_client_id))
+//            .build()
 
-        googleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions)
+//        googleSignInClient = GoogleSignIn.getClient(applicationContext, googleSignInOptions)
 
-        oneTapClient = Identity.getSignInClient(this)
+        oneTapClient = Identity.getSignInClient(applicationContext)
         request = BeginSignInRequest.builder()
             .setPasswordRequestOptions(BeginSignInRequest.PasswordRequestOptions.builder()
                 .setSupported(true)
@@ -72,13 +72,14 @@ class GoogleOAuthActivity(
                 BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
                     .setSupported(true)
                     .setServerClientId(getString(R.string.your_web_client_id))
-                    .setFilterByAuthorizedAccounts(true)
+                    .setFilterByAuthorizedAccounts(false)
                     .build())
-            .setAutoSelectEnabled(true)
+            .setAutoSelectEnabled(false)
             .build()
 
         displayOneTapUI()
     }
+
     private fun displayOneTapUI() {
         oneTapClient.beginSignIn(request)
             .addOnSuccessListener(this) { result ->
@@ -92,10 +93,11 @@ class GoogleOAuthActivity(
             }
             .addOnFailureListener(this) { e ->
                 Log.d(ContentValues.TAG, e.localizedMessage as String)
-                val signInIntent = googleSignInClient.signInIntent
-                startActivityForResult(signInIntent, RC_SIGN_IN)
+//                val signInIntent = googleSignInClient.signInIntent
+//                startActivityForResult(signInIntent, RC_SIGN_IN)
             }
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -137,7 +139,7 @@ class GoogleOAuthActivity(
                         firebaseAuthWithGoogle(idToken)
                     } else -> {
                     Log.d(ContentValues.TAG, "No ID token!")
-                }
+                    }
                 }
             }
         }

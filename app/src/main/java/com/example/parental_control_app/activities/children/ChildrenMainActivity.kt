@@ -33,6 +33,8 @@ import com.example.parental_control_app.repositories.users.UsersRepository
 import com.example.parental_control_app.service.AppBlockerService
 import com.example.parental_control_app.service.PhoneLockerService
 import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
+import com.example.parental_control_app.viewmodels.SettingsType
+import com.example.parental_control_app.viewmodels.SettingsViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -137,11 +139,13 @@ class ChildrenMainActivity : AppCompatActivity() {
         profile = SharedPreferencesManager.getProfile(sharedPreferences)!!
 
         val activityStarterHelper = ActivityStarterHelper(this)
-        val childrenViewModel = ChildrenViewModel(activityStarterHelper)
-        childrenViewModel.setSignOutFunction {
+        val settingsViewModel = SettingsViewModel(SettingsType.CHILD)
+        settingsViewModel.signOut = {
             WorkManager.getInstance(applicationContext).cancelAllWork()
             profileSignOutHelper.signOut()
         }
+        val childrenViewModel = ChildrenViewModel(settingsViewModel, activityStarterHelper)
+
         childrenViewModel.setProfile(profile)
 
         when (isNotificationPermissionGranted()) {

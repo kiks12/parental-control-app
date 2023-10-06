@@ -31,7 +31,19 @@ class LoginViewModel(
         signInCallback = callback
     }
 
+    fun onCheckBoxChange(newState : Boolean) {
+        _passwordVisibilityState.value = newState
+    }
+
     fun login() {
+        if (
+            credentialState.value.email.isEmpty() || credentialState.value.email.isBlank() ||
+            credentialState.value.password.isEmpty() || credentialState.value.password.isBlank()
+            ) {
+            toastHelper.makeToast("Please fill up all the field")
+            return
+        }
+
         auth.signInWithEmailAndPassword(credentialState.value.email, credentialState.value.password)
             .addOnCompleteListener {
                 if (it.isSuccessful) {

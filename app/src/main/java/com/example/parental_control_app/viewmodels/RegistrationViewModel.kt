@@ -42,6 +42,12 @@ class RegistrationViewModel(
     }
 
     fun register() {
+        if (credentialState.value.email.isEmpty() || credentialState.value.email.isBlank() ||
+            credentialState.value.password.isEmpty() || credentialState.value.password.isBlank()) {
+            toastHelper.makeToast("Please fill up all the field")
+            return
+        }
+
         auth.createUserWithEmailAndPassword(credentialState.value.email, credentialState.value.password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {

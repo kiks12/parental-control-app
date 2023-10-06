@@ -35,7 +35,7 @@ fun ChildrenScreen(viewModel: ChildrenViewModel) {
                     startDestination = "Home",
                 ) {
                     composable(ChildrenScreenBottomNavRoutes.HOME.toString()) { ChildrenHomeScreen(viewModel) }
-                    composable(ChildrenScreenBottomNavRoutes.SETTINGS.toString()) { SettingsScreen(viewModel) }
+                    composable(ChildrenScreenBottomNavRoutes.SETTINGS.toString()) { SettingsScreen(viewModel.settingsViewModelProvider) }
                 }
             },
             containerColor = Color.White,

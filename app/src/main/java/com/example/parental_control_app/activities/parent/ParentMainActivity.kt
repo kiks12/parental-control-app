@@ -7,12 +7,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.work.WorkManager
 import com.example.parental_control_app.helpers.ProfileSignOutHelper
 import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.screens.parent.ParentNavigationScreen
 import com.example.parental_control_app.service.AppBlockerService
 import com.example.parental_control_app.service.PhoneLockerService
 import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
+import com.example.parental_control_app.viewmodels.SettingsType
+import com.example.parental_control_app.viewmodels.SettingsViewModel
 import com.example.parental_control_app.viewmodels.parent.ParentHomeViewModel
 import com.example.parental_control_app.viewmodels.parent.ParentNavigationViewModel
 
@@ -27,9 +30,14 @@ class ParentMainActivity : AppCompatActivity() {
         val parentHomeViewModel = ParentHomeViewModel()
         parentHomeViewModel.addOnChildrenCardClick(this::onChildrenCardClick)
 
-        val parentNavigationViewModel = ParentNavigationViewModel()
+        val settingsViewModel = SettingsViewModel(SettingsType.PARENT)
+        settingsViewModel.signOut = {
+            WorkManager.getInstance(applicationContext).cancelAllWork()
+            profileSignOutHelper.signOut()
+        }
+
+        val parentNavigationViewModel = ParentNavigationViewModel(settingsViewModel)
         parentNavigationViewModel.setParentHomeViewModel(parentHomeViewModel)
-        parentNavigationViewModel.addOnSignOut { profileSignOutHelper.signOut() }
 
         setContent {
             ParentalControlAppTheme {

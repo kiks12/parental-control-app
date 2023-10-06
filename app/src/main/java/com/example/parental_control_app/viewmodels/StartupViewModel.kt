@@ -11,7 +11,6 @@ import com.example.parental_control_app.activities.children.ChildrenMainActivity
 import com.example.parental_control_app.activities.parent.ParentMainActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.managers.SharedPreferencesManager
-import com.example.parental_control_app.helpers.ProfileSignOutHelper
 import com.example.parental_control_app.helpers.ToastHelper
 import com.example.parental_control_app.repositories.users.UserMaturityLevel
 import com.example.parental_control_app.repositories.users.UserProfile
@@ -69,7 +68,7 @@ data class StartupState(
 class StartupViewModel(
     private val toastHelper: ToastHelper,
     private val activityStarterHelper: ActivityStarterHelper,
-    private val profileSignOutHelper: ProfileSignOutHelper,
+//    private val profileSignOutHelper: ProfileSignOutHelper,
     private val usersRepository: UsersRepository = UsersRepository(),
 ) : ViewModel() {
 
@@ -102,6 +101,8 @@ class StartupViewModel(
             ))
         )
     )
+    var googleSignOut : () -> Unit = {}
+
     val uiState : StartupState
         get() = _uiState.value
 
@@ -134,7 +135,7 @@ class StartupViewModel(
 
     fun signOut() {
         auth.signOut()
-        profileSignOutHelper.signOut()
+        googleSignOut()
         activityStarterHelper.startNewActivity(LoginActivity::class.java)
     }
 

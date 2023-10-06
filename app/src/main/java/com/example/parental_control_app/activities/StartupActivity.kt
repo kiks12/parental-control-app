@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.compose.setContent
+import com.example.parental_control_app.R
 import com.example.parental_control_app.activities.children.ChildrenMainActivity
 import com.example.parental_control_app.activities.parent.ParentMainActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
@@ -18,6 +19,8 @@ import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.screens.StartupScreen
 import com.example.parental_control_app.viewmodels.StartupViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 class StartupActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
@@ -58,8 +61,17 @@ class StartupActivity : AppCompatActivity() {
     }
 
     private fun initializeUI() {
-        val startupViewModel = StartupViewModel(toastHelper, activityStarterHelper, profileSignOutHelper)
+        val startupViewModel = StartupViewModel(toastHelper, activityStarterHelper)
+
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(applicationContext.getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+
+        val googleSignInClient = GoogleSignIn.getClient(applicationContext, gso)
+
         startupViewModel.setSharedPreferences(sharedPreferences)
+        startupViewModel.googleSignOut = { googleSignInClient.signOut() }
 
         setContent {
             ParentalControlAppTheme {
@@ -91,4 +103,5 @@ class StartupActivity : AppCompatActivity() {
         if (profileIsParent()) startParentActivity()
         if (profileIsChild()) startChildActivity()
     }
+
 }

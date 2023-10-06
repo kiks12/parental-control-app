@@ -31,8 +31,10 @@ import com.example.parental_control_app.activities.websiteFilter.WebsiteFilterAc
 import com.example.parental_control_app.data.FeatureIcon
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.repositories.users.UserProfile
+import com.example.parental_control_app.viewmodels.SettingsViewModel
 
 class ChildrenViewModel(
+    settingsViewModel: SettingsViewModel,
     private val activityStarterHelper: ActivityStarterHelper,
 ) : ViewModel(){
 
@@ -55,21 +57,13 @@ class ChildrenViewModel(
     }
 
     private var controller : NavHostController? = null
-    private lateinit var signOutFunction : () -> Unit
     private var profile : UserProfile? = null
+    val settingsViewModelProvider = settingsViewModel
 
     @Composable
     fun getController(): NavHostController {
         if (controller == null) controller = rememberNavController()
         return controller!!
-    }
-
-    fun setSignOutFunction(callback: () -> Unit) {
-        signOutFunction = callback
-    }
-
-    fun signOut() {
-        signOutFunction()
     }
 
     fun setProfile(prof: UserProfile) {

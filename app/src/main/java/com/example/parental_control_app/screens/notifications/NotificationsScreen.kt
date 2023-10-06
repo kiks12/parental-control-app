@@ -1,5 +1,7 @@
 package com.example.parental_control_app.screens.notifications
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -12,6 +14,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.parental_control_app.components.NotificationCard
 import com.example.parental_control_app.viewmodels.notifications.NotificationsViewModel
@@ -27,7 +30,9 @@ fun NotificationsScreen(viewModel: NotificationsViewModel) {
             modifier = Modifier.padding(innerPadding)
         ) {
             if (notifications.isEmpty()) {
-                Text("No Notifications to show")
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No Notifications to show")
+                }
             } else {
                 LazyColumn {
                     notifications.forEach { packageName ->
