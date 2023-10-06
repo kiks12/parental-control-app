@@ -29,24 +29,17 @@ class BlockedAppsViewModel(
     val loadingState : Boolean
         get() = _loadingState.value
 
-    private lateinit var back: () -> Unit
-
     init {
         viewModelScope.launch {
             val uid = usersRepository.getProfileUID(profileId)
-            _appsState.value = appsRepository.getBlockedApps(uid)
-            _iconsState.value = appsRepository.getAppIcons(uid, _appsState.value)
-            async { _uidState.value = uid }.await()
+            _loadingState.value = true
+            async {
+                _appsState.value = appsRepository.getBlockedApps(uid)
+                _iconsState.value = appsRepository.getAppIcons(uid, _appsState.value)
+                _uidState.value = uid
+            }.await()
             async { _loadingState.value = false }.await()
         }
-    }
-
-    fun addOnBackClick(callback: () -> Unit) {
-        back = callback
-    }
-
-    fun onBackClick() : () -> Unit {
-        return back
     }
 
     fun updateAppRestriction(appName: String, newRestriction: Boolean) {

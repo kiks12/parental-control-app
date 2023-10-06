@@ -1,8 +1,6 @@
 package com.example.parental_control_app.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,7 +13,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -28,23 +25,25 @@ import com.example.parental_control_app.components.AppCardType
 import com.example.parental_control_app.viewmodels.BlockedAppsViewModel
 
 @Composable
-fun BlockedAppsScreen(viewModel: BlockedAppsViewModel) {
+fun BlockedAppsScreen(viewModel: BlockedAppsViewModel, onBackClick: () -> Unit) {
     val loading = viewModel.loadingState
     val apps = viewModel.appsState
     val icons = viewModel.iconsState
-    
 
     ParentalControlAppTheme {
         Scaffold(
             topBar = {
                 BlockedAppsTopBar(
                     blockedAppsCount = apps.size,
-                    onBackClick = viewModel.onBackClick()
+                    onBackClick = onBackClick
                 )
             }
         ){ innerPadding ->
-            if (loading && apps.isEmpty() && icons.isEmpty()) {
-                Surface(modifier = Modifier.fillMaxSize()) {
+            if (loading) {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
                     Box (
                         modifier = Modifier
                             .height(50.dp)
@@ -54,10 +53,9 @@ fun BlockedAppsScreen(viewModel: BlockedAppsViewModel) {
                     }
                 }
             } else if (apps.isEmpty()) {
-                Column (
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
+                Box (
+                    modifier = Modifier.fillMaxSize().padding(innerPadding),
+                    contentAlignment = Alignment.Center
                 ){
                     Text("No apps to show")
                 }

@@ -104,7 +104,7 @@ class ActivityLogActivity : AppCompatActivity() {
                             DatePicker(state = datePickerState)
                         }
                     }
-                    LazyColumn(Modifier.padding(innerPadding)) {
+                    LazyColumn(Modifier.padding(innerPadding).fillMaxSize()) {
                         item {
                             Column(
                                 modifier = Modifier.padding(horizontal = 15.dp, vertical = 10.dp)

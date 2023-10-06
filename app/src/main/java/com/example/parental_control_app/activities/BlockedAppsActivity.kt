@@ -12,10 +12,11 @@ class BlockedAppsActivity : AppCompatActivity() {
 
         val kidProfileId = intent.getStringExtra("kidProfileId")
         val blockedAppsViewModel = BlockedAppsViewModel(kidProfileId.toString())
-        blockedAppsViewModel.addOnBackClick { finish() }
 
         setContent {
-            BlockedAppsScreen(blockedAppsViewModel)
+            BlockedAppsScreen(blockedAppsViewModel) {
+                finish()
+            }
         }
     }
 }
