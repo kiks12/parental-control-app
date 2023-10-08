@@ -95,6 +95,66 @@ class UsersRepository {
         return completable.await()
     }
 
+    suspend fun deleteProfile(profile: UserProfile) : Response {
+        val completable = CompletableDeferred<Response>()
+
+        coroutineScope {
+            launch(Dispatchers.IO){
+                val uid = getProfileUID(profile.profileId)
+                val docRef = db.collection("profiles").document(uid)
+                docRef.delete()
+                    .addOnSuccessListener {
+                        completable.complete(
+                            Response(
+                                ResponseStatus.SUCCESS,
+                                "Successfully deleted ${profile.name}"
+                            )
+                        )
+                    }
+                    .addOnFailureListener { it.localizedMessage?.let { it1 ->
+                        completable.complete(
+                            Response(
+                                ResponseStatus.FAILED,
+                                it1
+                            )
+                        )
+                    } }
+            }
+        }
+
+        return completable.await()
+    }
+
+    suspend fun saveProfile(profile: UserProfile) : Response {
+        val completable = CompletableDeferred<Response>()
+
+        coroutineScope {
+            launch(Dispatchers.IO) {
+                val docRef = db.collection("profiles").document()
+                val query = docRef.set(profile)
+                query
+                    .addOnSuccessListener {
+                        completable.complete(
+                            Response(
+                                ResponseStatus.SUCCESS,
+                                "Successfully created new profile"
+                            )
+                        )
+                    }
+                    .addOnFailureListener { it.localizedMessage?.let { it1 ->
+                        completable.complete(
+                            Response(
+                                ResponseStatus.FAILED,
+                                it1
+                            )
+                        )
+                    } }
+            }
+        }
+
+        return completable.await()
+    }
+
     suspend fun saveProfiles(profiles: List<UserProfile>) : String {
         val completable = CompletableDeferred<String>()
 
@@ -107,7 +167,11 @@ class UsersRepository {
                 }
                 batch.commit()
                     .addOnSuccessListener { completable.complete("Successfully created profiles") }
-                    .addOnFailureListener { completable.complete(it.localizedMessage!!) }
+                    .addOnFailureListener { it.localizedMessage?.let { it1 ->
+                        completable.complete(
+                            it1
+                        )
+                    } }
             }
         }
 

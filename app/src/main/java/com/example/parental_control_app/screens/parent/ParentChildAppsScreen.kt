@@ -86,6 +86,7 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
                                     app = suggestion,
                                     appIcon = icons[suggestion.packageName]!!,
                                     type = AppCardType.SUGGESTIONS,
+                                    onParent = viewModel.profileState.parent,
                                     onCheckedChange = viewModel::updateAppRestriction,
                                     onTimeLimitChange = viewModel::updateAppScreenTimeLimit
                                 )
@@ -101,6 +102,7 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
                                         app = app,
                                         appIcon = icons[app.packageName]!!,
                                         type = AppCardType.APP,
+                                        onParent = viewModel.profileState.parent,
                                         onCheckedChange = viewModel::updateAppRestriction,
                                         onTimeLimitChange = viewModel::updateAppScreenTimeLimit
                                     )

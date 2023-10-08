@@ -5,12 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.parental_control_app.data.UserApps
 import com.example.parental_control_app.repositories.AppsRepository
+import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.repositories.users.UsersRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class BlockedAppsViewModel(
-    private val profileId: String,
+    profile: UserProfile,
+    private val kidProfileId: String,
     private val appsRepository: AppsRepository = AppsRepository(),
     private val usersRepository: UsersRepository = UsersRepository(),
 ) : ViewModel(){
@@ -29,9 +31,11 @@ class BlockedAppsViewModel(
     val loadingState : Boolean
         get() = _loadingState.value
 
+    val profileState = profile
+
     init {
         viewModelScope.launch {
-            val uid = usersRepository.getProfileUID(profileId)
+            val uid = usersRepository.getProfileUID(kidProfileId)
             _loadingState.value = true
             async {
                 _appsState.value = appsRepository.getBlockedApps(uid)

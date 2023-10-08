@@ -37,8 +37,8 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
             if (type == SettingsType.PARENT) {
                 item {
                     ListItem(
-                        modifier = Modifier.clickable { },
-                        headlineContent = { Text("Add Profile") },
+                        modifier = Modifier.clickable { viewModel.startManageProfileActivity() },
+                        headlineContent = { Text("Manage Profiles") },
                         leadingContent = { Icon(Icons.Rounded.Add, "") }
                     )
                 }

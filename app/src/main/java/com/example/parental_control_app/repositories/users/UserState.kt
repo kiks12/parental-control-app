@@ -9,16 +9,16 @@ data class UserState(
 
 
 data class UserProfile(
-    val profileId: String,
+    var profileId: String,
     val name: String,
-    val userId: String,
+    var userId: String,
     val age: String = "",
     val birthday: Long = 0,
     val parent: Boolean = false,
     val child: Boolean = false,
     val phoneNumber: String? = null,
-    val password: String = "",
-    val maturityLevel: String? = null,
+    var password: String = "",
+    var maturityLevel: String? = null,
     val phoneLock: Boolean = false,
     val phoneScreenTime: Long = 0,
     val phoneScreenTimeLimit: Long = 0,

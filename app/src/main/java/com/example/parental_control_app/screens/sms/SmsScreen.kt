@@ -35,6 +35,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 @Composable
 fun SmsScreen(viewModel : SmsViewModel, onBackClick : () -> Unit) {
     val sms = viewModel.smsState
+    val profile = viewModel.profileState
 
     val permissionState = rememberPermissionState(permission = Manifest.permission.RECEIVE_SMS)
 
@@ -46,37 +47,7 @@ fun SmsScreen(viewModel : SmsViewModel, onBackClick : () -> Unit) {
         Surface(
             modifier = Modifier.padding(innerPadding)
         ){
-            PermissionRequired(
-                permissionState = permissionState,
-                permissionNotGrantedContent = {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                        Text("SMS permission is required")
-                        Spacer(Modifier.height(10.dp))
-                        Button(onClick = {
-                            permissionState.launchPermissionRequest()
-                        }) {
-                            Text(
-                                "Request Permission",
-                                modifier = Modifier.padding(vertical = 10.dp, horizontal = 15.dp)
-                            )
-                        }
-                    }
-                },
-                permissionNotAvailableContent = {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-            ) {
-
+            if (profile.parent) {
                 if (sms.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -93,7 +64,54 @@ fun SmsScreen(viewModel : SmsViewModel, onBackClick : () -> Unit) {
                         }
                     }
                 }
-
+            } else {
+                PermissionRequired(
+                    permissionState = permissionState,
+                    permissionNotGrantedContent = {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ){
+                            Text("SMS permission is required")
+                            Spacer(Modifier.height(10.dp))
+                            Button(onClick = {
+                                permissionState.launchPermissionRequest()
+                            }) {
+                                Text(
+                                    "Request Permission",
+                                    modifier = Modifier.padding(vertical = 10.dp, horizontal = 15.dp)
+                                )
+                            }
+                        }
+                    },
+                    permissionNotAvailableContent = {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                ) {
+                    if (sms.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("No Sms to show")
+                        }
+                    } else {
+                        LazyColumn {
+                            sms.forEach {sms ->
+                                item {
+                                    SmsCard(sms, viewModel::onSmsClick)
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

@@ -15,6 +15,7 @@ import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
@@ -26,6 +27,7 @@ import com.example.parental_control_app.activities.ScreenTimeActivity
 import com.example.parental_control_app.activities.children.ChildrenAppsActivity
 import com.example.parental_control_app.activities.notifications.NotificationsActivity
 import com.example.parental_control_app.activities.BlockedAppsActivity
+import com.example.parental_control_app.activities.DataUsageActivity
 import com.example.parental_control_app.activities.sms.SmsActivity
 import com.example.parental_control_app.activities.websiteFilter.WebsiteFilterActivity
 import com.example.parental_control_app.data.FeatureIcon
@@ -46,6 +48,7 @@ class ChildrenViewModel(
             FeatureIcon("Location", FeatureIcons.LOCATION, Icons.Outlined.LocationOn),
             FeatureIcon("Website Filter", FeatureIcons.WEBSITE_FILTER, Icons.Outlined.Edit),
             FeatureIcon("Activity Log", FeatureIcons.ACTIVITY_LOG, Icons.Outlined.Info),
+            FeatureIcon("Data Usage", FeatureIcons.DATA_USAGE, Icons.Outlined.PlayArrow),
             FeatureIcon("SMS", FeatureIcons.SMS, Icons.Outlined.Call),
             FeatureIcon("Notifications", FeatureIcons.NOTIFICATIONS, Icons.Outlined.Notifications),
         )
@@ -84,6 +87,7 @@ class ChildrenViewModel(
             FeatureIcons.ACTIVITY_LOG -> startActivityLog()
             FeatureIcons.SMS -> startSMS()
             FeatureIcons.NOTIFICATIONS -> startNotifications()
+            FeatureIcons.DATA_USAGE -> startDataUsage()
         }
     }
 
@@ -148,6 +152,15 @@ class ChildrenViewModel(
     private fun startActivityLog() {
         activityStarterHelper.startNewActivity(
             ActivityLogActivity::class.java,
+            extras = mapOf(
+                "kidProfileId" to profile?.profileId!!
+            )
+        )
+    }
+
+    private fun startDataUsage() {
+        activityStarterHelper.startNewActivity(
+            DataUsageActivity::class.java,
             extras = mapOf(
                 "kidProfileId" to profile?.profileId!!
             )

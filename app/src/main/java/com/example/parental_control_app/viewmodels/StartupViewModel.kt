@@ -2,17 +2,17 @@ package com.example.parental_control_app.viewmodels
 
 
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.parental_control_app.activities.LoginActivity
 import com.example.parental_control_app.activities.children.ChildrenMainActivity
+import com.example.parental_control_app.activities.manageProfile.CreateProfileActivity
 import com.example.parental_control_app.activities.parent.ParentMainActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
-import com.example.parental_control_app.managers.SharedPreferencesManager
+import com.example.parental_control_app.helpers.ResultLauncherHelper
 import com.example.parental_control_app.helpers.ToastHelper
-import com.example.parental_control_app.repositories.users.UserMaturityLevel
+import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.repositories.users.UserState
 import com.example.parental_control_app.repositories.users.UsersRepository
@@ -23,7 +23,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mindrot.jbcrypt.BCrypt
-import kotlin.random.Random
 
 
 enum class SurveyAnswers(val weight: Int) {
@@ -40,13 +39,6 @@ data class SurveyQuestion(
     var answer: SurveyAnswers = SurveyAnswers.ZERO,
 )
 
-data class SurveyQuestionCollection(
-    val questions : List<SurveyQuestion>
-) {
-    internal var totalNumber: Int = questions.size
-    internal var totalAnswered: Int = questions.count { question -> question.answer != SurveyAnswers.ZERO }
-}
-
 data class PasswordBottomSheetState (
     val value: String,
     val showSheet: Boolean,
@@ -56,57 +48,32 @@ data class PasswordBottomSheetState (
 
 data class StartupState(
     val user: UserState = UserState("", ""),
-    val profiles: List<UserProfile> = emptyList(),
-    val profileInput: UserProfile = UserProfile("","", ""),
     val passwordBottomSheet: PasswordBottomSheetState = PasswordBottomSheetState("", showSheet = false, showPassword = false, ""),
-    val creatingProfile: Boolean,
-    val questions: SurveyQuestionCollection,
-    val answeringSurvey: Boolean,
 )
 
 
 class StartupViewModel(
     private val toastHelper: ToastHelper,
     private val activityStarterHelper: ActivityStarterHelper,
-//    private val profileSignOutHelper: ProfileSignOutHelper,
+    private val resultLauncherHelper: ResultLauncherHelper,
     private val usersRepository: UsersRepository = UsersRepository(),
 ) : ViewModel() {
 
+    private lateinit var sharedPreferences: SharedPreferences
     private val _clickedProfile = mutableStateOf(UserProfile())
     private val auth = Firebase.auth
-    private val _uiState = mutableStateOf(
-        StartupState(
-            profiles = emptyList(),
-            profileInput = UserProfile(
-                profileId = "",
-                name = "",
-                phoneNumber = "",
-                password = "",
-                userId = "",
-                parent = true,
-            ),
-            creatingProfile = false,
-            answeringSurvey = false,
-            questions = SurveyQuestionCollection(questions = listOf(
-                SurveyQuestion("First dummy example question"),
-                SurveyQuestion("Second dummy example question"),
-                SurveyQuestion("Third dummy example question"),
-                SurveyQuestion("Fourth dummy example question"),
-                SurveyQuestion("Fifth dummy example question"),
-                SurveyQuestion("Sixth dummy example question"),
-                SurveyQuestion("Seventh dummy example question"),
-                SurveyQuestion("Eighth dummy example question"),
-                SurveyQuestion("Ninth dummy example question"),
-                SurveyQuestion("Tenth dummy example question"),
-            ))
-        )
-    )
+
+    private val _uiState = mutableStateOf(StartupState())
+
+    private val _profilesState = mutableStateOf<List<UserProfile>>(listOf())
+    val profilesState : List<UserProfile>
+        get() = _profilesState.value
+
     var googleSignOut : () -> Unit = {}
 
     val uiState : StartupState
         get() = _uiState.value
 
-    private lateinit var sharedPreferences: SharedPreferences
 
     init {
         updateUser()
@@ -125,7 +92,7 @@ class StartupViewModel(
         viewModelScope.launch {
             val authUser = auth.currentUser
             val profiles = usersRepository.findUserProfiles(authUser?.uid.toString())
-            _uiState.value = _uiState.value.copy(profiles = profiles)
+            _profilesState.value = profiles
         }
     }
 
@@ -144,19 +111,19 @@ class StartupViewModel(
     }
 
     fun saveProfiles() {
-        if (_uiState.value.profiles.isEmpty() || _uiState.value.profiles.size < 2) {
-            toastHelper.makeToast("Create at least two profiles first, one parent, one child")
+        if (_profilesState.value.isEmpty() || _profilesState.value.size < 2) {
+            toastHelper.makeToast("Create at least two profiles first")
             return
         }
 
-        if (!includesParentAndChild(_uiState.value.profiles)) {
+        if (!includesParentAndChild(_profilesState.value)) {
             toastHelper.makeToast("Profiles should have at least 1 parent and 1 child")
             return
         }
 
-        viewModelScope.launch(Dispatchers.IO){
+        viewModelScope.launch {
             async {
-                val msg = usersRepository.saveProfiles(_uiState.value.profiles)
+                val msg = usersRepository.saveProfiles(_profilesState.value)
                 withContext(Dispatchers.Main) {
                     toastHelper.makeToast(msg)
                 }
@@ -174,167 +141,91 @@ class StartupViewModel(
         }
     }
 
-
-
-    /**
-     * Profile Creation Form related methods
-     */
-    fun onNameChange(newString: String) {
-        _uiState.value = _uiState.value.copy(profileInput = _uiState.value.profileInput.copy(name = newString))
-    }
-
-    fun onPhoneNumberChange(newString: String) {
-        _uiState.value = _uiState.value.copy(profileInput = _uiState.value.profileInput.copy(phoneNumber = newString))
-    }
-
-    fun onPasswordChange(newString: String) {
-        _uiState.value = _uiState.value.copy(profileInput = _uiState.value.profileInput.copy(password = newString))
-    }
-
-    fun onAgeChange(newAge: String) {
-        _uiState.value = _uiState.value.copy(profileInput = _uiState.value.profileInput.copy(age = newAge))
-    }
-
-    fun onBirthdayChange(newBirthday: Long) {
-        _uiState.value = _uiState.value.copy(profileInput = _uiState.value.profileInput.copy(birthday = newBirthday))
-    }
-
-    fun startCreatingProfile() {
-        _uiState.value = _uiState.value.copy(
-            creatingProfile = true
-        )
-    }
-
-    fun stopCreatingProfile() {
-        _uiState.value = _uiState.value.copy(
-            creatingProfile = false
-        )
-    }
-
-    fun changeProfileType(state: Boolean) {
-        if (state) {
-            _uiState.value = _uiState.value.copy(
-                profileInput = _uiState.value.profileInput.copy(
-                    parent = true,
-                    child = false,
-                )
-            )
-        } else {
-            _uiState.value = _uiState.value.copy(
-                profileInput = _uiState.value.profileInput.copy(
-                    parent = false,
-                    child = true,
-                )
-            )
-        }
-    }
-
-
-    /*
-    Maturity Level Survey related methods
-     */
-    fun startAnsweringSurvey() {
-        _uiState.value = _uiState.value.copy(
-            answeringSurvey = true,
-            creatingProfile = false,
-        )
-    }
-
-    fun stopAnsweringSurvey() {
-        _uiState.value = _uiState.value.copy(
-            answeringSurvey = false,
-            creatingProfile = true,
-        )
-    }
-
-    fun onQuestionAnswerChange(index: Int, answer: SurveyAnswers) {
-        _uiState.value = _uiState.value.copy(
-            questions = _uiState.value.questions.copy(
-                questions = _uiState.value.questions.questions.mapIndexed{ mapIndex, question ->
-                    if (mapIndex == index)
-                        question.copy(answer = answer)
-                    else
-                        question
-                }
-            )
-        )
-    }
-
-    fun onClearAnswer(index: Int) {
-        _uiState.value = _uiState.value.copy(
-            questions = _uiState.value.questions.copy(
-                questions = _uiState.value.questions.questions.mapIndexed{ mapIndex, question ->
-                    if (mapIndex == index)
-                        question.copy(answer = SurveyAnswers.ZERO)
-                    else
-                        question
-                }
-            )
-        )
-    }
-
-    fun calculateSurveyAverage() {
-        Log.w("Maturity Level", _uiState.value.questions.questions.toString())
-        Log.w("Maturity Level", "Calculate Maturity Level")
-
-        val random = Random.nextInt(0, 2)
-        _uiState.value = _uiState.value.copy(
-            profileInput = _uiState.value.profileInput.copy(
-                maturityLevel = UserMaturityLevel.values()[random].toString()
-            )
-        )
-
-        createProfile()
-        stopAnsweringSurvey()
-    }
-    /*
-    Maturity Level Survey related methods
-     */
-
-
-    fun createProfile() {
-        if (_uiState.value.profileInput.name.isEmpty()
-            || _uiState.value.profileInput.age.isEmpty()
-            || _uiState.value.profileInput.birthday == 0L
-            ) {
-            toastHelper.makeToast("Make sure to fill up all the fields")
-            return
-        }
-
-        if (_uiState.value.profileInput.parent && _uiState.value.profileInput.password.isEmpty()) {
-            toastHelper.makeToast("Parent profile needs a password!")
-            return
-        }
-
-        val profileId = _uiState.value.user.userId + _uiState.value.profileInput.name
-        val plainPass = _uiState.value.profileInput.password
+    fun addProfile(newProfile: UserProfile) {
+        val profileId = _uiState.value.user.userId + newProfile.name
+        val plainPass = newProfile.password
         val hashedPassword = BCrypt.hashpw(plainPass, BCrypt.gensalt())
         val hashedProfileId = BCrypt.hashpw(profileId, BCrypt.gensalt())
 
-        _uiState.value = _uiState.value.copy(
-            profileInput = _uiState.value.profileInput.copy(
-                profileId = hashedProfileId,
-                password = hashedPassword,
-                userId = _uiState.value.user.userId,
-            )
-        )
+        newProfile.profileId = hashedProfileId
+        newProfile.password = hashedPassword
+        newProfile.userId = _uiState.value.user.userId
 
-        Log.w("USER PROFILE FORM", _uiState.value.profileInput.toString())
-
-        _uiState.value = _uiState.value.copy(
-            profiles = _uiState.value.profiles.plus(_uiState.value.profileInput),
-            profileInput = UserProfile(
-                profileId = "",
-                name = "",
-                userId = "",
-                phoneNumber = "",
-                password = "",
-                parent = true,
-            )
-        )
-
-//        stopCreatingProfile()
+        _profilesState.value = _profilesState.value.plus(newProfile)
     }
+
+    fun deleteProfile(name: String) {
+        _profilesState.value = _profilesState.value.filter { profile -> profile.name != name }
+    }
+
+    fun startCreatingProfile() {
+        resultLauncherHelper.launch(CreateProfileActivity::class.java)
+    }
+
+
+    /*
+    Maturity Level Survey related methods
+     */
+//    fun startAnsweringSurvey() {
+//        _uiState.value = _uiState.value.copy(
+//            answeringSurvey = true,
+////            creatingProfile = false,
+//        )
+//    }
+
+//    fun stopAnsweringSurvey() {
+//        _uiState.value = _uiState.value.copy(
+//            answeringSurvey = false,
+////            creatingProfile = true,
+//        )
+//    }
+
+//    fun onQuestionAnswerChange(index: Int, answer: SurveyAnswers) {
+//        _uiState.value = _uiState.value.copy(
+//            questions = _uiState.value.questions.copy(
+//                questions = _uiState.value.questions.questions.mapIndexed{ mapIndex, question ->
+//                    if (mapIndex == index)
+//                        question.copy(answer = answer)
+//                    else
+//                        question
+//                }
+//            )
+//        )
+//    }
+
+//    fun onClearAnswer(index: Int) {
+//        _uiState.value = _uiState.value.copy(
+//            questions = _uiState.value.questions.copy(
+//                questions = _uiState.value.questions.questions.mapIndexed{ mapIndex, question ->
+//                    if (mapIndex == index)
+//                        question.copy(answer = SurveyAnswers.ZERO)
+//                    else
+//                        question
+//                }
+//            )
+//        )
+//    }
+
+//    fun calculateSurveyAverage() {
+//        Log.w("Maturity Level", _uiState.value.questions.questions.toString())
+//        Log.w("Maturity Level", "Calculate Maturity Level")
+//
+//        val random = Random.nextInt(0, 2)
+//        _uiState.value = _uiState.value.copy(
+//            profileInput = _uiState.value.profileInput.copy(
+//                maturityLevel = UserMaturityLevel.values()[random].toString()
+//            )
+//        )
+//
+//        createProfile()
+//        stopAnsweringSurvey()
+//    }
+    /*
+    Maturity Level Survey related methods
+     */
+
+
+
     /**
      * Profile Creation Form related methods
      */
@@ -357,13 +248,11 @@ class StartupViewModel(
             newEditor.apply()
         }
     }
-
+//
     fun startChildActivity() {
         setSharedPreferencesProfile()
         activityStarterHelper.startNewActivity(ChildrenMainActivity::class.java)
     }
-
-
 
     /*
     Parent Profile related methods
@@ -412,6 +301,7 @@ class StartupViewModel(
         setSharedPreferencesProfile()
         activityStarterHelper.startNewActivity(ParentMainActivity::class.java)
     }
+
     /*
     Parent Profile related methods
     */

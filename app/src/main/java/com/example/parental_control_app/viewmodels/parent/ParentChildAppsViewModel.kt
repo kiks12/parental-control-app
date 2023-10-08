@@ -13,12 +13,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ParentChildAppsViewModel(
-    private val profileId: String,
+    profile: UserProfile,
+    private val kidProfileId: String,
     private val appsRepository: AppsRepository = AppsRepository(),
     private val usersRepository: UsersRepository = UsersRepository(),
 ) : ViewModel(){
 
-    private val _profile = mutableStateOf(UserProfile())
+    private val _kidProfile = mutableStateOf(UserProfile())
     private val _loadingState = mutableStateOf(true)
     private val _suggestionsState = mutableStateListOf<UserApps>()
     private val _appsState = mutableStateListOf<UserApps>()
@@ -37,13 +38,15 @@ class ParentChildAppsViewModel(
     val loadingState : Boolean
         get() = _loadingState.value
 
+    val profileState = profile
+
 
     init {
         viewModelScope.launch {
-            val uid = usersRepository.getProfileUID(profileId)
-            _profile.value = usersRepository.getProfile(uid)
+            val uid = usersRepository.getProfileUID(kidProfileId)
+            _kidProfile.value = usersRepository.getProfile(uid)
 
-            val suggestions = appsRepository.getSuggestedAppRestriction(_profile.value.age.toInt())
+            val suggestions = appsRepository.getSuggestedAppRestriction(_kidProfile.value.age.toInt())
             val apps = appsRepository.getApps(uid)
             _iconsState.value = appsRepository.getAppIcons(uid, apps)
 
@@ -73,14 +76,14 @@ class ParentChildAppsViewModel(
 
     fun updateAppRestriction(appName: String, newRestriction: Boolean) {
         viewModelScope.launch {
-            val uid = usersRepository.getProfileUID(profileId)
+            val uid = usersRepository.getProfileUID(kidProfileId)
             appsRepository.updateAppRestriction(uid, appName, newRestriction)
         }
     }
 
     fun updateAppScreenTimeLimit(appName: String, newTimeLimit: Long){
         viewModelScope.launch {
-            val uid = usersRepository.getProfileUID(profileId)
+            val uid = usersRepository.getProfileUID(kidProfileId)
             appsRepository.updateAppScreenTimeLimit(uid, appName, newTimeLimit)
         }
     }

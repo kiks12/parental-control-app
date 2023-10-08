@@ -51,6 +51,7 @@ fun AppCard(
     app: UserApps,
     appIcon: String,
     type: AppCardType,
+    onParent: Boolean,
     onCheckedChange: (appName: String, newRestriction: Boolean) -> Unit,
     onTimeLimitChange: (appName: String, newTimeLimit: Long) -> Unit,
 ) {
@@ -127,8 +128,10 @@ fun AppCard(
         trailingContent = {
             Switch(
                 checked = restricted.value, onCheckedChange = {
-                    restricted.value = it
-                    onCheckedChange(app.packageName, it)
+                    if (onParent) {
+                        restricted.value = it
+                        onCheckedChange(app.packageName, it)
+                    }
                 },
                 thumbContent = {
                     if (restricted.value) {

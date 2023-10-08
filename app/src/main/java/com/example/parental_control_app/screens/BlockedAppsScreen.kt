@@ -71,6 +71,7 @@ fun BlockedAppsScreen(viewModel: BlockedAppsViewModel, onBackClick: () -> Unit) 
                                     app = it,
                                     appIcon = it1,
                                     type = AppCardType.APP,
+                                    onParent = viewModel.profileState.parent,
                                     onCheckedChange = viewModel::updateAppRestriction,
                                     onTimeLimitChange = viewModel::updateAppScreenTimeLimit
                                 )

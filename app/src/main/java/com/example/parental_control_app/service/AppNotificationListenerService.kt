@@ -35,7 +35,9 @@ class AppNotificationListenerService : NotificationListenerService() {
             )
 
             GlobalScope.launch(Dispatchers.IO) {
-                async { notificationsRepository.saveNotification(profile?.profileId!!, newNotification) }.await()
+                if(profile != null) {
+                    async { notificationsRepository.saveNotification(profile.profileId, newNotification) }.await()
+                }
             }
         }
 

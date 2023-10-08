@@ -8,6 +8,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
@@ -41,6 +42,18 @@
         android:theme="@style/Theme.Parentalcontrolapp"
         android:windowSoftInputMode="adjustResize"
         tools:targetApi="tiramisu">
+        <activity
+            android:name=".activities.manageProfile.ManageProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.manageProfile.SurveyActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.manageProfile.CreateProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.DataUsageActivity"
+            android:exported="false" />
         <activity
             android:name=".activities.stacking.UnlockActivity"
             android:exported="false" />
@@ -98,9 +111,6 @@
             android:exported="false" />
         <activity
             android:name=".activities.children.ChildrenMainActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.GoogleOAuthActivity"
             android:exported="false" />
         <activity
             android:name=".activities.StartupActivity"

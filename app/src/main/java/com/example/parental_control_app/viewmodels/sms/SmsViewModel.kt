@@ -6,9 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.parental_control_app.activities.sms.SmsMessageActivity
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.repositories.SmsRepository
+import com.example.parental_control_app.repositories.users.UserProfile
 import kotlinx.coroutines.launch
 
 class SmsViewModel(
+    profile: UserProfile,
     private val kidProfileId: String,
     private val smsRepository: SmsRepository = SmsRepository(),
 ) : ViewModel() {
@@ -16,6 +18,9 @@ class SmsViewModel(
     private lateinit var activityStarter: ActivityStarterHelper
 
     private val _smsState = mutableStateOf<List<String>>(listOf())
+
+    val profileState = profile
+
     val smsState : List<String>
         get() = _smsState.value
 

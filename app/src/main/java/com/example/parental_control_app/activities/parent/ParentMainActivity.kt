@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.work.WorkManager
+import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.helpers.ProfileSignOutHelper
 import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.screens.parent.ParentNavigationScreen
@@ -25,12 +26,14 @@ class ParentMainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val sharedPreferences = getSharedPreferences(SharedPreferencesManager.PREFS_KEY, MODE_PRIVATE)
+        val profile = SharedPreferencesManager.getProfile(sharedPreferences)
         val profileSignOutHelper = ProfileSignOutHelper(this, sharedPreferences)
+        val activityStarterHelper = ActivityStarterHelper(this)
 
-        val parentHomeViewModel = ParentHomeViewModel()
+        val parentHomeViewModel = ParentHomeViewModel(profile!!)
         parentHomeViewModel.addOnChildrenCardClick(this::onChildrenCardClick)
 
-        val settingsViewModel = SettingsViewModel(SettingsType.PARENT)
+        val settingsViewModel = SettingsViewModel(SettingsType.PARENT, activityStarterHelper)
         settingsViewModel.signOut = {
             WorkManager.getInstance(applicationContext).cancelAllWork()
             profileSignOutHelper.signOut()
