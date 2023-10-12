@@ -19,21 +19,29 @@ import com.example.parental_control_app.data.AppUsage
 import com.example.parental_control_app.data.UserApps
 import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.repositories.ActivityLogRepository
+import com.example.parental_control_app.repositories.AppsRepository
+import com.example.parental_control_app.repositories.users.UserProfile
+import com.example.parental_control_app.repositories.users.UsersRepository
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-
 class AppBlockerService : Service(){
 
     private lateinit var uid : String
     private var prevApp = ""
+    private val db = Firebase.firestore
+    private var blockedApps : List<UserApps> = listOf()
 
     companion object {
         private val activityLogRepository = ActivityLogRepository()
+        private val appsRepository = AppsRepository()
+        private val usersRepository = UsersRepository()
         private val handler = Handler(Looper.getMainLooper())
         private var runnable = Runnable {}
         private const val checkInterval = 500
@@ -82,7 +90,7 @@ class AppBlockerService : Service(){
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
         val sharedPreferences = getSharedPreferences(SharedPreferencesManager.PREFS_KEY, MODE_PRIVATE)
-        val blockedApps = SharedPreferencesManager.getBlockedApps(sharedPreferences)
+        blockedApps = SharedPreferencesManager.getBlockedApps(sharedPreferences)
         uid = SharedPreferencesManager.getUID(sharedPreferences).toString()
 
         val notification = NotificationCompat.Builder(this, "App Blocker")
@@ -93,7 +101,21 @@ class AppBlockerService : Service(){
 
         startForeground(1, notification)
 
-        monitorRunningApp(blockedApps)
+        db.collection("profiles").document(uid).addSnapshotListener{ snapshot, _ ->
+            if (snapshot == null) return@addSnapshotListener
+            val profileData = snapshot.toObject(UserProfile::class.java) ?: return@addSnapshotListener
+
+            if (profileData.blockChange) {
+                scope.launch {
+                    blockedApps = appsRepository.getBlockedApps(uid)
+//                    Log.w("GET NEW BLOCKED APPS", "GET")
+                    usersRepository.updateBlockStatus(uid, false)
+                    SharedPreferencesManager.storeBlockedApps(sharedPreferences, blockedApps)
+                }
+            }
+        }
+
+        monitorRunningApp()
 
         return START_STICKY
     }
@@ -121,8 +143,9 @@ class AppBlockerService : Service(){
         }
     }
 
-    private fun monitorRunningApp(blockedApps: List<UserApps>) {
+    private fun monitorRunningApp() {
         runnable = Runnable {
+//            Log.w("BLOCKED APPS", blockedApps.toString())
             val currentApp = getCurrentRunningAppPackageName(applicationContext)
 //            Log.w("APP LOCK SERVICE APPS", blockedApps.toString())
             if (currentApp != null) {
@@ -136,6 +159,7 @@ class AppBlockerService : Service(){
                 if (blockedApp.isNotEmpty()) {
 //                    Log.w("SCREEN TIME", "${blockedApp[0].limit} ${currentApp.screenTime}")
                     if (currentApp.screenTime >= blockedApp[0].limit || blockedApp[0].limit == 0L && blockedApp[0].packageName != prevApp) {
+//                        Log.w("BLOCK APP", "$blockedApp")
                         showBlockActivity()
                     }
                 }
@@ -143,7 +167,7 @@ class AppBlockerService : Service(){
 //                Log.w("APP LOCK SERVICE","No running app found.")
             }
 
-            monitorRunningApp(blockedApps)
+            monitorRunningApp()
         }
 
         handler.postDelayed(runnable, checkInterval.toLong())

@@ -78,6 +78,7 @@ class ParentChildAppsViewModel(
         viewModelScope.launch {
             val uid = usersRepository.getProfileUID(kidProfileId)
             appsRepository.updateAppRestriction(uid, appName, newRestriction)
+            usersRepository.updateBlockStatus(uid, true)
         }
     }
 

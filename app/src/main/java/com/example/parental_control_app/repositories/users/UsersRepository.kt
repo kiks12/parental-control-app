@@ -73,6 +73,53 @@ class UsersRepository {
         return completable.await()
     }
 
+    suspend fun findUserByEmail(email: String) : Response {
+        val completable = CompletableDeferred<Response>()
+
+        coroutineScope {
+            launch(Dispatchers.IO) {
+                db.collection("users").whereEqualTo("email", email).get()
+                    .addOnSuccessListener { snapshot ->
+                        if (snapshot.isEmpty) {
+                            completable.complete(
+                                Response(
+                                    ResponseStatus.SUCCESS,
+                                    "Email is available",
+                                    data = mapOf(
+                                        "used" to false
+                                    )
+                                )
+                            )
+                        } else {
+                            completable.complete(
+                                Response(
+                                    ResponseStatus.SUCCESS,
+                                    "Email is used already",
+                                    data = mapOf(
+                                        "used" to true
+                                    )
+                                )
+                            )
+                        }
+                    }
+                    .addOnFailureListener {
+                        it.localizedMessage?.let { it1 ->
+                            Response(
+                                ResponseStatus.FAILED,
+                                it1
+                            )
+                        }?.let { it2 ->
+                            completable.complete(
+                                it2
+                            )
+                        }
+                    }
+            }
+        }
+
+        return completable.await()
+    }
+
     suspend fun findUser(userId: String) : UserState {
         val completable = CompletableDeferred<UserState>()
 
@@ -230,6 +277,15 @@ class UsersRepository {
         return completable.await()
     }
 
+    suspend fun updateBlockStatus(uid: String, status: Boolean) {
+        coroutineScope {
+            launch(Dispatchers.IO){
+                val ref = db.collection("profiles").document(uid)
+                ref.update("blockChange", status).await()
+            }
+        }
+    }
+
     suspend fun lockChildPhone(uid: String) {
         coroutineScope {
             launch(Dispatchers.IO){
@@ -290,7 +346,7 @@ class UsersRepository {
                     val limit = document.data?.get("phoneScreenTimeLimit").toString().toLong()
                     val hours = TimeUnit.MILLISECONDS.toHours(limit)
                     val minutes = TimeUnit.MILLISECONDS.toMinutes(limit) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(limit))
-                    val seconds = TimeUnit.MILLISECONDS.toSeconds(limit) - TimeUnit.HOURS.toSeconds(TimeUnit.MILLISECONDS.toMinutes(limit))
+                    val seconds = TimeUnit.MILLISECONDS.toSeconds(limit) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(limit))
 
                     responseCompletable.complete(
                         Response(

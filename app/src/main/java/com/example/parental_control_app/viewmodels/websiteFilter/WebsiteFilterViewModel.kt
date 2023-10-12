@@ -7,11 +7,13 @@ import com.example.parental_control_app.activities.websiteFilter.WebsiteFilterAd
 import com.example.parental_control_app.data.Site
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.repositories.SiteRepository
+import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.repositories.users.UsersRepository
 import kotlinx.coroutines.launch
 
 class WebsiteFilterViewModel(
-    val profileId: String,
+    profile: UserProfile,
+    val kidProfileId: String,
     val activityStarterHelper: ActivityStarterHelper,
 ) : ViewModel(){
 
@@ -22,9 +24,11 @@ class WebsiteFilterViewModel(
     val siteState : List<Site>
         get() = _siteState.value
 
+    val profileState = profile
+
     init {
         viewModelScope.launch {
-            val uid = usersRepository.getProfileUID(profileId)
+            val uid = usersRepository.getProfileUID(kidProfileId)
             _siteState.value = siteRepository.getSites(uid)
         }
     }
@@ -33,14 +37,14 @@ class WebsiteFilterViewModel(
         activityStarterHelper.startNewActivity(
             activity = WebsiteFilterAddActivity::class.java,
             extras = mapOf(
-                "kidProfileId" to profileId
+                "kidProfileId" to kidProfileId
             )
         )
     }
 
     fun deleteSite(site: Site) {
         viewModelScope.launch {
-            val uid = usersRepository.getProfileUID(profileId)
+            val uid = usersRepository.getProfileUID(kidProfileId)
             siteRepository.deleteSite(uid, site)
             _siteState.value = _siteState.value.filter { magic -> magic.url != site.url }
         }

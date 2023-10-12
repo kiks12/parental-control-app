@@ -9,6 +9,5 @@ enum class FeatureIcons {
     LOCATION,
     WEBSITE_FILTER,
     ACTIVITY_LOG,
-    DATA_USAGE,
 }
 

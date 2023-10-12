@@ -84,7 +84,7 @@ fun PasswordBottomSheet(
         sheetState = sheetState
     ) {
         Column(
-            modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 50.dp, top = 10.dp),
+            modifier = Modifier.padding(start = 30.dp, end = 30.dp, bottom = 50.dp, top = 10.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ){
@@ -112,7 +112,7 @@ fun PasswordBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = viewModel::checkParentPassword
             ) {
-                Text("Continue")
+                Text("Continue", Modifier.padding(10.dp))
             }
         }
     }

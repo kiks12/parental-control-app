@@ -155,10 +155,10 @@
             </intent-filter>
         </service>
         <service
-            android:name=".service.WebViewAccessibilityService"
+            android:name=".service.ParentalControlWebsiteFilter"
             android:enabled="true"
             android:exported="false"
-            android:label="Web View Accessibility Service"
+            android:label="Parental Control Website Filter"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />

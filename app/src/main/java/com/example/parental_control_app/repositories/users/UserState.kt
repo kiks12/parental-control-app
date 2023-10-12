@@ -7,7 +7,6 @@ data class UserState(
     val firstSignIn: Boolean = true,
 )
 
-
 data class UserProfile(
     var profileId: String,
     val name: String,
@@ -20,6 +19,8 @@ data class UserProfile(
     var password: String = "",
     var maturityLevel: String? = null,
     val phoneLock: Boolean = false,
+    val hide: Boolean = false,
+    val blockChange: Boolean = false,
     val phoneScreenTime: Long = 0,
     val phoneScreenTimeLimit: Long = 0,
 ) {

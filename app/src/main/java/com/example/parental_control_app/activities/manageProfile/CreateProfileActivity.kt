@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -47,6 +48,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.parental_control_app.helpers.ResultLauncherHelper
+import com.example.parental_control_app.helpers.ToastHelper
 import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.viewmodels.manageProfile.CreateProfileVIewModel
 import com.google.gson.Gson
@@ -71,12 +73,12 @@ class CreateProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val resultLauncherHelper = ResultLauncherHelper(this, resultLauncher)
-
+        val toastHelper = ToastHelper(this)
         viewModel = CreateProfileVIewModel(resultLauncherHelper)
 
         setContent {
             val state = viewModel.state
-            val isParent = remember { mutableStateOf(true) }
+            var isParent by remember { mutableStateOf(true) }
             val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.ROOT)
             val openDateDialog = remember { mutableStateOf(false) }
             val datePickerState = rememberDatePickerState(initialDisplayMode = DisplayMode.Picker)
@@ -179,6 +181,7 @@ class CreateProfileActivity : AppCompatActivity() {
                                 )
                             }
                             item { Text("Profile Type:") }
+
                             item {
                                 Row(
                                     Modifier
@@ -188,9 +191,9 @@ class CreateProfileActivity : AppCompatActivity() {
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         RadioButton(
-                                            selected = isParent.value,
+                                            selected = isParent,
                                             onClick = {
-                                                isParent.value = true
+                                                isParent = true
                                                 viewModel.changeProfileType(true)
                                             },
                                             modifier = Modifier.semantics { contentDescription = "Parent Profile" }
@@ -202,9 +205,9 @@ class CreateProfileActivity : AppCompatActivity() {
                                         verticalAlignment = Alignment.CenterVertically
                                     ){
                                         RadioButton(
-                                            selected = !isParent.value,
+                                            selected = !isParent,
                                             onClick = {
-                                                isParent.value = false
+                                                isParent = false
                                                 viewModel.changeProfileType(false)
                                             },
                                             modifier = Modifier.semantics { contentDescription = "Child Profile" }
@@ -214,7 +217,30 @@ class CreateProfileActivity : AppCompatActivity() {
                                 }
                             }
 
-                            if (isParent.value) {
+                            if (state.profile.child) {
+                                item {
+                                    Spacer(Modifier.height(10.dp))
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Text("Maturity Level: ")
+                                        if (state.profile.maturityLevel.isNullOrEmpty()) {
+                                            FilledTonalButton(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                onClick = viewModel::startSurvey
+                                            ) {
+                                                Text("Answer Survey")
+                                            }
+                                        } else {
+                                            Text(state.profile.maturityLevel.toString())
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (isParent) {
                                 item {
                                     Column {
                                         OutlinedTextField(
@@ -246,41 +272,31 @@ class CreateProfileActivity : AppCompatActivity() {
                                         )
                                     }
                                     Spacer(modifier = Modifier.width(10.dp))
-                                    if (isParent.value) {
-                                        Button(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            onClick = {
-                                                val gson = Gson()
-                                                val intent = Intent()
-                                                intent.putExtra("ActivityResult", gson.toJson(state.profile))
-                                                setResult(RESULT_OK, intent)
-                                                finish()
-                                            }
-                                        ) {
-                                            Text("Create Profile")
-                                        }
-                                    } else {
-                                        if (state.profile.maturityLevel.isNullOrEmpty()) {
-                                            Button(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                onClick = viewModel::startSurvey
+                                    Button(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        onClick = {
+                                            if (
+                                                (state.profile.parent && (state.profile.name.isEmpty() ||
+                                                        state.profile.birthday == 0L || state.profile.age.isEmpty() || state.profile.password.isEmpty()))
                                             ) {
-                                                Text("Continue")
+                                                toastHelper.makeToast("Please fill up all the fields")
+                                                return@Button
                                             }
-                                        } else {
-                                            Button(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                onClick = {
-                                                    val gson = Gson()
-                                                    val intent = Intent()
-                                                    intent.putExtra("ActivityResult", gson.toJson(state.profile))
-                                                    setResult(RESULT_OK, intent)
-                                                    finish()
-                                                }
+                                            if (
+                                                (state.profile.child && (state.profile.name.isEmpty() ||
+                                                        state.profile.birthday == 0L || state.profile.age.isEmpty() || state.profile.maturityLevel.isNullOrEmpty()))
                                             ) {
-                                                Text("Create Profile")
+                                                toastHelper.makeToast("Please fill up all the fields")
+                                                return@Button
                                             }
+                                            val gson = Gson()
+                                            val intent = Intent()
+                                            intent.putExtra("ActivityResult", gson.toJson(state.profile))
+                                            setResult(RESULT_OK, intent)
+                                            finish()
                                         }
+                                    ) {
+                                        Text("Create Profile")
                                     }
                                 }
                             }

@@ -10,6 +10,7 @@ import com.example.parental_control_app.data.DonutChartDataCollection
 import com.example.parental_control_app.data.Response
 import com.example.parental_control_app.data.ResponseStatus
 import com.example.parental_control_app.repositories.AppsRepository
+import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.repositories.users.UsersRepository
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ScreenTimeViewModel(
+    profile: UserProfile,
     private val kidProfileId: String,
 ) : ViewModel(){
 
@@ -52,6 +54,8 @@ class ScreenTimeViewModel(
 
     val donutChartData : DonutChartDataCollection
         get() = _donutChartState.value
+
+    val profileState = profile
 
     init {
         viewModelScope.launch {

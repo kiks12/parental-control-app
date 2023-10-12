@@ -38,6 +38,7 @@ class PhoneLockerService : Service() {
     private val db = Firebase.firestore
     private var isLocked = false
     private var shouldLock = false
+    private var previous = false
     private var screenTimeLimit = 0L
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -63,16 +64,20 @@ class PhoneLockerService : Service() {
         val documentRef = uid.let { db.collection("profiles").document(it!!) }
         documentRef.addSnapshotListener{ snapshot, _ ->
             val profile = snapshot?.toObject(UserProfile::class.java)
-            shouldLock = profile?.phoneLock == true
 
-            if (!shouldLock && isLocked) {
-                val unlockIntent = Intent(applicationContext, UnlockActivity::class.java)
-                unlockIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                applicationContext.startActivity(unlockIntent)
+            if (profile != null) {
+                shouldLock = profile.phoneLock == true
+
+                if (!shouldLock && isLocked && previous != profile.phoneLock) {
+                    val unlockIntent = Intent(applicationContext, UnlockActivity::class.java)
+                    unlockIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    applicationContext.startActivity(unlockIntent)
+                }
+
+                isLocked = false
+                screenTimeLimit = profile.phoneScreenTimeLimit
+                previous = profile.phoneLock
             }
-
-            isLocked = false
-            screenTimeLimit = profile?.phoneScreenTimeLimit!!
         }
 
         return START_STICKY

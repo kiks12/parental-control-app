@@ -49,6 +49,7 @@ class BlockedAppsViewModel(
     fun updateAppRestriction(appName: String, newRestriction: Boolean) {
         viewModelScope.launch {
             appsRepository.updateAppRestriction(_uidState.value!!, appName, newRestriction)
+            usersRepository.updateBlockStatus(_uidState.value!!, true)
         }
     }
 

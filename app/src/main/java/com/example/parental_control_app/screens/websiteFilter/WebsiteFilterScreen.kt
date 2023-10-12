@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.rounded.Add
@@ -29,6 +30,7 @@ import com.example.parental_control_app.viewmodels.websiteFilter.WebsiteFilterVi
 @Composable
 fun WebsiteFilterScreen(viewModel: WebsiteFilterViewModel, back: () -> Unit) {
     val sites = viewModel.siteState
+    val profile = viewModel.profileState
 
     ParentalControlAppTheme {
         Scaffold(
@@ -38,10 +40,13 @@ fun WebsiteFilterScreen(viewModel: WebsiteFilterViewModel, back: () -> Unit) {
                 }
             },
             floatingActionButton = {
-                FloatingActionButton(
-                    onClick = viewModel::startWebsiteFilterAddActivity,
-                    content = { Icon(Icons.Rounded.Add, "Add") }
-                )
+                if (profile.parent) {
+                    FloatingActionButton(
+                        onClick = viewModel::startWebsiteFilterAddActivity,
+                        shape = RoundedCornerShape(50),
+                        content = { Icon(Icons.Rounded.Add, "Add") }
+                    )
+                }
             }
         ) { innerPadding ->
             LazyColumn(modifier = Modifier
@@ -63,7 +68,11 @@ fun WebsiteFilterScreen(viewModel: WebsiteFilterViewModel, back: () -> Unit) {
                         ListItem(
                             headlineContent = { Text(site.url) },
                             trailingContent = {
-                                IconButton(onClick = { viewModel.deleteSite(site) }) {
+                                IconButton(onClick = {
+                                    if (profile.parent) {
+                                        viewModel.deleteSite(site)
+                                    }
+                                }) {
                                    Icon(Icons.Outlined.Delete, "delete")
                                 }
                             }

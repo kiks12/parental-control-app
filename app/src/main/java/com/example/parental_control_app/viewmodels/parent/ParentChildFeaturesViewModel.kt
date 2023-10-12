@@ -10,14 +10,12 @@ import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.parental_control_app.activities.ActivityLogActivity
 import com.example.parental_control_app.activities.ScreenTimeActivity
 import com.example.parental_control_app.activities.parent.ParentChildAppsActivity
 import com.example.parental_control_app.activities.BlockedAppsActivity
-import com.example.parental_control_app.activities.DataUsageActivity
 import com.example.parental_control_app.activities.LocationActivity
 import com.example.parental_control_app.activities.websiteFilter.WebsiteFilterActivity
 import com.example.parental_control_app.activities.notifications.NotificationsActivity
@@ -49,7 +47,6 @@ class ParentChildFeaturesViewModel : ViewModel(){
             FeatureIcon("Location", FeatureIcons.LOCATION, Icons.Outlined.LocationOn),
             FeatureIcon("Website Filter", FeatureIcons.WEBSITE_FILTER, Icons.Outlined.Edit),
             FeatureIcon("Activity Log", FeatureIcons.ACTIVITY_LOG, Icons.Outlined.Info),
-            FeatureIcon("Data Usage", FeatureIcons.DATA_USAGE, Icons.Outlined.PlayArrow),
             FeatureIcon("SMS", FeatureIcons.SMS, Icons.Outlined.Call),
             FeatureIcon("Notifications", FeatureIcons.NOTIFICATIONS, Icons.Outlined.Notifications),
         )
@@ -89,7 +86,6 @@ class ParentChildFeaturesViewModel : ViewModel(){
             FeatureIcons.ACTIVITY_LOG -> startActivityLog()
             FeatureIcons.SMS -> startSMS()
             FeatureIcons.NOTIFICATIONS -> startNotifications()
-            FeatureIcons.DATA_USAGE -> startDataUsage()
         }
     }
 
@@ -165,14 +161,14 @@ class ParentChildFeaturesViewModel : ViewModel(){
         )
     }
 
-    private fun startDataUsage() {
-        activityStarterHelper.startNewActivity(
-            DataUsageActivity::class.java,
-            extras = mapOf(
-                "kidProfileId" to kidProfileId
-            )
-        )
-    }
+//    private fun startDataUsage() {
+//        activityStarterHelper.startNewActivity(
+//            DataUsageActivity::class.java,
+//            extras = mapOf(
+//                "kidProfileId" to kidProfileId
+//            )
+//        )
+//    }
 
     suspend fun lockChildPhone() {
         coroutineScope {

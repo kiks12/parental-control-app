@@ -3,6 +3,9 @@ package com.example.parental_control_app.viewmodels
 
 import android.content.SharedPreferences
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.parental_control_app.activities.LoginActivity
@@ -25,18 +28,35 @@ import kotlinx.coroutines.withContext
 import org.mindrot.jbcrypt.BCrypt
 
 
-enum class SurveyAnswers(val weight: Int) {
-    ZERO(weight = 0),
-    STRONGLY_DISAGREE(weight = 1),
-    DISAGREE(weight = 2),
-    NEUTRAL(weight = 3),
-    AGREE(weight = 4),
-    STRONGLY_AGREE(weight = 5)
-}
+//enum class SurveyAnswers(val weight: Int) {
+//    ZERO(weight = 0),
+//    STRONGLY_DISAGREE(weight = 1),
+//    DISAGREE(weight = 2),
+//    NEUTRAL(weight = 3),
+//    AGREE(weight = 4),
+//    STRONGLY_AGREE(weight = 5)
+//}
+
+data class SurveyOption (
+    val index: Int,
+    val letter: String,
+    val value: String,
+    val isSelected: Boolean = false,
+)
+
+data class SurveyAnswer (
+    val index: Int,
+    val value: String,
+)
 
 data class SurveyQuestion(
     val question: String,
-    var answer: SurveyAnswers = SurveyAnswers.ZERO,
+    val options: List<SurveyOption>,
+    var selectedAnswer: SurveyAnswer? = null,
+    var answer: SurveyAnswer,
+    val img: Int? =  null,
+    val fontSize: TextUnit = 13.sp,
+    val fontWeight: FontWeight = FontWeight.Normal,
 )
 
 data class PasswordBottomSheetState (
@@ -161,75 +181,6 @@ class StartupViewModel(
     fun startCreatingProfile() {
         resultLauncherHelper.launch(CreateProfileActivity::class.java)
     }
-
-
-    /*
-    Maturity Level Survey related methods
-     */
-//    fun startAnsweringSurvey() {
-//        _uiState.value = _uiState.value.copy(
-//            answeringSurvey = true,
-////            creatingProfile = false,
-//        )
-//    }
-
-//    fun stopAnsweringSurvey() {
-//        _uiState.value = _uiState.value.copy(
-//            answeringSurvey = false,
-////            creatingProfile = true,
-//        )
-//    }
-
-//    fun onQuestionAnswerChange(index: Int, answer: SurveyAnswers) {
-//        _uiState.value = _uiState.value.copy(
-//            questions = _uiState.value.questions.copy(
-//                questions = _uiState.value.questions.questions.mapIndexed{ mapIndex, question ->
-//                    if (mapIndex == index)
-//                        question.copy(answer = answer)
-//                    else
-//                        question
-//                }
-//            )
-//        )
-//    }
-
-//    fun onClearAnswer(index: Int) {
-//        _uiState.value = _uiState.value.copy(
-//            questions = _uiState.value.questions.copy(
-//                questions = _uiState.value.questions.questions.mapIndexed{ mapIndex, question ->
-//                    if (mapIndex == index)
-//                        question.copy(answer = SurveyAnswers.ZERO)
-//                    else
-//                        question
-//                }
-//            )
-//        )
-//    }
-
-//    fun calculateSurveyAverage() {
-//        Log.w("Maturity Level", _uiState.value.questions.questions.toString())
-//        Log.w("Maturity Level", "Calculate Maturity Level")
-//
-//        val random = Random.nextInt(0, 2)
-//        _uiState.value = _uiState.value.copy(
-//            profileInput = _uiState.value.profileInput.copy(
-//                maturityLevel = UserMaturityLevel.values()[random].toString()
-//            )
-//        )
-//
-//        createProfile()
-//        stopAnsweringSurvey()
-//    }
-    /*
-    Maturity Level Survey related methods
-     */
-
-
-
-    /**
-     * Profile Creation Form related methods
-     */
-
 
     fun setClickedProfile(profile: UserProfile) {
         _clickedProfile.value = profile

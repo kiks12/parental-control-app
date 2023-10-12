@@ -20,11 +20,11 @@ import com.example.parental_control_app.components.NotificationCard
 import com.example.parental_control_app.viewmodels.notifications.NotificationsViewModel
 
 @Composable
-fun NotificationsScreen(viewModel: NotificationsViewModel) {
+fun NotificationsScreen(viewModel: NotificationsViewModel, onBackClick: () -> Unit) {
     val notifications = viewModel.notificationState
 
     Scaffold(
-        topBar = { TopBar(onBackClick = viewModel.getOnBackClick() ) }
+        topBar = { TopBar(onBackClick = onBackClick ) }
     ) {innerPadding ->
         Surface(
             modifier = Modifier.padding(innerPadding)

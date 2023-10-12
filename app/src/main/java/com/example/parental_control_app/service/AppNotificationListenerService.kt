@@ -29,13 +29,14 @@ class AppNotificationListenerService : NotificationListenerService() {
 
             val newNotification = ReceivedNotification(
                 packageName = packageName,
+                label = applicationContext.packageManager.getApplicationLabel(applicationContext.packageManager.getApplicationInfo(packageName, 0)).toString(),
                 title = notification.extras.getString("android.title").toString(),
                 content = notification.extras.getString("android.text").toString(),
                 timestamp = Timestamp.now()
             )
 
             GlobalScope.launch(Dispatchers.IO) {
-                if(profile != null) {
+                if(profile != null && profile.child && !profile.parent) {
                     async { notificationsRepository.saveNotification(profile.profileId, newNotification) }.await()
                 }
             }

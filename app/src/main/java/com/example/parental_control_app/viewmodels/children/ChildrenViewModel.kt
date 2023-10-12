@@ -7,15 +7,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Call
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
@@ -26,10 +23,7 @@ import com.example.parental_control_app.activities.LocationActivity
 import com.example.parental_control_app.activities.ScreenTimeActivity
 import com.example.parental_control_app.activities.children.ChildrenAppsActivity
 import com.example.parental_control_app.activities.notifications.NotificationsActivity
-import com.example.parental_control_app.activities.BlockedAppsActivity
-import com.example.parental_control_app.activities.DataUsageActivity
 import com.example.parental_control_app.activities.sms.SmsActivity
-import com.example.parental_control_app.activities.websiteFilter.WebsiteFilterActivity
 import com.example.parental_control_app.data.FeatureIcon
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.repositories.users.UserProfile
@@ -43,12 +37,9 @@ class ChildrenViewModel(
     companion object {
         val featureIcons = listOf(
             FeatureIcon("Apps", FeatureIcons.APPS, Icons.Outlined.Menu),
-            FeatureIcon("Blocked Apps", FeatureIcons.BLOCKED_APPS, Icons.Outlined.Lock),
             FeatureIcon("Screen Time", FeatureIcons.SCREEN_TIME, Icons.Outlined.List),
             FeatureIcon("Location", FeatureIcons.LOCATION, Icons.Outlined.LocationOn),
-            FeatureIcon("Website Filter", FeatureIcons.WEBSITE_FILTER, Icons.Outlined.Edit),
             FeatureIcon("Activity Log", FeatureIcons.ACTIVITY_LOG, Icons.Outlined.Info),
-            FeatureIcon("Data Usage", FeatureIcons.DATA_USAGE, Icons.Outlined.PlayArrow),
             FeatureIcon("SMS", FeatureIcons.SMS, Icons.Outlined.Call),
             FeatureIcon("Notifications", FeatureIcons.NOTIFICATIONS, Icons.Outlined.Notifications),
         )
@@ -80,14 +71,12 @@ class ChildrenViewModel(
     fun onFeatureClick(feature: FeatureIcons) {
         when(feature) {
             FeatureIcons.APPS -> startApps()
-            FeatureIcons.BLOCKED_APPS -> startBlockedApps()
             FeatureIcons.SCREEN_TIME -> startScreenTime()
             FeatureIcons.LOCATION -> startLocation()
-            FeatureIcons.WEBSITE_FILTER -> startWebsiteFilter()
             FeatureIcons.ACTIVITY_LOG -> startActivityLog()
             FeatureIcons.SMS -> startSMS()
             FeatureIcons.NOTIFICATIONS -> startNotifications()
-            FeatureIcons.DATA_USAGE -> startDataUsage()
+            else -> {}
         }
     }
 
@@ -95,14 +84,14 @@ class ChildrenViewModel(
         activityStarterHelper.startNewActivity(ChildrenAppsActivity::class.java)
     }
 
-    private fun startBlockedApps() {
-        activityStarterHelper.startNewActivity(
-            BlockedAppsActivity::class.java,
-            extras = mapOf(
-                "kidProfileId" to profile?.profileId!!,
-            )
-        )
-    }
+//    private fun startBlockedApps() {
+//        activityStarterHelper.startNewActivity(
+//            BlockedAppsActivity::class.java,
+//            extras = mapOf(
+//                "kidProfileId" to profile?.profileId!!,
+//            )
+//        )
+//    }
 
     private fun startScreenTime() {
         activityStarterHelper.startNewActivity(
@@ -140,14 +129,14 @@ class ChildrenViewModel(
         )
     }
 
-    private fun startWebsiteFilter() {
-        activityStarterHelper.startNewActivity(
-            WebsiteFilterActivity::class.java,
-            extras = mapOf(
-                "kidProfileId" to profile?.profileId!!
-            )
-        )
-    }
+//    private fun startWebsiteFilter() {
+//        activityStarterHelper.startNewActivity(
+//            WebsiteFilterActivity::class.java,
+//            extras = mapOf(
+//                "kidProfileId" to profile?.profileId!!
+//            )
+//        )
+//    }
 
     private fun startActivityLog() {
         activityStarterHelper.startNewActivity(
@@ -158,12 +147,12 @@ class ChildrenViewModel(
         )
     }
 
-    private fun startDataUsage() {
-        activityStarterHelper.startNewActivity(
-            DataUsageActivity::class.java,
-            extras = mapOf(
-                "kidProfileId" to profile?.profileId!!
-            )
-        )
-    }
+//    private fun startDataUsage() {
+//        activityStarterHelper.startNewActivity(
+//            DataUsageActivity::class.java,
+//            extras = mapOf(
+//                "kidProfileId" to profile?.profileId!!
+//            )
+//        )
+//    }
 }

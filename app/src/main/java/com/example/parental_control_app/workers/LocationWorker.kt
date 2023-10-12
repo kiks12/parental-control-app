@@ -29,10 +29,7 @@ class LocationWorker(
         val profileId = inputData.getString(LocationActivity.LOCATION_PROFILE_KEY).toString()
         val locationClient = LocationServices.getFusedLocationProviderClient(ctx)
 
-        if (ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-        {
-//            Log.w("LOCATION WORKER", "PERMISSION GRANTED")
+        if (ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
             locationClient.getCurrentLocation(100, null).addOnSuccessListener { location ->
                 if (location == null) return@addOnSuccessListener

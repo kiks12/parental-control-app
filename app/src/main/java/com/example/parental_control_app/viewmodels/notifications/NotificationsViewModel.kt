@@ -11,13 +11,12 @@ import kotlinx.coroutines.launch
 
 class NotificationsViewModel(
     private val kidProfileId: String,
+    private val activityStarterHelper: ActivityStarterHelper,
     private val notificationsRepository: NotificationsRepository = NotificationsRepository(),
 ) : ViewModel(){
 
-    private lateinit var onBackClick: () -> Unit
-    private lateinit var activityStarter: ActivityStarterHelper
-
     private val _notificationState = mutableStateOf<List<String>>(listOf())
+
     val notificationState : List<String>
         get() = _notificationState.value
 
@@ -27,20 +26,8 @@ class NotificationsViewModel(
         }
     }
 
-    fun addOnBackClick(callback: () -> Unit) {
-        onBackClick = callback
-    }
-
-    fun getOnBackClick() : () -> Unit {
-        return onBackClick
-    }
-
-    fun setActivityStarterHelper(helper: ActivityStarterHelper) {
-        activityStarter = helper
-    }
-
     fun onNotificationClick(packageName: String) {
-        activityStarter.startNewActivity(
+        activityStarterHelper.startNewActivity(
             activity = NotificationPackageActivity::class.java,
             extras = mapOf(
                 "kidProfileId" to kidProfileId,

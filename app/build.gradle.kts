@@ -41,6 +41,10 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
+        buildConfig = true
+    }
+    buildTypes.configureEach {
+        buildConfigField("String", "TOMTOM_API_KEY", "\"ADmBZ6RaLW61babmRsAMAmfHALfbVw5u\"")
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
@@ -49,12 +53,8 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
-    }
-    packaging {
+
         jniLibs.pickFirsts.add("lib/**/libc++_shared.so")
-        resources.pickFirsts.add("google/protobuf/*.proto")
-        resources.pickFirsts.add("google/protobuf")
-//        resources.excludes.add("google/protobuf/*.proto")
     }
 }
 
@@ -131,9 +131,20 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    implementation("com.tomtom.sdk.maps:map-display:0.30.1") {
+    implementation("com.tomtom.sdk.routing:route-planner-online:0.33.1") {
         exclude("com.google.protobuf")
     }
+
+    implementation("com.tomtom.sdk.location:provider-android:0.33.1")
+    implementation("com.tomtom.sdk.maps:map-display:0.33.1")
+//    implementation("com.tomtom.sdk.maps:map-display:0.30.1") {
+//        exclude("com.google.protobuf")
+//    }
+
+//    implementation("com.tomtom.sdk.routing:route-planner-online:0.32.6") {
+//        exclude("com.google.protobuf")
+//    }
+
 
     implementation("com.google.android.gms:play-services-location:21.0.1")
 

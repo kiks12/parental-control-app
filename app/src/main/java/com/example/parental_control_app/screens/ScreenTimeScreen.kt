@@ -54,6 +54,7 @@ import java.util.concurrent.TimeUnit
 
 @Composable
 fun ScreenTimeScreen(viewModel: ScreenTimeViewModel, onBackClick: () -> Unit){
+    val profile = viewModel.profileState
     val isLoading = viewModel.loadingState
     val data = viewModel.donutChartData
     var selectedTabRow by remember { mutableIntStateOf(0) }
@@ -63,16 +64,17 @@ fun ScreenTimeScreen(viewModel: ScreenTimeViewModel, onBackClick: () -> Unit){
     // SCREEN TIME LIMIT STATE
     val screenTimeLimitState = viewModel.screenTimeLimitState
 
-
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
         topBar = { TopBar(onBackClick = onBackClick) },
-        floatingActionButton = { 
-            FloatingActionButton(
-                onClick = { selectedTabRow = 2 },
-                shape = RoundedCornerShape(50)
-            ) {
-               Text("Set Screen time Limit", modifier = Modifier.padding(15.dp))
+        floatingActionButton = {
+            if(profile.parent) {
+                FloatingActionButton(
+                    onClick = { selectedTabRow = 2 },
+                    shape = RoundedCornerShape(50)
+                ) {
+                   Text("Set Screen time Limit", modifier = Modifier.padding(15.dp))
+                }
             }
         }
     ){ innerPadding ->
@@ -92,25 +94,33 @@ fun ScreenTimeScreen(viewModel: ScreenTimeViewModel, onBackClick: () -> Unit){
                 modifier = Modifier.padding(innerPadding)
             ){
                 TabRow(selectedTabIndex = selectedTabRow) {
-                    Tab(
-                        selected = selectedTabRow == 0,
-                        onClick = { selectedTabRow = 0 },
-                        text = { Text("Weekly Screen Time") }
-                    )
-                    Tab(
-                        selected = selectedTabRow == 1,
-                        onClick = { selectedTabRow = 1 },
-                        text = { Text("Apps Screen Time") }
-                    )
-                    Tab(
-                        selected = selectedTabRow == 2,
-                        onClick = { selectedTabRow = 2},
-                        text = { Text("Set Limit") }
-                    )
+                    if (profile.parent) {
+                        Tab(
+                            selected = selectedTabRow == 0,
+                            onClick = { selectedTabRow = 0 },
+                            text = { Text("Apps Screen Time") }
+                        )
+                        Tab(
+                            selected = selectedTabRow == 1,
+                            onClick = { selectedTabRow = 1},
+                            text = { Text("Set Limit") }
+                        )
+                    } else {
+                        Tab(
+                            selected = selectedTabRow == 0,
+                            onClick = { selectedTabRow = 0 },
+                            text = { Text("Apps Screen Time") }
+                        )
+                        Tab(
+                            selected = selectedTabRow == 1,
+                            onClick = { selectedTabRow = 1},
+                            text = { Text("Screen Time Limit") }
+                        )
+                    }
                 }
 
                 LazyColumn{
-                    if (selectedTabRow == 1) {
+                    if (selectedTabRow == 0) {
                         item {
                             Box(modifier = Modifier.padding(20.dp)) {
                                 DonutChart(
@@ -144,14 +154,27 @@ fun ScreenTimeScreen(viewModel: ScreenTimeViewModel, onBackClick: () -> Unit){
                         }
                     }
 
-                    if (selectedTabRow == 2) {
-                        item{
+                    if (profile.parent && selectedTabRow == 1) {
+                        item {
                             SetLimitScreen(
                                 screenTimeLimit = screenTimeLimitState,
                                 snackBarHostState = snackBarHostState,
                                 setScreenTimeState = viewModel::setScreenTimeState,
                                 removeChildScreenTimeLimit = viewModel::removeScreenTimeLimit,
                                 setChildScreenTimeLimit = viewModel::setChildScreenTimeLimit
+                            )
+                        }
+                    }
+
+                    if (profile.child && selectedTabRow == 1) {
+                        item {
+                            SetLimitScreen(
+                                screenTimeLimit = screenTimeLimitState,
+                                snackBarHostState = snackBarHostState,
+                                setScreenTimeState = viewModel::setScreenTimeState,
+                                removeChildScreenTimeLimit = viewModel::removeScreenTimeLimit,
+                                setChildScreenTimeLimit = viewModel::setChildScreenTimeLimit,
+                                readOnly = true
                             )
                         }
                     }
@@ -167,7 +190,8 @@ private fun SetLimitScreen(
     snackBarHostState: SnackbarHostState,
     setScreenTimeState: (time: String, type: String) -> Unit,
     removeChildScreenTimeLimit: suspend () -> Response?,
-    setChildScreenTimeLimit: suspend (limit: Long) -> Response?
+    setChildScreenTimeLimit: suspend (limit: Long) -> Response?,
+    readOnly: Boolean = false,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -181,8 +205,12 @@ private fun SetLimitScreen(
         Column(
             modifier = Modifier.fillMaxWidth()
         ){
-            Text("Limit Screen time")
-            Text("Set your child's screen time limit")
+            if (readOnly) {
+                Text("Screen time limit")
+            } else {
+                Text("Limit Screen time")
+                Text("Set your child's screen time limit")
+            }
         }
 
         Spacer(Modifier.height(10.dp))
@@ -192,6 +220,7 @@ private fun SetLimitScreen(
                     .fillMaxWidth()
                     .weight(1f),
                 textStyle = TextStyle(textAlign = TextAlign.Center, fontSize = 20.sp),
+                readOnly = readOnly,
                 value = screenTimeLimit.getValue("HOURS").toString(),
                 onValueChange = { setScreenTimeState(it, "HOURS") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -203,6 +232,7 @@ private fun SetLimitScreen(
                     .fillMaxWidth()
                     .weight(1f),
                 textStyle = TextStyle(textAlign = TextAlign.Center, fontSize = 20.sp),
+                readOnly = readOnly,
                 value = screenTimeLimit.getValue("MINUTES").toString(),
                 onValueChange = { setScreenTimeState(it, "MINUTES") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -214,6 +244,7 @@ private fun SetLimitScreen(
                     .fillMaxWidth()
                     .weight(1f),
                 textStyle = TextStyle(textAlign = TextAlign.Center, fontSize = 20.sp),
+                readOnly = readOnly,
                 value = screenTimeLimit.getValue("SECONDS").toString(),
                 onValueChange = { setScreenTimeState(it, "SECONDS") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -223,6 +254,7 @@ private fun SetLimitScreen(
         Spacer(Modifier.height(10.dp))
 
         Button(
+            enabled = !readOnly,
             onClick = {
                 scope.launch {
                     val hours = screenTimeLimit.getValue("HOURS")
@@ -250,6 +282,7 @@ private fun SetLimitScreen(
         }
 
         FilledTonalButton(
+            enabled = !readOnly,
             onClick = {
                 scope.launch {
                     val response = removeChildScreenTimeLimit() ?: return@launch

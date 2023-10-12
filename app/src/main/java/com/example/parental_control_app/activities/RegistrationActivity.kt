@@ -12,6 +12,7 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.parental_control_app.R
+import com.example.parental_control_app.data.ResponseStatus
 import com.example.parental_control_app.helpers.ToastHelper
 import com.example.parental_control_app.repositories.users.UserState
 import com.example.parental_control_app.repositories.users.UsersRepository
@@ -30,6 +31,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 
 class RegistrationActivity : AppCompatActivity() {
@@ -40,6 +42,7 @@ class RegistrationActivity : AppCompatActivity() {
     private lateinit var googleSignInClient : GoogleSignInClient
     private val usersRepository = UsersRepository()
     private var showOneTapUI = false
+    private var usedOneTap = false
 
     companion object {
         private const val RC_SIGN_IN = 9002
@@ -102,6 +105,7 @@ class RegistrationActivity : AppCompatActivity() {
         oneTapClient.beginSignIn(request)
             .addOnSuccessListener(this) { result ->
                 try {
+                    usedOneTap = true
                     startIntentSenderForResult(
                         result.pendingIntent.intentSender, RC_SIGN_IN,
                         null, 0, 0, 0, null)
@@ -111,8 +115,15 @@ class RegistrationActivity : AppCompatActivity() {
             }
             .addOnFailureListener(this) { e ->
                 Log.d("ONE TAP UI", e.localizedMessage as String)
+                usedOneTap = false
                 showOneTapUI = false
+                startLegacyGoogleSignUp()
             }
+    }
+
+    private fun startLegacyGoogleSignUp() {
+        val intent = googleSignInClient.signInIntent
+        startActivityForResult(intent, RC_SIGN_IN)
     }
 
     private fun signUpWithGoogle() {
@@ -149,6 +160,21 @@ class RegistrationActivity : AppCompatActivity() {
             }
     }
 
+    private suspend fun emailIsUsed(email: String) : Boolean {
+        val result = CompletableDeferred<Boolean>()
+
+        lifecycleScope.launch {
+            val response = usersRepository.findUserByEmail(email)
+            if (response.status == ResponseStatus.SUCCESS) {
+                if (response.data != null) {
+                    result.complete(response.data["used"] as Boolean)
+                }
+            }
+        }
+
+        return result.await()
+    }
+
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -156,16 +182,47 @@ class RegistrationActivity : AppCompatActivity() {
         when (requestCode) {
             RC_SIGN_IN -> {
                 try {
-                    val credential = oneTapClient.getSignInCredentialFromIntent(data)
-                    val idToken = credential.googleIdToken
-                    when {
-                        idToken != null -> {
-                            Log.d(ContentValues.TAG, "Got ID token.")
-                            firebaseAuthWithGoogle(idToken)
+                    if (usedOneTap) {
+                        val credential = oneTapClient.getSignInCredentialFromIntent(data)
+                        val idToken = credential.googleIdToken
+                        when {
+                            idToken != null -> {
+//                                Log.d("GOOGLE SIGN IN ONE TAP", "Got ID token.")
+//                                Log.w("GOOGLE SIGN IN ONE TAP", "$idToken ${credential.id}")
+                                lifecycleScope.launch {
+                                    if (emailIsUsed(credential.id)) {
+                                        Toast.makeText(this@RegistrationActivity, "Email is already used.", Toast.LENGTH_SHORT).show()
+//                                        Log.w("GOOGLE SIGN IN ONE TAP", "EMAIL IS USED")
+                                    } else {
+                                        firebaseAuthWithGoogle(idToken)
+//                                        Log.w("GOOGLE SIGN IN ONE TAP", "EMAIL IS AVAILABLE")
+                                    }
+                                }
+                            }
+                            else -> {
+                                Log.d("GOOGLE SIGN IN", "No ID token!")
+                            }
                         }
-
-                        else -> {
-                            Log.d(ContentValues.TAG, "No ID token!")
+                    } else {
+                        val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+                        val googleSignInAccount = task.result
+                        when {
+                            googleSignInAccount.idToken != null -> {
+                                Log.d("GOOGLE SIGN IN LEGACY", "Got ID token.")
+                                Log.w("GOOGLE SIGN IN LEGACY", "${googleSignInAccount.idToken} ${googleSignInAccount.email}")
+                                lifecycleScope.launch {
+                                    if (emailIsUsed(googleSignInAccount.email.toString())) {
+                                        Toast.makeText(this@RegistrationActivity, "Email is already used.", Toast.LENGTH_SHORT).show()
+//                                        Log.w("GOOGLE SIGN IN LEGACY", "EMAIL IS USED")
+                                    } else {
+                                        firebaseAuthWithGoogle(googleSignInAccount.idToken.toString())
+//                                        Log.w("GOOGLE SIGN IN LEGACY", "EMAIL IS AVAILABLE")
+                                    }
+                                }
+                            }
+                            else -> {
+                                Log.d("GOOGLE SIGN IN", "No ID token!")
+                            }
                         }
                     }
                 } catch (e: ApiException) {

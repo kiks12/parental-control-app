@@ -3,12 +3,14 @@ package com.example.parental_control_app.viewmodels
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.parental_control_app.data.ResponseStatus
 import com.example.parental_control_app.repositories.emailpasswordauth.EmailPasswordState
 import com.example.parental_control_app.helpers.ToastHelper
 import com.example.parental_control_app.repositories.users.UserState
 import com.example.parental_control_app.repositories.users.UsersRepository
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 
 class RegistrationViewModel(
@@ -18,6 +20,7 @@ class RegistrationViewModel(
 
     private lateinit var signUpCallback : () -> Unit
     private var auth = Firebase.auth
+
     var credentialState = mutableStateOf(EmailPasswordState())
         private set
 
@@ -41,6 +44,21 @@ class RegistrationViewModel(
         signUpCallback = callback
     }
 
+    private suspend fun emailIsUsed(email: String) : Boolean {
+        val result = CompletableDeferred<Boolean>()
+
+        viewModelScope.launch {
+            val response = usersRepository.findUserByEmail(email)
+            if (response.status == ResponseStatus.SUCCESS) {
+                if (response.data != null) {
+                    result.complete(response.data["used"] as Boolean)
+                }
+            }
+        }
+
+        return result.await()
+    }
+
     fun register() {
         if (credentialState.value.email.isEmpty() || credentialState.value.email.isBlank() ||
             credentialState.value.password.isEmpty() || credentialState.value.password.isBlank()) {
@@ -51,19 +69,25 @@ class RegistrationViewModel(
         auth.createUserWithEmailAndPassword(credentialState.value.email, credentialState.value.password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val user = auth.currentUser
-                    val newUser = UserState(
-                        userId = auth.uid.toString(),
-                        email = user?.email.toString(),
-                    )
+                    val user = auth.currentUser ?: return@addOnCompleteListener
 
                     viewModelScope.launch {
-                        val msg = usersRepository.createUser(newUser)
-                        toastHelper.makeToast(msg)
-                    }
+                        if (emailIsUsed(user.email.toString())) {
+                            toastHelper.makeToast("Email is already used.")
+                            return@launch
+                        } else {
+                            val newUser = UserState(
+                                userId = auth.uid.toString(),
+                                email = user.email.toString(),
+                            )
 
-                    toastHelper.makeToast("Signed in as ${user?.displayName}")
-                    signUpCallback()
+                            val msg = usersRepository.createUser(newUser)
+                            toastHelper.makeToast(msg)
+
+                            toastHelper.makeToast("Signed in as ${user.email}")
+                            signUpCallback()
+                        }
+                    }
                 } else {
                     toastHelper.makeToast(task.exception?.localizedMessage.toString())
                 }

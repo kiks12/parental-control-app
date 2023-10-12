@@ -60,6 +60,7 @@ class NotificationsRepository {
                         list = list.plus(
                             ReceivedNotification(
                                 packageName = document.data?.get("packageName").toString(),
+                                label = document.data?.get("label").toString(),
                                 title = document.data?.get("title").toString(),
                                 content = document.data?.get("content").toString(),
                                 timestamp = document.data?.get("timestamp") as Timestamp
@@ -86,7 +87,7 @@ class NotificationsRepository {
             launch(Dispatchers.IO) {
                 async { uid = usersRepository.getProfileUID(profileId) }.await()
                 async {
-                    val reference = db.collection("profiles/$uid/notifications").document(notification.packageName)
+                    val reference = db.collection("profiles/$uid/notifications").document(notification.label)
                     reference.set(dummyData).await()
                     reference.collection("notifs").document().set(notification).await()
                 }.await()

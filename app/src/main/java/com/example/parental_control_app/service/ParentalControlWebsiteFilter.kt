@@ -18,7 +18,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-class WebViewAccessibilityService : AccessibilityService() {
+class ParentalControlWebsiteFilter : AccessibilityService() {
 
     private var prevApp: String = ""
     private var prevUrl: String = ""
@@ -26,8 +26,6 @@ class WebViewAccessibilityService : AccessibilityService() {
     private val activityLogRepository = ActivityLogRepository()
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
-//    val sharedPreferences = getSharedPreferences(SharedPreferencesManager.PREFS_KEY, MODE_PRIVATE)
-//    val uid = SharedPreferencesManager.getUID(sharedPreferences)
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         when (event?.eventType) {
