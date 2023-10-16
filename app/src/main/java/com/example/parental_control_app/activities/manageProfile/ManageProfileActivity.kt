@@ -87,9 +87,13 @@ class ManageProfileActivity : AppCompatActivity() {
                                 ListItem(
                                     headlineContent = { Text(profile.name) },
                                     supportingContent = { if (profile.parent) Text("Parent") else Text("Child")},
-                                    trailingContent = { IconButton(onClick = { manageProfileViewModel.deleteProfile(profile) }) {
-                                        Icon(Icons.Outlined.Delete, "Delete")
-                                    } }
+                                    trailingContent = {
+                                        if (profile.child) {
+                                            IconButton(onClick = { manageProfileViewModel.deleteProfile(profile) }) {
+                                                Icon(Icons.Outlined.Delete, "Delete")
+                                            }
+                                        }
+                                    }
                                 )
                             }
                         }
