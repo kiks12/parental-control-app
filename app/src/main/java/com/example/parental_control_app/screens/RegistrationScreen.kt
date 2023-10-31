@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.FilledTonalButton
+//import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,7 +29,7 @@ import com.example.parental_control_app.viewmodels.RegistrationViewModel
 fun RegistrationScreen(
     viewModel: RegistrationViewModel,
     startLoginActivity: () -> Unit,
-    signUpWithGoogle: () -> Unit,
+//    signUpWithGoogle: () -> Unit,
 ) {
     val credentialState = viewModel.credentialState
     val passwordVisibility = viewModel.passwordVisibilityState
@@ -86,15 +86,15 @@ fun RegistrationScreen(
                     )
                 }
                 Spacer(modifier = Modifier.height(10.dp))
-                FilledTonalButton(
-                    onClick = signUpWithGoogle,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Continue with Google",
-                        modifier = Modifier.padding(10.dp)
-                    )
-                }
+//                FilledTonalButton(
+//                    onClick = signUpWithGoogle,
+//                    modifier = Modifier.fillMaxWidth()
+//                ) {
+//                    Text(
+//                        text = "Continue with Google",
+//                        modifier = Modifier.padding(10.dp)
+//                    )
+//                }
             }
 
             Column (

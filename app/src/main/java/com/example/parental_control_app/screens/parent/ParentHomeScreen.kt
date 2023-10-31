@@ -30,7 +30,6 @@ import com.example.parental_control_app.viewmodels.parent.ParentHomeViewModel
 @Composable
 fun ParentHomeScreen(viewModel: ParentHomeViewModel) {
     val profiles = viewModel.kidsProfileState
-//    val profile = viewModel.profileState
     val loading = viewModel.loadingState
 
     Surface (
@@ -96,7 +95,7 @@ private fun ChildrenCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ){
-                Text(profile.name)
+                Text("${profile.name},  ${profile.age}")
                 Text(profile.maturityLevel.toString())
             }
         }

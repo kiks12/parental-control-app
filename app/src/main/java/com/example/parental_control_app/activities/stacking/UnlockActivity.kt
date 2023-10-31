@@ -1,5 +1,6 @@
 package com.example.parental_control_app.activities.stacking
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -49,7 +50,11 @@ class UnlockActivity : AppCompatActivity() {
                         Text("Your phone is unlocked by your parent")
                         Spacer(Modifier.height(50.dp))
                         Button(onClick = {
-                            moveTaskToBack(true)
+                            val homeIntent = Intent(Intent.ACTION_MAIN)
+                            homeIntent.addCategory(Intent.CATEGORY_HOME)
+                            homeIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            startActivity(homeIntent)
+                            finish()
                         }) {
                             Text("Home")
                         }

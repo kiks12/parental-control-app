@@ -9,15 +9,32 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.work.WorkManager
@@ -35,6 +52,9 @@ import com.example.parental_control_app.service.PhoneLockerService
 import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.viewmodels.SettingsType
 import com.example.parental_control_app.viewmodels.SettingsViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionRequired
+import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -46,6 +66,7 @@ class ChildrenMainActivity : AppCompatActivity() {
     private val toastHelper = ToastHelper(this)
     private val appsRepository = AppsRepository()
     private val usersRepository = UsersRepository()
+    private val granted = mutableStateOf(false)
 
     companion object {
         const val NOTIFICATION_PERMISSION_CODE = 10
@@ -60,19 +81,18 @@ class ChildrenMainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             return ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return NotificationManagerCompat.from(this).areNotificationsEnabled()
+        }
 
-        return true
+        return false
     }
 
     private fun isOnline(context: Context): Boolean {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val capabilities =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-            } else {
-                TODO("VERSION.SDK_INT < M")
-            }
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         if (capabilities != null) {
             if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
                 Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
@@ -102,13 +122,11 @@ class ChildrenMainActivity : AppCompatActivity() {
             }
 
             async {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    // Stopping Service to ensure only one service per category is working
-                    stopService(Intent(applicationContext, AppBlockerService::class.java))
-                    stopService(Intent(applicationContext, PhoneLockerService::class.java))
-                    startForegroundService(Intent(applicationContext, AppBlockerService::class.java))
-                    startForegroundService(Intent(applicationContext, PhoneLockerService::class.java))
-                }
+                // Stopping Service to ensure only one service per category is working
+                stopService(Intent(applicationContext, AppBlockerService::class.java))
+                stopService(Intent(applicationContext, PhoneLockerService::class.java))
+                startForegroundService(Intent(applicationContext, AppBlockerService::class.java))
+                startForegroundService(Intent(applicationContext, PhoneLockerService::class.java))
             }.await()
 
             async { toastHelper.makeToast("App Blocker Worker Running") }.await()
@@ -116,21 +134,39 @@ class ChildrenMainActivity : AppCompatActivity() {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
 
-            val appBlockerChannel = NotificationChannel("App Blocker", APP_BLOCKER_NAME, importance)
-            appBlockerChannel.description = APP_BLOCKER_DESCRIPTION
+        val appBlockerChannel = NotificationChannel("App Blocker", APP_BLOCKER_NAME, importance)
+        appBlockerChannel.description = APP_BLOCKER_DESCRIPTION
 
-            val phoneLockerChannel = NotificationChannel("Phone Locker", PHONE_LOCKER_NAME, importance)
-            phoneLockerChannel.description = PHONE_LOCKER_DESCRIPTION
+        val phoneLockerChannel = NotificationChannel("Phone Locker", PHONE_LOCKER_NAME, importance)
+        phoneLockerChannel.description = PHONE_LOCKER_DESCRIPTION
 
-            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(appBlockerChannel)
-            notificationManager.createNotificationChannel(phoneLockerChannel)
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(appBlockerChannel)
+        notificationManager.createNotificationChannel(phoneLockerChannel)
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS), NOTIFICATION_PERMISSION_CODE)
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+            startActivity(intent)
+            return
+        } else {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                .setData(Uri.parse("package:$packageName"))
+            startActivity(intent)
+            return
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -152,21 +188,83 @@ class ChildrenMainActivity : AppCompatActivity() {
             true -> {
                 createNotificationChannel()
                 startAppLockerForegroundService()
+                granted.value = true
             }
-            else -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    ActivityCompat.requestPermissions(this,
-                        arrayOf(Manifest.permission.POST_NOTIFICATIONS), NOTIFICATION_PERMISSION_CODE)
-                }
-            }
+            else -> {}
         }
 
         setContent {
+
+            val permissionState = rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
+
             ParentalControlAppTheme {
                 Surface (
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    ChildrenScreen(childrenViewModel)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        PermissionRequired(
+                            permissionState = permissionState,
+                            permissionNotGrantedContent = {
+                                Column(
+                                    modifier= Modifier
+                                        .fillMaxSize()
+                                        .padding(20.dp),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text("Permission Required", fontSize=30.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
+                                    Text("Post notification is required to use the app, this is to enable blocking and locking features", textAlign = TextAlign.Center)
+                                    Spacer(modifier = Modifier.height(50.dp))
+                                    Button(onClick = { permissionState.launchPermissionRequest() } ) {
+                                        Text("Allow Notification")
+                                    }
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                    Text("After allowing notification permission, restart the app", textAlign = TextAlign.Center)
+                                }
+                            },
+                            permissionNotAvailableContent = {
+                                Column(
+                                    modifier= Modifier
+                                        .fillMaxSize()
+                                        .padding(20.dp),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text("Permission Required", fontSize=30.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
+                                    Text("Post notification is required to use the app, this is to enable blocking and locking features", textAlign = TextAlign.Center)
+                                    Spacer(modifier = Modifier.height(50.dp))
+                                    Button(onClick = { permissionState.launchPermissionRequest() } ) {
+                                        Text("Allow Notification")
+                                    }
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                    Text("After allowing notification permission, restart the app", textAlign = TextAlign.Center)
+                                }
+                            }
+                        ) {
+                            ChildrenScreen(childrenViewModel)
+                        }
+                    } else {
+                        if (granted.value) {
+                            ChildrenScreen(childrenViewModel)
+                        } else {
+                            Column(
+                                modifier= Modifier
+                                    .fillMaxSize()
+                                    .padding(20.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text("Permission Required", fontSize=30.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
+                                Text("Post notification is required to use the app, this is to enable blocking and locking features", textAlign = TextAlign.Center)
+                                Spacer(modifier = Modifier.height(50.dp))
+                                Button(onClick = ::requestNotificationPermission ) {
+                                    Text("Allow Notification")
+                                }
+                                Spacer(modifier = Modifier.height(20.dp))
+                                Text("After allowing notification permission, restart the app", textAlign = TextAlign.Center)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -181,8 +279,10 @@ class ChildrenMainActivity : AppCompatActivity() {
 
         when (requestCode) {
             NOTIFICATION_PERMISSION_CODE -> {
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startAppLockerForegroundService()
+                if (grantResults.isNotEmpty()) {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        startAppLockerForegroundService()
+                    }
                 }
             }
             else -> {}

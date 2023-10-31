@@ -47,7 +47,7 @@ class LocationActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
     private var runnable = Runnable {}
-    private val checkInterval = 1000 * 60 * 5 // minutes
+    private val checkInterval = 1000 * 60 * 5 // 5 minutes
     private var firstFire = true
 
     private val mapOptions = MapOptions(
@@ -129,7 +129,7 @@ class LocationActivity : AppCompatActivity() {
             Log.w("LOCATION PROFILE PARENT", "GET")
             async { kidLocation = locationRepository.getProfileLocation(kidProfileId) }.await()
             async {
-                if (kidLocation != null) {
+                if (kidLocation != null && this@LocationActivity::tomtomMap.isInitialized) {
                     val start = GeoPoint(tomtomMap.currentLocation?.position?.latitude!!, tomtomMap.currentLocation?.position?.longitude!!)
                     val end = GeoPoint(kidLocation?.latitude!!, kidLocation?.longitude!!)
                     val routePlanningOptions = RoutePlanningOptions(
@@ -240,7 +240,6 @@ class LocationActivity : AppCompatActivity() {
 
         if (profile != null && profile?.child!!) {
             lifecycleScope.launch {
-//                Log.w("LOCATION SAVER DESTROY", "SAVE")
                 val latitude = tomtomMap.currentLocation?.position?.latitude!!
                 val longitude = tomtomMap.currentLocation?.position?.latitude!!
 

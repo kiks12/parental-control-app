@@ -5,7 +5,6 @@ import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -36,6 +35,7 @@ class PhoneLockerService : Service() {
     private val db = Firebase.firestore
     private var isLocked = false
     private var shouldLock = false
+    private var phoneLock = false
     private var previousApp = ""
     private var previous = false
     private var screenTimeLimit = 0L
@@ -65,7 +65,8 @@ class PhoneLockerService : Service() {
             val profile = snapshot?.toObject(UserProfile::class.java)
 
             if (profile != null) {
-                shouldLock = profile.phoneLock == true
+                shouldLock = profile.phoneLock
+                phoneLock = profile.phoneLock
 
                 if (!shouldLock && isLocked && previous != profile.phoneLock) {
                     val unlockIntent = Intent(applicationContext, UnlockActivity::class.java)
@@ -83,11 +84,8 @@ class PhoneLockerService : Service() {
     }
 
     private fun getCurrentRunningAppPackageName(context: Context) : Map<String, Any?> {
-        val usageStatsManager = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+        val usageStatsManager =
             context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        } else {
-            TODO("VERSION.SDK_INT < LOLLIPOP_MR1")
-        }
 
         var appUsage : AppUsage? = null
 
@@ -145,12 +143,13 @@ class PhoneLockerService : Service() {
 //            Log.w("PHONE LOCKER SERVICE", currentApp.toString())
 //            Log.w("PHONE LOCKER SERVICE", totalScreenTime.toString())
 //            Log.w("PHONE LOCKER SERVICE", screenTimeLimit.toString())
+//            Log.w("PHONE LOCKER SERVICE", phoneLock.toString())
 
             if (currentApp != null && currentApp.packageName != previousApp && currentApp.packageName != application.packageName) {
                 isLocked = false
             }
 
-            shouldLock = totalScreenTime >= screenTimeLimit && screenTimeLimit != 0L && currentApp?.packageName != previousApp
+            shouldLock = (totalScreenTime >= screenTimeLimit && screenTimeLimit != 0L && currentApp?.packageName != previousApp) || phoneLock
 
             if (currentApp != null) {
                 previousApp = currentApp.packageName
@@ -168,9 +167,7 @@ class PhoneLockerService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            handler.removeCallbacks(runnable)
-            stopForeground(STOP_FOREGROUND_REMOVE)
-        }
+        handler.removeCallbacks(runnable)
+        stopForeground(STOP_FOREGROUND_REMOVE)
     }
 }

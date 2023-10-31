@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ExitToApp
 import androidx.compose.material3.Icon
@@ -40,6 +41,11 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                         modifier = Modifier.clickable { viewModel.startManageProfileActivity() },
                         headlineContent = { Text("Manage Profiles") },
                         leadingContent = { Icon(Icons.Rounded.Add, "") }
+                    )
+                    ListItem(
+                        modifier = Modifier.clickable { viewModel.startChangePasscodeActivity() },
+                        headlineContent = { Text("Change Passcode") },
+                        leadingContent = { Icon(Icons.Outlined.Lock, "") }
                     )
                 }
             }

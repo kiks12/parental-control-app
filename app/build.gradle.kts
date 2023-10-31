@@ -11,8 +11,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.parental_control_app"
-        minSdk = 21
-        targetSdk = 33
+        minSdk = 28
+        targetSdk = 31
         versionCode = 1
         versionName = "1.0"
 

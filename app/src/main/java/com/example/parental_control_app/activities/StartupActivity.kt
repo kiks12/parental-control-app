@@ -3,7 +3,6 @@ package com.example.parental_control_app.activities
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
@@ -52,7 +51,6 @@ class StartupActivity : AppCompatActivity() {
     }
 
     private fun isOverlayPermissionGranted(): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return true
         if (!Settings.canDrawOverlays(this)) return false
         return true
     }
@@ -70,14 +68,10 @@ class StartupActivity : AppCompatActivity() {
 
         when (isOverlayPermissionGranted()) {
             false -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
-                        }
-                    }
-                    startActivity(intent)
+                val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
+                    putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
                 }
+                startActivity(intent)
             }
             else -> {}
         }

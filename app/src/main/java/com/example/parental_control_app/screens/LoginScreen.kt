@@ -86,7 +86,7 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "Login with Google",
+                        text = "Continue with Google",
                         modifier = Modifier.padding(10.dp)
                     )
                 }

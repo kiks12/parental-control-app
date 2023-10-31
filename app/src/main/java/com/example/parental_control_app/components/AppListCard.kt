@@ -56,7 +56,7 @@ fun AppCard(
     onTimeLimitChange: (appName: String, newTimeLimit: Long) -> Unit,
 ) {
 
-    val restricted = remember { mutableStateOf(app.restricted) }
+    var restricted by remember { mutableStateOf(app.restricted) }
     var expanded by remember { mutableStateOf(false) }
     var limit by remember { mutableStateOf(
         when (app.limit) {
@@ -92,7 +92,7 @@ fun AppCard(
                         TimeUnit.MILLISECONDS.toSeconds(app.screenTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(app.screenTime))
                     ))
                 }
-                if (restricted.value) {
+                if (restricted) {
                     Text(
                         "Set Time Limit - ${limit.value}",
                         modifier = Modifier.clickable { expanded = true }
@@ -127,14 +127,14 @@ fun AppCard(
         },
         trailingContent = {
             Switch(
-                checked = restricted.value, onCheckedChange = {
+                checked = restricted, onCheckedChange = {
                     if (onParent) {
-                        restricted.value = it
+                        restricted = it
                         onCheckedChange(app.packageName, it)
                     }
                 },
                 thumbContent = {
-                    if (restricted.value) {
+                    if (restricted) {
                         Icon(
                             imageVector = Icons.Outlined.Lock,
                             contentDescription = null,

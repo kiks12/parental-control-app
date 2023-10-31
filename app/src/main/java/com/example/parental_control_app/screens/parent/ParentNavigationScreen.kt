@@ -25,10 +25,17 @@ import com.example.parental_control_app.viewmodels.parent.ParentNavigationViewMo
 @Composable
 fun ParentNavigationScreen(viewModel: ParentNavigationViewModel) {
     val controller = viewModel.getController()
+    var selectedIndex by remember {
+        mutableIntStateOf(0)
+    }
+
+    fun setSelectedIndex(newIndex: Int) {
+        selectedIndex = newIndex
+    }
 
     ParentalControlAppTheme {
         Scaffold (
-            bottomBar = { ParentNavigationBar(controller)}
+            bottomBar = { ParentNavigationBar(controller, selectedIndex, setSelectedIndex= ::setSelectedIndex)}
         ){ innerPadding ->
             Surface (
                 modifier = Modifier.padding(innerPadding)
@@ -47,10 +54,7 @@ fun ParentNavigationScreen(viewModel: ParentNavigationViewModel) {
 
 
 @Composable
-private fun ParentNavigationBar(controller: NavHostController) {
-    var selectedIndex by remember {
-        mutableIntStateOf(0)
-    }
+private fun ParentNavigationBar(controller: NavHostController, selectedIndex: Int, setSelectedIndex: (newIndex: Int) -> Unit) {
     val icons = ParentNavigationViewModel.bottomNavBarIcons
 
     BottomAppBar {
@@ -60,7 +64,7 @@ private fun ParentNavigationBar(controller: NavHostController) {
                     selected = selectedIndex == index,
                     onClick = {
                         controller.navigate(navBarIcon.route)
-                        selectedIndex = index
+                        setSelectedIndex(index)
                     },
                     icon = {
                         if (selectedIndex == index) Icon(navBarIcon.selectedIcon, navBarIcon.name)

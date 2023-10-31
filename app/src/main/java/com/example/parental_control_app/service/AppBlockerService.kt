@@ -6,11 +6,10 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
-import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-//import android.util.Log
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.parental_control_app.R
 import com.example.parental_control_app.activities.stacking.BlockActivity
@@ -50,11 +49,8 @@ class AppBlockerService : Service(){
     }
 
     private fun getCurrentRunningAppPackageName(context: Context): AppUsage? {
-        val usageStatsManager = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+        val usageStatsManager =
             context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        } else {
-            TODO("VERSION.SDK_INT < LOLLIPOP_MR1")
-        }
 
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, 0)
@@ -71,10 +67,12 @@ class AppBlockerService : Service(){
         val usageEvents = usageStatsManager.queryEvents(currentTime - 1000, System.currentTimeMillis())
         val event = UsageEvents.Event()
 
+//        Log.w("APP LOCK SERVICE", event.packageName)
+
         while (usageEvents.hasNextEvent()) {
             usageEvents.getNextEvent(event)
 
-            if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
+            if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED || event.eventType == UsageEvents.Event.ACTIVITY_PAUSED) {
                 val usageStat = usageStatsList.filter { usage -> usage.packageName == event.packageName }
                 return AppUsage(
                     packageName = event.packageName,
@@ -145,8 +143,10 @@ class AppBlockerService : Service(){
 
     private fun monitorRunningApp() {
         runnable = Runnable {
+            Log.w("APP LOCK SERVICE", "RUN")
 //            Log.w("BLOCKED APPS", blockedApps.toString())
             val currentApp = getCurrentRunningAppPackageName(applicationContext)
+            Log.w("APP LOCK SERVICE", (currentApp != null).toString())
 //            Log.w("APP LOCK SERVICE APPS", blockedApps.toString())
             if (currentApp != null) {
                 if (currentApp.packageName != prevApp && currentApp.packageName != applicationInfo.packageName) {
@@ -179,9 +179,7 @@ class AppBlockerService : Service(){
 
     override fun onDestroy() {
         super.onDestroy()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            handler.removeCallbacks(runnable)
-            stopForeground(STOP_FOREGROUND_REMOVE)
-        }
+        handler.removeCallbacks(runnable)
+        stopForeground(STOP_FOREGROUND_REMOVE)
     }
 }

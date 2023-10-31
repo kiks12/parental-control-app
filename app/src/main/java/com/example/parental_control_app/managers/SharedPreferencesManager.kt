@@ -12,6 +12,7 @@ class SharedPreferencesManager{
         const val PREFS_KEY = "Prefs"
         const val PROFILE_KEY = "Profile"
         const val UID_KEY = "UID"
+        const val PIN_KEY = "PIN"
         private const val BLOCKED_APPS_LIMIT_KEY = "BlockedAppsLimit"
 
 
@@ -45,5 +46,8 @@ class SharedPreferencesManager{
             return sharedPreferences.getString(UID_KEY, "")
         }
 
+        fun getPIN(sharedPreferences: SharedPreferences) : String? {
+            return sharedPreferences.getString(PIN_KEY, "")
+        }
     }
 }

@@ -8,7 +8,8 @@
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
+    <uses-permission
+        android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
@@ -44,6 +45,9 @@
         android:windowSoftInputMode="adjustResize"
         tools:targetApi="tiramisu">
         <activity
+            android:name=".activities.ChangePasscodeActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.manageProfile.ManageProfileActivity"
             android:exported="false" />
         <activity
@@ -53,9 +57,6 @@
             android:name=".activities.manageProfile.CreateProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.DataUsageActivity"
-            android:exported="false" />
-        <activity
             android:name=".activities.stacking.UnlockActivity"
             android:exported="false" />
         <activity
@@ -63,7 +64,18 @@
             android:exported="false" />
         <activity
             android:name=".activities.stacking.LockActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:clearTaskOnLaunch="true"
+            android:stateNotNeeded="true"
+            android:finishOnTaskLaunch="true"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".activities.websiteFilter.WebsiteFilterAddActivity"
             android:exported="false" />

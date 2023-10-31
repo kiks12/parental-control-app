@@ -2,51 +2,51 @@
 
 package com.example.parental_control_app.activities
 
-import android.content.ContentValues
 import android.content.Intent
-import android.content.IntentSender
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import com.example.parental_control_app.R
 import com.example.parental_control_app.data.ResponseStatus
 import com.example.parental_control_app.helpers.ToastHelper
+import com.example.parental_control_app.repositories.users.UserState
 import com.example.parental_control_app.repositories.users.UsersRepository
 import com.example.parental_control_app.screens.LoginScreen
 import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.viewmodels.LoginViewModel
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
-import com.google.android.gms.auth.api.identity.Identity
-import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
-    private lateinit var oneTapClient: SignInClient
-    private lateinit var request: BeginSignInRequest
     private lateinit var googleSignInClient : GoogleSignInClient
-    private var showOneTapUI = true
-    private var usedOneTap = false
+    private var loading = mutableStateOf(false)
 
     private val usersRepository = UsersRepository()
 
     companion object {
-        private const val REQ_ONE_TAP = 9001
+        private const val REQ_LEGACY = 9002
     }
 
     override fun onStart() {
@@ -69,28 +69,21 @@ class LoginActivity : AppCompatActivity() {
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(applicationContext, googleSignInOptions)
-
-        oneTapClient = Identity.getSignInClient(this)
-        request = BeginSignInRequest.builder()
-            .setPasswordRequestOptions(BeginSignInRequest.PasswordRequestOptions.builder()
-                .setSupported(true)
-                .build())
-            .setGoogleIdTokenRequestOptions(
-                BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                    .setSupported(true)
-                    .setServerClientId(getString(R.string.your_web_client_id))
-                    .setFilterByAuthorizedAccounts(false)
-                    .build())
-            .setAutoSelectEnabled(false)
-            .build()
+        googleSignInClient.signOut()
 
         setContent {
             ParentalControlAppTheme {
-                LoginScreen(
-                    loginViewModel,
-                    signInWithGoogle = { signInWithGoogle() },
-                    startRegistrationActivity = { startRegistrationActivity() }
-                )
+                if (loading.value) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    LoginScreen(
+                        loginViewModel,
+                        signInWithGoogle = { signInWithGoogle() },
+                        startRegistrationActivity = { startRegistrationActivity() }
+                    )
+                }
             }
         }
     }
@@ -102,7 +95,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun signInWithGoogle() {
-        displayOneTapUI()
+        val intent = googleSignInClient.signInIntent
+        startActivityForResult(intent, REQ_LEGACY)
     }
 
     private fun startRegistrationActivity() {
@@ -111,28 +105,36 @@ class LoginActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun displayOneTapUI() {
-        oneTapClient.beginSignIn(request)
-            .addOnSuccessListener(this) { result ->
-                try {
-                    usedOneTap = true
-                    startIntentSenderForResult(
-                        result.pendingIntent.intentSender, REQ_ONE_TAP,
-                        null, 0, 0, 0, null)
-                } catch (e: IntentSender.SendIntentException) {
-                    Log.e("ONE TAP UI", "Couldn't start One Tap UI: ${e.localizedMessage}")
+    private fun saveNewGoogleAccountThenFirebaseAuth(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    val newUser = UserState(
+                        userId = auth.uid.toString(),
+                        email = user?.email.toString(),
+                    )
+
+                    lifecycleScope.launch {
+                        val msg = usersRepository.createUser(newUser)
+                        Toast.makeText(this@LoginActivity, msg, Toast.LENGTH_SHORT).show()
+                    }
+
+                    Toast.makeText(this, "Signed in as ${user?.displayName}", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, StartupActivity::class.java))
+                } else {
+                    Toast.makeText(this, "Authentication failed", Toast.LENGTH_SHORT).show()
                 }
             }
-            .addOnFailureListener(this) { e ->
-                Log.d("ONE TAP UI", e.localizedMessage as String)
-                usedOneTap = false
-                val intent = googleSignInClient.signInIntent
-                startActivityForResult(intent, REQ_ONE_TAP)
-            }
+
+
     }
 
     private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
+
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -166,44 +168,24 @@ class LoginActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
-            REQ_ONE_TAP -> {
+            REQ_LEGACY -> {
                 try {
-                    if (usedOneTap) {
-                        val credential = oneTapClient.getSignInCredentialFromIntent(data)
-                        val idToken = credential.googleIdToken
-                        when {
-                            idToken != null -> {
-//                                Log.d("GOOGLE SIGN IN ONE TAP", "Got ID token.")
-//                                Log.w("GOOGLE SIGN IN ONE TAP", "$idToken ${credential.id}")
-                                lifecycleScope.launch {
-                                    if (!emailIsUsed(credential.id)) {
-                                        Toast.makeText(this@LoginActivity, "Email not registered. Please register an account", Toast.LENGTH_SHORT).show()
-//                                        Log.w("GOOGLE SIGN IN ONE TAP", "EMAIL IS USED")
-                                    } else {
-                                        firebaseAuthWithGoogle(idToken)
-//                                        Log.w("GOOGLE SIGN IN ONE TAP", "EMAIL IS AVAILABLE")
-                                    }
-                                }
-                            }
-                            else -> {
-                                Log.d("GOOGLE SIGN IN", "No ID token!")
-                            }
+                    val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+                    val googleSignInAccount = task.result
+                    Log.w("GOOGLE SIGN IN", googleSignInAccount.email + " " + googleSignInAccount.idToken)
+
+                    lifecycleScope.launch(Dispatchers.Default){
+                        withContext(Dispatchers.Main) {
+                            loading.value  = true
                         }
-                    } else {
-                        val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-                        val googleSignInAccount = task.result
+
                         when {
                             googleSignInAccount.idToken != null && task.isSuccessful -> {
-                                Log.d("GOOGLE SIGN IN LEGACY", "Got ID token.")
-                                Log.w("GOOGLE SIGN IN LEGACY", "${googleSignInAccount.idToken} ${googleSignInAccount.email}")
-                                lifecycleScope.launch {
-                                    if (emailIsUsed(googleSignInAccount.email.toString())) {
-                                        Toast.makeText(this@LoginActivity, "Email not registered. Please register an account", Toast.LENGTH_SHORT).show()
-//                                        Log.w("GOOGLE SIGN IN LEGACY", "EMAIL IS USED")
-                                    } else {
-                                        firebaseAuthWithGoogle(googleSignInAccount.idToken.toString())
-//                                        Log.w("GOOGLE SIGN IN LEGACY", "EMAIL IS AVAILABLE")
-                                    }
+                                Log.w("GOOGLE SIGN IN", emailIsUsed(googleSignInAccount.email.toString()).toString())
+                                if (emailIsUsed(googleSignInAccount.email.toString())) {
+                                    firebaseAuthWithGoogle(googleSignInAccount.idToken.toString())
+                                } else {
+                                    saveNewGoogleAccountThenFirebaseAuth(googleSignInAccount.idToken.toString())
                                 }
                             }
                             else -> {
@@ -211,20 +193,8 @@ class LoginActivity : AppCompatActivity() {
                             }
                         }
                     }
-                } catch (e: ApiException) {
-                    when (e.statusCode) {
-                        CommonStatusCodes.CANCELED -> {
-                            Log.d(ContentValues.TAG, "One-tap dialog was closed.")
-                            showOneTapUI = false
-                        } CommonStatusCodes.NETWORK_ERROR -> {
-                            Log.d(ContentValues.TAG, "One-tap encountered a network error.")
-                        } else -> {
-                            Log.d(
-                                ContentValues.TAG, "Couldn't get credential from result." +
-                                        " (${e.localizedMessage})"
-                            )
-                        }
-                    }
+                } catch (e:ApiException) {
+                    e.localizedMessage?.let { Log.w("GOOGLE SIGN IN ERROR", it) }
                 }
             }
         }

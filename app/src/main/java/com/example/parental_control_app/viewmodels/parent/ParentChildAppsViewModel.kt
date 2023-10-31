@@ -52,7 +52,11 @@ class ParentChildAppsViewModel(
             withContext(Dispatchers.Default) {
                 apps.forEach { app ->
                     if (recommendations.contains(app.packageName)) {
-                        _recommendationState.add(app)
+                        val appCopy = app.copy(restricted = true)
+                        _recommendationState.add(appCopy)
+                        withContext(Dispatchers.IO) {
+                            updateAppRestriction(app.packageName, true)
+                        }
                     } else {
                         _appsState.add(app)
                     }

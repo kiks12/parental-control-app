@@ -1,6 +1,6 @@
 package com.example.parental_control_app.activities.children
 
-import android.app.Activity
+
 import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
@@ -12,7 +12,6 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -61,6 +60,9 @@ import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.TimeUnit
 
+
+@Suppress("DEPRECATION")
+
 class ChildrenAppsActivity : AppCompatActivity() {
 
     private lateinit var profileSignOutHelper: ProfileSignOutHelper
@@ -85,7 +87,13 @@ class ChildrenAppsActivity : AppCompatActivity() {
             return mode == AppOpsManager.MODE_ALLOWED
         }
 
-        return false
+        val mode = appOps.checkOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            android.os.Process.myUid(),
+            packageName
+        )
+
+        return mode == AppOpsManager.MODE_ALLOWED
     }
 
     private fun enqueueScreenTimeGetterWorker() {
@@ -156,16 +164,18 @@ class ChildrenAppsActivity : AppCompatActivity() {
 
         when (isUsagePermissionGranted()) {
             true -> {
-                Log.w("PERMISSION", "Usage Permission Granted")
+//                Log.w("PERMISSION", "Usage Permission Granted")
                 enqueueWorkerFetchData()
             }
             else -> {
-                Log.w("PERMISSION", "Usage Permission Denied")
-                val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                    if (result.resultCode == Activity.RESULT_OK) enqueueWorkerFetchData()
+//                Log.w("PERMISSION", "Usage Permission Denied")
+                val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+//                    Log.w("RESULT", result.toString())
+//                    Log.w("RESULT", isUsagePermissionGranted().toString())
+                    if (isUsagePermissionGranted()) enqueueWorkerFetchData()
                 }
-                val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
 
+                val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
                 resultLauncher.launch(intent)
             }
         }

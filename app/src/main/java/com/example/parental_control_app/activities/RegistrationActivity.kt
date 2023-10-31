@@ -89,7 +89,7 @@ class RegistrationActivity : AppCompatActivity() {
                 RegistrationScreen(
                     registrationViewModel,
                     { startLoginActivity() },
-                    { signUpWithGoogle() }
+//                    { signUpWithGoogle() }
                 )
             }
         }

@@ -35,7 +35,7 @@ import com.example.parental_control_app.viewmodels.parent.ParentChildAppsViewMod
 @Composable
 fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel, onBackClick: () -> Unit) {
     val loading = viewModel.loadingState
-    val suggestions = viewModel.recommendationState
+    val recommendations = viewModel.recommendationState
     val apps = viewModel.appsState
     val icons = viewModel.iconState
 
@@ -45,7 +45,7 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel, onBackClick: () -
         Scaffold(
             topBar = {
                 TopBar(
-                    appsCount = suggestions.size + apps.size,
+                    appsCount = recommendations.size + apps.size,
                     onBackClick = onBackClick
                 )
             }
@@ -80,8 +80,8 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel, onBackClick: () -
                         )
                     }
                     LazyColumn(Modifier.fillMaxSize()) {
-                        if (suggestions.isNotEmpty()) {
-                            items(suggestions) { suggestion ->
+                        if (recommendations.isNotEmpty()) {
+                            items(recommendations) { suggestion ->
                                 AppCard(
                                     app = suggestion,
                                     appIcon = icons[suggestion.packageName]!!,

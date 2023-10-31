@@ -2,6 +2,7 @@ package com.example.parental_control_app.repositories.users
 
 import com.example.parental_control_app.data.Response
 import com.example.parental_control_app.data.ResponseStatus
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CompletableDeferred
@@ -24,7 +25,7 @@ class UsersRepository {
                 async {
                     db.collection("users")
                         .document(newUser.userId)
-                        .set(newUser)
+                        .set(newUser, SetOptions.merge())
                         .addOnSuccessListener { completable.complete("Successfully registered an account") }
                         .addOnFailureListener { completable.complete(it.localizedMessage!!) }
                 }.await()
