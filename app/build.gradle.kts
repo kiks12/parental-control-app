@@ -150,6 +150,9 @@ dependencies {
 
     implementation("com.google.accompanist:accompanist-permissions:0.23.1")
 
+    implementation("com.google.firebase:firebase-ml-modeldownloader-ktx")
+    implementation("org.tensorflow:tensorflow-lite:2.3.0")
+
 
 
 }

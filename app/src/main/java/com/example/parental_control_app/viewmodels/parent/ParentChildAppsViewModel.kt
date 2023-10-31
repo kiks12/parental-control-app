@@ -15,19 +15,19 @@ import kotlinx.coroutines.withContext
 class ParentChildAppsViewModel(
     profile: UserProfile,
     private val kidProfileId: String,
+    private val contentRating: Int,
     private val appsRepository: AppsRepository = AppsRepository(),
     private val usersRepository: UsersRepository = UsersRepository(),
 ) : ViewModel(){
 
     private val _kidProfile = mutableStateOf(UserProfile())
     private val _loadingState = mutableStateOf(true)
-    private val _suggestionsState = mutableStateListOf<UserApps>()
+    private val _recommendationState = mutableStateListOf<UserApps>()
     private val _appsState = mutableStateListOf<UserApps>()
     private val _iconsState = mutableStateOf(mapOf<String, String>())
-    private lateinit var back : () -> Unit
 
-    val suggestionsState : List<UserApps>
-        get() = _suggestionsState
+    val recommendationState : List<UserApps>
+        get() = _recommendationState
 
     val appsState : List<UserApps>
         get() = _appsState
@@ -40,20 +40,19 @@ class ParentChildAppsViewModel(
 
     val profileState = profile
 
-
     init {
         viewModelScope.launch {
             val uid = usersRepository.getProfileUID(kidProfileId)
             _kidProfile.value = usersRepository.getProfile(uid)
 
-            val suggestions = appsRepository.getSuggestedAppRestriction(_kidProfile.value.age.toInt())
             val apps = appsRepository.getApps(uid)
+            val recommendations = appsRepository.getAppBlockingRecommendation(apps, contentRating)
             _iconsState.value = appsRepository.getAppIcons(uid, apps)
 
             withContext(Dispatchers.Default) {
                 apps.forEach { app ->
-                    if (suggestions.contains(app.packageName)) {
-                        _suggestionsState.add(app)
+                    if (recommendations.contains(app.packageName)) {
+                        _recommendationState.add(app)
                     } else {
                         _appsState.add(app)
                     }
@@ -64,14 +63,6 @@ class ParentChildAppsViewModel(
                 _loadingState.value = false
             }
         }
-    }
-
-    fun addOnBackClick(callback: () -> Unit) {
-        back = callback
-    }
-
-    fun onBackClick() : () -> Unit {
-        return back
     }
 
     fun updateAppRestriction(appName: String, newRestriction: Boolean) {

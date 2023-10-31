@@ -2,8 +2,14 @@ package com.example.parental_control_app
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.parental_control_app.activities.LoginActivity
+import com.example.parental_control_app.repositories.AppsRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.io.InputStream
 
 @Suppress("unused")
 data class AppRestriction(
@@ -28,7 +34,7 @@ data class AppRestriction(
 
 class MainActivity : AppCompatActivity() {
 
-//    private val appsRepository = AppsRepository()
+    private val appsRepository = AppsRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,16 +46,16 @@ class MainActivity : AppCompatActivity() {
 
         this block will save the app restrictions suggestion data in the cloud
 
-
-        val inputStream = assets.open("apps_age_restrictions.csv")
-        val appList = readCsv(inputStream)
-
-        Log.w("APP RESTRICTIONS", appList.toString())
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            appsRepository.saveAppRestrictions(appList)
-        }
         */
+
+//        val inputStream = assets.open("final.csv")
+//        val appList = readCsv(inputStream)
+//
+//        Log.w("APP RESTRICTIONS", appList.toString())
+
+//        lifecycleScope.launch(Dispatchers.IO) {
+//            appsRepository.saveAppRestrictions(appList)
+//        }
 
         startActivity(Intent(this, LoginActivity::class.java))
     }

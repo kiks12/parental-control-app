@@ -237,20 +237,30 @@ class AppsRepository {
         }
     }
 
-    suspend fun getSuggestedAppRestriction(age: Int) : List<String> {
-        val suggestedApps = mutableListOf<String>()
+    suspend fun getAppBlockingRecommendation(apps: List<UserApps>, contentRating: Int): List<String> {
+        val recommendation = CompletableDeferred<List<String>>()
+        val appNames = mutableListOf<String>()
 
         coroutineScope {
-            launch(Dispatchers.IO) {
-                val query = db.collection("suggestions").whereGreaterThanOrEqualTo("age", age)
-                val docs = query.get().await()
-                docs.forEach {  document ->
-                    suggestedApps.add(document.data["packageName"].toString())
-                }
+            launch(Dispatchers.IO){
+                async {
+                    apps.forEach { app ->
+                        val query = db.collection("suggestions")
+                            .whereEqualTo("packageName", app.packageName)
+                            .whereLessThanOrEqualTo("contentRating", contentRating)
+                        val docs = query.get().await()
+                        docs.forEach { document ->
+                            appNames.add(document.data["packageName"].toString())
+                        }
+                    }
+                }.await()
+                async {
+                    recommendation.complete(appNames)
+                }.await()
             }
         }
 
-        return suggestedApps
+        return recommendation.await()
     }
     /*
      * suggestions collection related methods

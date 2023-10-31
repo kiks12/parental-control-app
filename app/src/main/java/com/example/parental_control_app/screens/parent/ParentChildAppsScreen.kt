@@ -33,9 +33,9 @@ import com.example.parental_control_app.components.AppCardType
 import com.example.parental_control_app.viewmodels.parent.ParentChildAppsViewModel
 
 @Composable
-fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
+fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel, onBackClick: () -> Unit) {
     val loading = viewModel.loadingState
-    val suggestions = viewModel.suggestionsState
+    val suggestions = viewModel.recommendationState
     val apps = viewModel.appsState
     val icons = viewModel.iconState
 
@@ -46,7 +46,7 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
             topBar = {
                 TopBar(
                     appsCount = suggestions.size + apps.size,
-                    onBackClick = viewModel.onBackClick()
+                    onBackClick = onBackClick
                 )
             }
         ){ innerPadding ->
@@ -76,7 +76,7 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
                         Tab(
                             selected = selectedTabIndex.intValue == 1,
                             onClick = { selectedTabIndex.intValue = 1 },
-                            text = { Text("Suggestions") }
+                            text = { Text("Recommended") }
                         )
                     }
                     LazyColumn(Modifier.fillMaxSize()) {
@@ -92,7 +92,7 @@ fun ParentChildAppsScreen(viewModel: ParentChildAppsViewModel) {
                                 )
                             }
                         } else {
-                            item { Text("No Suggested Apps available", textAlign = TextAlign.Center) }
+                            item { Text("No Recommended Apps to block", textAlign = TextAlign.Center) }
                         }
 
                         if (selectedTabIndex.intValue == 0) {

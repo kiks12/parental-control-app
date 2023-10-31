@@ -93,7 +93,9 @@ class ParentChildFeaturesViewModel : ViewModel(){
         activityStarterHelper.startNewActivity(
             activity = ParentChildAppsActivity::class.java,
             extras = mapOf(
-                "kidProfileId" to kidProfileId
+                "kidProfileId" to kidProfileId,
+                "maturityLevel" to kidProfile.maturityLevel.toString(),
+                "age" to kidProfile.age,
             )
         )
     }

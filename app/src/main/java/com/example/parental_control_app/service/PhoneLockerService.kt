@@ -9,8 +9,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.util.Log
-//import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.parental_control_app.R
 import com.example.parental_control_app.activities.stacking.LockActivity
@@ -38,6 +36,7 @@ class PhoneLockerService : Service() {
     private val db = Firebase.firestore
     private var isLocked = false
     private var shouldLock = false
+    private var previousApp = ""
     private var previous = false
     private var screenTimeLimit = 0L
 
@@ -143,16 +142,19 @@ class PhoneLockerService : Service() {
             val currentApp = usageStats["APP_USAGE"] as AppUsage?
             val totalScreenTime = usageStats["TOTAL_SCREEN_TIME"].toString().toLong()
 
-            Log.w("PHONE LOCKER SERVICE", currentApp.toString())
-            Log.w("PHONE LOCKER SERVICE", totalScreenTime.toString())
+//            Log.w("PHONE LOCKER SERVICE", currentApp.toString())
+//            Log.w("PHONE LOCKER SERVICE", totalScreenTime.toString())
+//            Log.w("PHONE LOCKER SERVICE", screenTimeLimit.toString())
 
-            if (
-                currentApp?.packageName != application.packageName ||
-                currentApp?.packageName == "com.sec.android.app.launcher"
-                )
+            if (currentApp != null && currentApp.packageName != previousApp && currentApp.packageName != application.packageName) {
                 isLocked = false
-            if (currentApp == null) isLocked = true
-            if (totalScreenTime >= screenTimeLimit && screenTimeLimit != 0L) shouldLock = true
+            }
+
+            shouldLock = totalScreenTime >= screenTimeLimit && screenTimeLimit != 0L && currentApp?.packageName != previousApp
+
+            if (currentApp != null) {
+                previousApp = currentApp.packageName
+            }
 
             monitorLocker()
         }
