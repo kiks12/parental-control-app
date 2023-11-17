@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.parental_control_app.R
 import com.example.parental_control_app.activities.stacking.LockActivity
@@ -31,7 +32,7 @@ class PhoneLockerService : Service() {
 
     private val handler = Handler(Looper.getMainLooper())
     private var runnable = Runnable {}
-    private val checkInterval = 900
+    private val checkInterval = 600
     private val db = Firebase.firestore
     private var isLocked = false
     private var shouldLock = false
@@ -133,25 +134,29 @@ class PhoneLockerService : Service() {
 
     private fun monitorLocker() {
         runnable = Runnable {
-            if (shouldLock && !isLocked) lockPhone()
+            if (shouldLock && !isLocked) {
+                Log.w("SHOULD LOCK", "LOCK")
+                lockPhone()
+            }
 
             val usageStats = getCurrentRunningAppPackageName(applicationContext)
 
             val currentApp = usageStats["APP_USAGE"] as AppUsage?
             val totalScreenTime = usageStats["TOTAL_SCREEN_TIME"].toString().toLong()
 
-//            Log.w("PHONE LOCKER SERVICE", currentApp.toString())
-//            Log.w("PHONE LOCKER SERVICE", totalScreenTime.toString())
-//            Log.w("PHONE LOCKER SERVICE", screenTimeLimit.toString())
+            Log.w("PHONE LOCKER SERVICE", currentApp.toString())
+            Log.w("PHONE LOCKER SERVICE", totalScreenTime.toString())
+            Log.w("PHONE LOCKER SERVICE", screenTimeLimit.toString())
 //            Log.w("PHONE LOCKER SERVICE", phoneLock.toString())
 
-            if (currentApp != null && currentApp.packageName != previousApp && currentApp.packageName != application.packageName) {
+//            if (currentApp != null && currentApp.packageName != previousApp && currentApp.packageName != application.packageName) {
+            if (currentApp != null ) {
                 isLocked = false
             }
 
             shouldLock = (totalScreenTime >= screenTimeLimit && screenTimeLimit != 0L && currentApp?.packageName != previousApp) || phoneLock
 
-            if (currentApp != null) {
+            if (currentApp != null && previousApp != currentApp.packageName) {
                 previousApp = currentApp.packageName
             }
 

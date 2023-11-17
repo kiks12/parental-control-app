@@ -239,7 +239,7 @@ fun Digits(
             modifier = Modifier
                 .size(55.dp)
                 .border(
-                    if (index == 1) 1.dp else 0.2.dp,
+                    if (index == 1) 2.dp else 0.2.dp,
                     MaterialTheme.colorScheme.secondaryContainer
                 )
         )
@@ -252,7 +252,7 @@ fun Digits(
             modifier = Modifier
                 .size(55.dp)
                 .border(
-                    if (index == 2) 1.dp else 0.2.dp,
+                    if (index == 2) 2.dp else 0.2.dp,
                     MaterialTheme.colorScheme.secondaryContainer
                 )
         )
@@ -265,7 +265,7 @@ fun Digits(
             modifier = Modifier
                 .size(55.dp)
                 .border(
-                    if (index == 3) 1.dp else 0.2.dp,
+                    if (index == 3) 2.dp else 0.2.dp,
                     MaterialTheme.colorScheme.secondaryContainer
                 )
         )
@@ -278,7 +278,7 @@ fun Digits(
             modifier = Modifier
                 .size(55.dp)
                 .border(
-                    if (index == 4) 1.dp else 0.2.dp,
+                    if (index == 4) 2.dp else 0.2.dp,
                     MaterialTheme.colorScheme.secondaryContainer
                 )
         )
