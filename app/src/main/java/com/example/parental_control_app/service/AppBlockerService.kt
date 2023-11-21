@@ -72,7 +72,7 @@ class AppBlockerService : Service(){
         while (usageEvents.hasNextEvent()) {
             usageEvents.getNextEvent(event)
 
-            if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED || event.eventType == UsageEvents.Event.ACTIVITY_PAUSED) {
+            if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
                 val usageStat = usageStatsList.filter { usage -> usage.packageName == event.packageName }
                 return AppUsage(
                     packageName = event.packageName,

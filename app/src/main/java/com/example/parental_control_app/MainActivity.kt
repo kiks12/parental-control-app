@@ -1,7 +1,11 @@
 package com.example.parental_control_app
 
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.border
@@ -17,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -38,6 +43,7 @@ import com.example.parental_control_app.helpers.ToastHelper
 import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 
+
 @Suppress("unused")
 data class AppRestriction(
     val label: String,
@@ -49,6 +55,27 @@ data class AppRestriction(
 
 class MainActivity : AppCompatActivity() {
 
+    private fun isOnline(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (capabilities != null) {
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
+                return true
+            }
+        }
+        return false
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -59,155 +86,187 @@ class MainActivity : AppCompatActivity() {
 //        edit.remove(SharedPreferencesManager.PIN_KEY)
 //        edit.apply()
 
-        setContent {
-            var index by remember { mutableIntStateOf(1) }
-            var firstNumber by remember { mutableStateOf("") }
-            var secondNumber by remember { mutableStateOf("") }
-            var thirdNumber by remember { mutableStateOf("") }
-            var fourthNumber by remember { mutableStateOf("") }
+        if (isOnline(this)) {
+            setContent {
+                var index by remember { mutableIntStateOf(1) }
+                var firstNumber by remember { mutableStateOf("") }
+                var secondNumber by remember { mutableStateOf("") }
+                var thirdNumber by remember { mutableStateOf("") }
+                var fourthNumber by remember { mutableStateOf("") }
 
-            fun resetNumbers() {
-                firstNumber = ""
-                secondNumber = ""
-                thirdNumber = ""
-                fourthNumber = ""
-                index = 1
-            }
-
-            fun onDigitClickWithoutSave(digit: String) {
-                if (index <= 4) {
-                    when (index) {
-                        1 -> firstNumber = digit
-                        2 -> secondNumber = digit
-                        3 -> thirdNumber = digit
-                        4 -> fourthNumber = digit
-                        else -> {}
-                    }
-                    index += 1
+                fun resetNumbers() {
+                    firstNumber = ""
+                    secondNumber = ""
+                    thirdNumber = ""
+                    fourthNumber = ""
+                    index = 1
                 }
 
-                if (index == 5) {
-                    if ("$firstNumber$secondNumber$thirdNumber$fourthNumber" == pin) {
-                        startLoginActivity()
+                fun onDigitClickWithoutSave(digit: String) {
+                    if (index <= 4) {
+                        when (index) {
+                            1 -> firstNumber = digit
+                            2 -> secondNumber = digit
+                            3 -> thirdNumber = digit
+                            4 -> fourthNumber = digit
+                            else -> {}
+                        }
+                        index += 1
+                    }
+
+                    if (index == 5) {
+                        if ("$firstNumber$secondNumber$thirdNumber$fourthNumber" == pin) {
+                            startLoginActivity()
+                        } else {
+                            toastHelper.makeToast("Incorrect PIN")
+                            resetNumbers()
+                        }
+                    }
+                }
+
+                fun onDigitClickWithSave(digit: String) {
+                    if (index <= 4) {
+                        when (index) {
+                            1 -> firstNumber = digit
+                            2 -> secondNumber = digit
+                            3 -> thirdNumber = digit
+                            4 -> fourthNumber = digit
+                            else -> {}
+                        }
+                        index += 1
+                    }
+                }
+
+                fun savePIN() {
+                    val edit = sharedPreferences.edit()
+                    edit.putString(SharedPreferencesManager.PIN_KEY, "$firstNumber$secondNumber$thirdNumber$fourthNumber")
+                    edit.apply()
+                    startLoginActivity()
+                }
+
+                fun onDelDigit() {
+                    index = if (index == 1) {
+                        1
                     } else {
-                        toastHelper.makeToast("Incorrect PIN")
-                        resetNumbers()
+                        index - 1
                     }
-                }
-            }
 
-            fun onDigitClickWithSave(digit: String) {
-                if (index <= 4) {
                     when (index) {
-                        1 -> firstNumber = digit
-                        2 -> secondNumber = digit
-                        3 -> thirdNumber = digit
-                        4 -> fourthNumber = digit
-                        else -> {}
+                        1 -> firstNumber = ""
+                        2 -> secondNumber = ""
+                        3 -> thirdNumber = ""
+                        4 -> fourthNumber = ""
                     }
-                    index += 1
-                }
-            }
-
-            fun savePIN() {
-                val edit = sharedPreferences.edit()
-                edit.putString(SharedPreferencesManager.PIN_KEY, "$firstNumber$secondNumber$thirdNumber$fourthNumber")
-                edit.apply()
-                startLoginActivity()
-            }
-
-            fun onDelDigit() {
-                index = if (index == 1) {
-                    1
-                } else {
-                    index - 1
                 }
 
-                when (index) {
-                    1 -> firstNumber = ""
-                    2 -> secondNumber = ""
-                    3 -> thirdNumber = ""
-                    4 -> fourthNumber = ""
-                }
-            }
+                ParentalControlAppTheme {
+                    if (!(pin.isNullOrEmpty()) || !(pin?.isBlank()!!)) {
+                        Column(verticalArrangement = Arrangement.SpaceBetween, modifier=Modifier.fillMaxSize()){
+                            Column(
+                                modifier = Modifier.padding(
+                                    horizontal = 20.dp,
+                                    vertical = 10.dp
+                                )
+                            ) {
+                                Text(
+                                    "KidsGuard",
+                                    fontSize = 30.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text("Enter 4-digit PIN to continue")
+                            }
 
-            ParentalControlAppTheme {
-                if (!(pin.isNullOrEmpty()) || !(pin?.isBlank()!!)) {
-                    Column(verticalArrangement = Arrangement.SpaceBetween, modifier=Modifier.fillMaxSize()){
-                        Column(
-                            modifier = Modifier.padding(
-                                horizontal = 20.dp,
-                                vertical = 10.dp
-                            )
-                        ) {
-                            Text(
-                                "KidsGuard",
-                                fontSize = 30.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Text("Enter 4-digit PIN to continue")
+                            Column {
+                                Digits(
+                                    firstNumber = firstNumber,
+                                    secondNumber = secondNumber,
+                                    thirdNumber = thirdNumber,
+                                    fourthNumber = fourthNumber,
+                                    index = index,
+                                    onDigitClick = ::onDigitClickWithoutSave,
+                                    onDelDigit = ::onDelDigit
+                                )
+                            }
                         }
+                    } else {
+                        Column(verticalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxSize()){
 
-                        Column {
-                            Digits(
-                                firstNumber = firstNumber,
-                                secondNumber = secondNumber,
-                                thirdNumber = thirdNumber,
-                                fourthNumber = fourthNumber,
-                                index = index,
-                                onDigitClick = ::onDigitClickWithoutSave,
-                                onDelDigit = ::onDelDigit
-                            )
-                        }
-                    }
-                } else {
-                    Column(verticalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxSize()){
+                            Column(
+                                modifier = Modifier.padding(
+                                    horizontal = 20.dp,
+                                    vertical = 10.dp
+                                )
+                            ) {
+                                Text(
+                                    "KidsGuard",
+                                    fontSize = 30.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
 
-                        Column(
-                            modifier = Modifier.padding(
-                                horizontal = 20.dp,
-                                vertical = 10.dp
-                            )
-                        ) {
-                            Text(
-                                "KidsGuard",
-                                fontSize = 30.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
+                                Spacer(modifier = Modifier.height(20.dp))
 
-                            Spacer(modifier = Modifier.height(20.dp))
+                                Text(
+                                    "Create PIN",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text("Please provide a 4-digit PIN to continue")
+                            }
 
-                            Text(
-                                "Create PIN",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Text("Please provide a 4-digit PIN to continue")
-                        }
+                            Column {
+                                Digits(
+                                    firstNumber = firstNumber,
+                                    secondNumber = secondNumber,
+                                    thirdNumber = thirdNumber,
+                                    fourthNumber = fourthNumber,
+                                    index = index,
+                                    onDigitClick = ::onDigitClickWithSave,
+                                    onDelDigit = ::onDelDigit
+                                )
 
-                        Column {
-                            Digits(
-                                firstNumber = firstNumber,
-                                secondNumber = secondNumber,
-                                thirdNumber = thirdNumber,
-                                fourthNumber = fourthNumber,
-                                index = index,
-                                onDigitClick = ::onDigitClickWithSave,
-                                onDelDigit = ::onDelDigit
-                            )
+                                Spacer(modifier = Modifier.height(15.dp))
 
-                            Spacer(modifier = Modifier.height(15.dp))
-
-                            Button(onClick = ::savePIN, modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp)) {
-                                Text(text = "Save PIN", modifier = Modifier.padding(8.dp))
+                                Button(onClick = ::savePIN, modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)) {
+                                    Text(text = "Save PIN", modifier = Modifier.padding(8.dp))
+                                }
                             }
                         }
                     }
                 }
             }
+        } else {
+            setContent {
+                ParentalControlAppTheme {
+                    Column(
+                        modifier = Modifier
+                            .padding(30.dp)
+                            .fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("No Internet!", fontWeight = FontWeight.Bold, fontSize = 30.sp, textAlign = TextAlign.Center)
+                        Text("Please make sure your device is connected to the internet to continue", textAlign = TextAlign.Center)
+                        Button(onClick = {
+                            recreate()
+                        }) {
+                            Text("Retry")
+                        }
+                        FilledTonalButton(onClick = {
+                            val homeIntent = Intent(Intent.ACTION_MAIN)
+                            homeIntent.addCategory(Intent.CATEGORY_HOME)
+                            homeIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            startActivity(homeIntent)
+                            finish()
+                        }) {
+                            Text("Exit")
+                        }
+                    }
+                }
+            }
         }
+        
     }
 
     private fun startLoginActivity() {

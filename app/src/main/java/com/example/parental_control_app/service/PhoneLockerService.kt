@@ -59,8 +59,6 @@ class PhoneLockerService : Service() {
             screenTimeLimit = data?.get("phoneScreenTimeLimit").toString().toLong()
         }
 
-        monitorLocker()
-
         val documentRef = uid.let { db.collection("profiles").document(it!!) }
         documentRef.addSnapshotListener{ snapshot, _ ->
             val profile = snapshot?.toObject(UserProfile::class.java)
@@ -68,6 +66,9 @@ class PhoneLockerService : Service() {
             if (profile != null) {
                 shouldLock = profile.phoneLock
                 phoneLock = profile.phoneLock
+                screenTimeLimit = profile.phoneScreenTimeLimit
+
+                Log.w("PHONE LOCKER SCREENTIME LIMIT", screenTimeLimit.toString())
 
                 if (!shouldLock && isLocked && previous != profile.phoneLock) {
                     val unlockIntent = Intent(applicationContext, UnlockActivity::class.java)
@@ -76,10 +77,11 @@ class PhoneLockerService : Service() {
                 }
 
                 isLocked = false
-                screenTimeLimit = profile.phoneScreenTimeLimit
                 previous = profile.phoneLock
             }
         }
+
+        monitorLocker()
 
         return START_STICKY
     }
