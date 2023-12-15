@@ -2,6 +2,7 @@ package com.example.parental_control_app.activities.stacking
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CountDownTimer
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,20 +15,64 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
+import java.util.concurrent.TimeUnit
 
 class LockActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val sharedPreferences = getSharedPreferences(SharedPreferencesManager.PREFS_KEY, MODE_PRIVATE)
+        var spTimer = SharedPreferencesManager.genTimer(sharedPreferences)
+
+        if (spTimer == 0L) {
+            val editor = sharedPreferences.edit()
+            editor.putLong(SharedPreferencesManager.TIMER_KEY, TimeUnit.HOURS.toMillis(24))
+            editor.apply()
+            spTimer = TimeUnit.HOURS.toMillis(24)
+        }
+
         setContent {
+            var timerText by remember { mutableStateOf("") }
+
+            val timer = object : CountDownTimer(spTimer,1000) {
+                override fun onTick(millisUntilFinished: Long) {
+                    val hours = TimeUnit.MILLISECONDS.toHours(millisUntilFinished)
+                    val minutes =
+                        TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished - TimeUnit.HOURS.toMillis(hours))
+                    val seconds = TimeUnit.MILLISECONDS.toSeconds(
+                        millisUntilFinished - TimeUnit.HOURS.toMillis(hours) - TimeUnit.MINUTES.toMillis(
+                            minutes
+                        )
+                    )
+
+                    val formattedTime =
+                        String.format("%02d:%02d:%02d", hours, minutes, seconds)
+                    timerText = formattedTime
+
+                    val editor = sharedPreferences.edit()
+                    editor.putLong(SharedPreferencesManager.TIMER_KEY, millisUntilFinished)
+                    editor.apply()
+                }
+
+                override fun onFinish() {
+                    timerText = "Finished!"
+                }
+            }
+
+            timer.start()
             ParentalControlAppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize()
@@ -45,6 +90,9 @@ class LockActivity : AppCompatActivity() {
                             textAlign = TextAlign.Center,
                             lineHeight = 60.sp
                         )
+                        Spacer(Modifier.height(30.dp))
+                        Text("Time Remaining: ")
+                        Text(timerText, fontWeight = FontWeight.SemiBold, fontSize = 30.sp)
                         Spacer(Modifier.height(30.dp))
                         Text("Your phone is locked by your parent")
                     }

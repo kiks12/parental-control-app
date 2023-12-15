@@ -5,6 +5,7 @@ import com.example.parental_control_app.data.UserApps
 import com.example.parental_control_app.repositories.users.UserProfile
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.util.concurrent.TimeUnit
 
 class SharedPreferencesManager{
 
@@ -13,7 +14,11 @@ class SharedPreferencesManager{
         const val PROFILE_KEY = "Profile"
         const val UID_KEY = "UID"
         const val PIN_KEY = "PIN"
+        const val DEVICE_NAME_SAVED_KEY = "DEVICE_NAME"
+        const val TIMER_KEY = "TIMER_KEY"
+        const val UNINSTALLED_KEY = "UNINSTALLED_KEY"
         private const val BLOCKED_APPS_LIMIT_KEY = "BlockedAppsLimit"
+
 
 
         fun createJsonString(obj: Any) : String {
@@ -48,6 +53,18 @@ class SharedPreferencesManager{
 
         fun getPIN(sharedPreferences: SharedPreferences) : String? {
             return sharedPreferences.getString(PIN_KEY, "")
+        }
+
+        fun isDeviceSaved(sharedPreferences: SharedPreferences) : Boolean {
+            return sharedPreferences.getBoolean(DEVICE_NAME_SAVED_KEY, false)
+        }
+
+        fun genTimer(sharedPreferences: SharedPreferences) : Long {
+            return TimeUnit.MILLISECONDS.toMillis(sharedPreferences.getLong(TIMER_KEY, 0L))
+        }
+
+        fun getUninstalledStatus(sharedPreferences: SharedPreferences) : Boolean {
+            return sharedPreferences.getBoolean(UNINSTALLED_KEY, false)
         }
     }
 }

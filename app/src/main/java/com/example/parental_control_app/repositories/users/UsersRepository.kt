@@ -414,4 +414,108 @@ class UsersRepository {
         return responseCompletable.await()
     }
 
+
+    suspend fun saveUninstalledStatus(uid: String, status: Boolean) : Response? {
+        val response = CompletableDeferred<Response?>(null)
+
+        coroutineScope {
+            launch(Dispatchers.IO) {
+                val ref = db.collection("profiles").document(uid)
+                val data = hashMapOf(
+                    "uninstalled" to status
+                )
+                ref.set(data, SetOptions.merge())
+                    .addOnSuccessListener {
+                        response.complete(
+                            Response(
+                                status = ResponseStatus.SUCCESS,
+                                message = "Successfully saved uninstalled status"
+                            )
+                        )
+                    }
+                    .addOnFailureListener {
+                        response.complete(
+                            it.localizedMessage?.let { it1 ->
+                                Response(
+                                    status = ResponseStatus.FAILED,
+                                    message = it1
+                                )
+                            }
+                        )
+                    }
+            }
+        }
+
+        return response.await()
+    }
+
+    suspend fun saveDeviceModel(uid: String, deviceName: String) : Response? {
+        val responseCompletable = CompletableDeferred<Response?>(null)
+
+        coroutineScope {
+            launch(Dispatchers.IO) {
+                val ref = db.collection("profiles").document(uid)
+                val data = hashMapOf(
+                    "deviceName" to deviceName
+                )
+                ref.set(data, SetOptions.merge())
+                    .addOnSuccessListener {
+                        responseCompletable.complete(
+                            Response(
+                                status = ResponseStatus.SUCCESS,
+                                message = "Successfully saved device model"
+                            )
+                        )
+                    }
+                    .addOnFailureListener {
+                        responseCompletable.complete(
+                            it.localizedMessage?.let { it1 ->
+                                Response(
+                                    status = ResponseStatus.FAILED,
+                                    message = it1
+                                )
+                            }
+                        )
+                    }
+            }
+        }
+
+        return responseCompletable.await()
+    }
+
+    suspend fun saveProfileStatus(uid: String, status: Boolean) : Response? {
+        val response = CompletableDeferred<Response?>(null)
+
+        coroutineScope {
+            launch(Dispatchers.IO){
+                val ref = db.collection("profiles").document(uid)
+                val data = hashMapOf(
+                    "activeStatus" to status
+                )
+
+                ref.set(data, SetOptions.merge())
+                    .addOnSuccessListener {
+                        response.complete(
+                            Response(
+                                status = ResponseStatus.SUCCESS,
+                                message = "Successfully saved active status"
+                            )
+                        )
+                    }
+                    .addOnFailureListener {
+                        response.complete(
+                            it.localizedMessage?.let { it1 ->
+                                Response(
+                                    status = ResponseStatus.FAILED,
+                                    message = it1
+                                )
+                            }
+                        )
+                    }
+            }
+        }
+
+        return response.await()
+    }
+
 }

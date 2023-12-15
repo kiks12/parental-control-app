@@ -23,7 +23,9 @@ class ParentChildAppsViewModel(
     private val _kidProfile = mutableStateOf(UserProfile())
     private val _loadingState = mutableStateOf(true)
     private val _recommendationState = mutableStateListOf<UserApps>()
+    private val _backupRecommendationState = mutableStateListOf<UserApps>()
     private val _appsState = mutableStateListOf<UserApps>()
+    private val _backupAppsState = mutableStateListOf<UserApps>()
     private val _iconsState = mutableStateOf(mapOf<String, String>())
 
     val recommendationState : List<UserApps>
@@ -54,11 +56,13 @@ class ParentChildAppsViewModel(
                     if (recommendations.contains(app.packageName)) {
                         val appCopy = app.copy(restricted = true)
                         _recommendationState.add(appCopy)
+                        _backupRecommendationState.add(appCopy)
                         withContext(Dispatchers.IO) {
                             updateAppRestriction(app.packageName, true)
                         }
                     } else {
                         _appsState.add(app)
+                        _backupAppsState.add(app)
                     }
                 }
             }
@@ -82,5 +86,21 @@ class ParentChildAppsViewModel(
             val uid = usersRepository.getProfileUID(kidProfileId)
             appsRepository.updateAppScreenTimeLimit(uid, appName, newTimeLimit)
         }
+    }
+
+    fun refresh() {
+        _recommendationState.clear()
+        _recommendationState.addAll(_backupRecommendationState)
+        _appsState.clear()
+        _appsState.addAll(_backupAppsState)
+    }
+
+    fun search(query: String) {
+        val filteredRecommendation = _backupRecommendationState.filter { userApps -> userApps.label.lowercase().contains(query.lowercase()) }
+        val filteredApps = _backupAppsState.filter { userApps -> userApps.label.lowercase().contains(query.lowercase()) }
+        _recommendationState.clear()
+        _recommendationState.addAll(filteredRecommendation)
+        _appsState.clear()
+        _appsState.addAll(filteredApps)
     }
 }

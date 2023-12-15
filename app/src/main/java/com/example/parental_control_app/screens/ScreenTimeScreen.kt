@@ -73,7 +73,7 @@ fun ScreenTimeScreen(viewModel: ScreenTimeViewModel, onBackClick: () -> Unit){
                     onClick = { selectedTabRow = 2 },
                     shape = RoundedCornerShape(50)
                 ) {
-                   Text("Set Screen time Limit", modifier = Modifier.padding(15.dp))
+                   Text("Set Lock Time", modifier = Modifier.padding(15.dp))
                 }
             }
         }
@@ -103,7 +103,7 @@ fun ScreenTimeScreen(viewModel: ScreenTimeViewModel, onBackClick: () -> Unit){
                         Tab(
                             selected = selectedTabRow == 1,
                             onClick = { selectedTabRow = 1},
-                            text = { Text("Set Limit") }
+                            text = { Text("Set Lock Time") }
                         )
                     } else {
                         Tab(
@@ -114,7 +114,7 @@ fun ScreenTimeScreen(viewModel: ScreenTimeViewModel, onBackClick: () -> Unit){
                         Tab(
                             selected = selectedTabRow == 1,
                             onClick = { selectedTabRow = 1},
-                            text = { Text("Screen Time Limit") }
+                            text = { Text("Lock Time") }
                         )
                     }
                 }
@@ -278,7 +278,7 @@ private fun SetLimitScreen(
                 }
             }
         ) {
-            Text("Save", modifier = Modifier.padding(vertical = 5.dp, horizontal = 20.dp))
+            Text("Set", modifier = Modifier.padding(vertical = 5.dp, horizontal = 20.dp))
         }
 
         FilledTonalButton(

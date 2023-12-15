@@ -3,6 +3,8 @@ package com.example.parental_control_app.activities.children
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.admin.DevicePolicyManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -44,6 +46,8 @@ import com.example.parental_control_app.helpers.ProfileSignOutHelper
 import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.helpers.ToastHelper
+import com.example.parental_control_app.broadcast.receivers.ChildDeviceAdminReceiver
+import com.example.parental_control_app.broadcast.receivers.InternetConnectivityReceiver
 import com.example.parental_control_app.repositories.AppsRepository
 import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.repositories.users.UsersRepository
@@ -55,8 +59,16 @@ import com.example.parental_control_app.viewmodels.SettingsViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionRequired
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+
 
 class ChildrenMainActivity : AppCompatActivity() {
 
@@ -67,6 +79,9 @@ class ChildrenMainActivity : AppCompatActivity() {
     private val appsRepository = AppsRepository()
     private val usersRepository = UsersRepository()
     private val granted = mutableStateOf(false)
+    private val db = Firebase.firestore
+    private val job = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.IO + job)
 
     companion object {
         const val NOTIFICATION_PERMISSION_CODE = 10
@@ -113,10 +128,8 @@ class ChildrenMainActivity : AppCompatActivity() {
             async { toastHelper.makeToast("Starting App Blocker Worker") }.await()
 
             if (isOnline(this@ChildrenMainActivity)) {
-                Log.w("APP LOCK SERVICE LIST", "IS ONLINE")
                 val uid = usersRepository.getProfileUID(profile.profileId)
                 val list = appsRepository.getBlockedApps(uid)
-                Log.w("APP LOCK SERVICE LIST", list.toString())
 
                 SharedPreferencesManager.storeBlockedApps(sharedPreferences, list)
             }
@@ -165,6 +178,20 @@ class ChildrenMainActivity : AppCompatActivity() {
         }
     }
 
+    private fun saveDeviceModel() {
+        lifecycleScope.launch {
+            if (isOnline(this@ChildrenMainActivity)) {
+                val uid = usersRepository.getProfileUID(profile.profileId)
+                val deviceName = Build.MANUFACTURER + "-" + Build.MODEL
+                val response = usersRepository.saveDeviceModel(uid, deviceName)
+                toastHelper.makeToast(response?.message!!)
+                val editor = sharedPreferences.edit()
+                editor.putBoolean(SharedPreferencesManager.DEVICE_NAME_SAVED_KEY, true)
+                editor.apply()
+            }
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -173,6 +200,18 @@ class ChildrenMainActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences(SharedPreferencesManager.PREFS_KEY, Context.MODE_PRIVATE)
         profileSignOutHelper = ProfileSignOutHelper(this, sharedPreferences)
         profile = SharedPreferencesManager.getProfile(sharedPreferences)!!
+
+        lifecycleScope.launch {
+            val uid = usersRepository.getProfileUID(profile.profileId)
+            db.collection("profiles").document(uid)
+                .addSnapshotListener { _: DocumentSnapshot?, _ : FirebaseFirestoreException? ->
+                    scope.launch {
+                        usersRepository.saveProfileStatus(uid, true)
+                    }
+                }
+        }
+
+        val deviceNameSaved = SharedPreferencesManager.isDeviceSaved(sharedPreferences)
 
         val activityStarterHelper = ActivityStarterHelper(this)
         val settingsViewModel = SettingsViewModel(SettingsType.CHILD)
@@ -188,10 +227,22 @@ class ChildrenMainActivity : AppCompatActivity() {
             true -> {
                 createNotificationChannel()
                 startAppLockerForegroundService()
+                val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+                intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, ComponentName(this, ChildDeviceAdminReceiver::class.java))
+                intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Your explanation here")
+                startActivityForResult(intent, 1)
                 granted.value = true
             }
             else -> {}
         }
+
+        when (deviceNameSaved) {
+            true -> {}
+            false -> { saveDeviceModel() }
+        }
+
+        val internetConnectivityReceiver = InternetConnectivityReceiver(this, profile.profileId)
+        internetConnectivityReceiver.register()
 
         setContent {
 

@@ -15,13 +15,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.Badge
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -79,6 +82,7 @@ fun FeatureIconButton(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeaturesComponent(profile: UserProfile, icons: List<FeatureIcon>, onFeatureClick: (feature: FeatureIcons) -> Unit){
     ElevatedCard(
@@ -103,11 +107,30 @@ fun FeaturesComponent(profile: UserProfile, icons: List<FeatureIcon>, onFeatureC
                 verticalAlignment = Alignment.Bottom
             ){
                 Text(
-                    text = profile.name,
+                    text = "${profile.name}, ${profile.age}",
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 25.sp
                 )
                 Text(profile.maturityLevel.toString())
+            }
+            Row (
+                modifier = Modifier.fillMaxWidth().padding(top=5.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                ){
+                    Badge (
+                        modifier = Modifier.size(5.dp),
+                        containerColor = if (profile.activeStatus) Color.Green else Color.Red
+                    )
+                    Text(text = "Active", fontSize = 14.sp, modifier = Modifier.padding(start = 5.dp))
+                }
+                Text(
+                    text = profile.deviceName.ifEmpty { "No Device" },
+                    fontSize = 14.sp
+                )
             }
         }
     }

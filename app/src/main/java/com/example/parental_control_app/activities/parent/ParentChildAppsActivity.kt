@@ -48,8 +48,8 @@ class ParentChildAppsActivity : AppCompatActivity() {
 
         val inputTensorIndex = 0 // Replace with the correct index
         val outputTensorIndex = 0 // Replace with the correct index
-        val inputShape = interpreter?.getInputTensor(inputTensorIndex)?.shape()!!
-        val outputShape = interpreter?.getOutputTensor(outputTensorIndex)?.shape()!!
+        val inputShape = interpreter?.getInputTensor(inputTensorIndex)?.shape()!! // (2, 0) = [10,3]
+        val outputShape = interpreter?.getOutputTensor(outputTensorIndex)?.shape()!! // (6, 0) = [0.1, 0.2, 0.3, 0.4, 0.1, 0.2]
 
         // Allocate input and output arrays
         val inputArray = Array(inputShape[0]) { FloatArray(2) }

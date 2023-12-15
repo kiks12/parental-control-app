@@ -23,6 +23,9 @@ data class UserProfile(
     val blockChange: Boolean = false,
     val phoneScreenTime: Long = 0,
     val phoneScreenTimeLimit: Long = 0,
+    val uninstalled: Boolean = false,
+    var activeStatus: Boolean = false,
+    val deviceName: String = ""
 ) {
     constructor(): this("","","")
 }

@@ -149,9 +149,11 @@ class AppBlockerService : Service(){
             Log.w("APP LOCK SERVICE", (currentApp != null).toString())
 //            Log.w("APP LOCK SERVICE APPS", blockedApps.toString())
             if (currentApp != null) {
+
                 if (currentApp.packageName != prevApp && currentApp.packageName != applicationInfo.packageName) {
                     logActivity(currentApp.packageName, currentApp.app!!)
                 }
+
                 val blockedApp = filterBlockedApp(blockedApps, currentApp.packageName)
 //                Log.w("APP LOCK SERVICE BLOCK", blockedApp.toString())
 //                Log.w("APP LOCK SERVICE CURR", currentApp.toString())

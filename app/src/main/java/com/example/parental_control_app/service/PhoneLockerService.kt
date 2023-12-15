@@ -131,13 +131,12 @@ class PhoneLockerService : Service() {
         val intent = Intent(applicationContext, LockActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         applicationContext.startActivity(intent)
-        isLocked = true
     }
 
     private fun monitorLocker() {
         runnable = Runnable {
-            if (shouldLock && !isLocked) {
-                Log.w("SHOULD LOCK", "LOCK")
+            Log.w("PHONE LOCKER SERVICE", shouldLock.toString())
+            if (shouldLock) {
                 lockPhone()
             }
 
