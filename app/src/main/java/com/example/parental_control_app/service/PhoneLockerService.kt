@@ -1,19 +1,14 @@
 package com.example.parental_control_app.service
 
 import android.app.Service
-import android.app.usage.UsageEvents
-import android.app.usage.UsageStatsManager
-import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.parental_control_app.R
 import com.example.parental_control_app.activities.stacking.LockActivity
 import com.example.parental_control_app.activities.stacking.UnlockActivity
-import com.example.parental_control_app.data.AppUsage
 import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.repositories.users.UserProfile
 import com.google.firebase.firestore.ktx.firestore
@@ -23,7 +18,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.util.Calendar
 
 class PhoneLockerService : Service() {
 
@@ -37,8 +31,7 @@ class PhoneLockerService : Service() {
     private var isLocked = false
     private var shouldLock = false
     private var phoneLock = false
-    private var previousApp = ""
-    private var previous = false
+//    private var previousApp = ""
     private var screenTimeLimit = 0L
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -68,16 +61,16 @@ class PhoneLockerService : Service() {
                 phoneLock = profile.phoneLock
                 screenTimeLimit = profile.phoneScreenTimeLimit
 
-                Log.w("PHONE LOCKER SCREENTIME LIMIT", screenTimeLimit.toString())
+//                Log.w("PHONE LOCKER SCREENTIME LIMIT", screenTimeLimit.toString())
 
-                if (!shouldLock && isLocked && previous != profile.phoneLock) {
+                if (!shouldLock && isLocked) {
                     val unlockIntent = Intent(applicationContext, UnlockActivity::class.java)
                     unlockIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     applicationContext.startActivity(unlockIntent)
                 }
 
-                isLocked = false
-                previous = profile.phoneLock
+//                isLocked = false
+//                previous = profile.phoneLock
             }
         }
 
@@ -86,80 +79,80 @@ class PhoneLockerService : Service() {
         return START_STICKY
     }
 
-    private fun getCurrentRunningAppPackageName(context: Context) : Map<String, Any?> {
-        val usageStatsManager =
-            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-
-        var appUsage : AppUsage? = null
-
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        val startTime = calendar.timeInMillis
-        val endTime = System.currentTimeMillis()
-
-
-        val interval = UsageStatsManager.INTERVAL_DAILY
-        val usageStatsList = usageStatsManager.queryUsageStats(interval, startTime, endTime)
-
-        val currentTime = System.currentTimeMillis()
-
-        val usageEvents = usageStatsManager.queryEvents(currentTime - 1000, System.currentTimeMillis())
-        val event = UsageEvents.Event()
-
-        while (usageEvents.hasNextEvent()) {
-            usageEvents.getNextEvent(event)
-            if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
-                val usageStat = usageStatsList.filter { usage -> usage.packageName == event.packageName }
-                appUsage = AppUsage(
-                    packageName = event.packageName,
-                    screenTime = usageStat[0].totalTimeInForeground
-                )
-            }
-        }
-
-        val totalScreenTime = usageStatsList.sumOf { stats -> stats.totalTimeInForeground }
-
-        return mapOf(
-            "APP_USAGE" to appUsage,
-            "TOTAL_SCREEN_TIME" to totalScreenTime
-        )
-    }
+//    private fun getCurrentRunningAppPackageName(context: Context) : Map<String, Any?> {
+//        val usageStatsManager =
+//            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+//
+//        var appUsage : AppUsage? = null
+//
+//        val calendar = Calendar.getInstance()
+//        calendar.set(Calendar.HOUR_OF_DAY, 0)
+//        calendar.set(Calendar.MINUTE, 0)
+//        calendar.set(Calendar.SECOND, 0)
+//        val startTime = calendar.timeInMillis
+//        val endTime = System.currentTimeMillis()
+//
+//
+//        val interval = UsageStatsManager.INTERVAL_DAILY
+//        val usageStatsList = usageStatsManager.queryUsageStats(interval, startTime, endTime)
+//
+//        val currentTime = System.currentTimeMillis()
+//
+//        val usageEvents = usageStatsManager.queryEvents(currentTime - 1000, System.currentTimeMillis())
+//        val event = UsageEvents.Event()
+//
+//        while (usageEvents.hasNextEvent()) {
+//            usageEvents.getNextEvent(event)
+//            if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
+//                val usageStat = usageStatsList.filter { usage -> usage.packageName == event.packageName }
+//                appUsage = AppUsage(
+//                    packageName = event.packageName,
+//                    screenTime = usageStat[0].totalTimeInForeground
+//                )
+//            }
+//        }
+//
+//        val totalScreenTime = usageStatsList.sumOf { stats -> stats.totalTimeInForeground }
+//
+//        return mapOf(
+//            "APP_USAGE" to appUsage,
+//            "TOTAL_SCREEN_TIME" to totalScreenTime
+//        )
+//    }
 
     private fun lockPhone() {
+        isLocked = true
         val intent = Intent(applicationContext, LockActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putExtra("time", screenTimeLimit)
         applicationContext.startActivity(intent)
     }
 
     private fun monitorLocker() {
         runnable = Runnable {
-            Log.w("PHONE LOCKER SERVICE", shouldLock.toString())
-            if (shouldLock) {
-                lockPhone()
-            }
+//            Log.w("PHONE LOCKER SERVICE", shouldLock.toString())
+            if (shouldLock) lockPhone()
 
-            val usageStats = getCurrentRunningAppPackageName(applicationContext)
+//            val usageStats = getCurrentRunningAppPackageName(applicationContext)
 
-            val currentApp = usageStats["APP_USAGE"] as AppUsage?
-            val totalScreenTime = usageStats["TOTAL_SCREEN_TIME"].toString().toLong()
+//            val currentApp = usageStats["APP_USAGE"] as AppUsage?
+//            val totalScreenTime = usageStats["TOTAL_SCREEN_TIME"].toString().toLong()
 
-            Log.w("PHONE LOCKER SERVICE", currentApp.toString())
-            Log.w("PHONE LOCKER SERVICE", totalScreenTime.toString())
-            Log.w("PHONE LOCKER SERVICE", screenTimeLimit.toString())
+//            Log.w("PHONE LOCKER SERVICE", currentApp.toString())
+//            Log.w("PHONE LOCKER SERVICE", totalScreenTime.toString())
+//            Log.w("PHONE LOCKER SERVICE", screenTimeLimit.toString())
 //            Log.w("PHONE LOCKER SERVICE", phoneLock.toString())
 
 //            if (currentApp != null && currentApp.packageName != previousApp && currentApp.packageName != application.packageName) {
-            if (currentApp != null ) {
-                isLocked = false
-            }
-
-            shouldLock = (totalScreenTime >= screenTimeLimit && screenTimeLimit != 0L && currentApp?.packageName != previousApp) || phoneLock
-
-            if (currentApp != null && previousApp != currentApp.packageName) {
-                previousApp = currentApp.packageName
-            }
+//            if (currentApp != null ) {
+//                isLocked = false
+//            }
+//
+//            shouldLock = (totalScreenTime >= screenTimeLimit && screenTimeLimit != 0L && currentApp?.packageName != previousApp) || phoneLock
+//
+//            if (currentApp != null && previousApp != currentApp.packageName) {
+//                previousApp = currentApp.packageName
+//            }
 
             monitorLocker()
         }

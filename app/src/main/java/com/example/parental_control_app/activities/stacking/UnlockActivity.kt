@@ -22,11 +22,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 
 class UnlockActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val sharedPreferences = getSharedPreferences(SharedPreferencesManager.PREFS_KEY, MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.remove(SharedPreferencesManager.TIMER_KEY)
+        editor.apply()
 
         setContent {
             ParentalControlAppTheme {

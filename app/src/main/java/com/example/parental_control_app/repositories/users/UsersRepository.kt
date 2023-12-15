@@ -374,7 +374,7 @@ class UsersRepository {
         return responseCompletable.await()
     }
 
-    suspend fun setChildScreenTimeLimit(uid: String, limit: Long, clear: Boolean = false) : Response? {
+    suspend fun setChildLockTime(uid: String, limit: Long, clear: Boolean = false) : Response? {
         val responseCompletable = CompletableDeferred<Response?>(null)
 
         coroutineScope {
@@ -386,14 +386,14 @@ class UsersRepository {
                             responseCompletable.complete(
                                 Response(
                                     status = ResponseStatus.SUCCESS,
-                                    message = "Successfully remove child screen time"
+                                    message = "Successfully remove child lock time"
                                 )
                             )
                         } else {
                             responseCompletable.complete(
                                 Response(
                                     status = ResponseStatus.SUCCESS,
-                                    message = "Successfully set child screen time"
+                                    message = "Successfully set child lock time"
                                 )
                             )
                         }

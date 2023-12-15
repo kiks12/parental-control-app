@@ -206,10 +206,10 @@ private fun SetLimitScreen(
             modifier = Modifier.fillMaxWidth()
         ){
             if (readOnly) {
-                Text("Screen time limit")
+                Text("Lock Time")
             } else {
-                Text("Limit Screen time")
-                Text("Set your child's screen time limit")
+                Text("Lock Time")
+                Text("Set your child's lock time")
             }
         }
 
@@ -299,7 +299,7 @@ private fun SetLimitScreen(
 @Composable
 private fun TopBar(onBackClick: () -> Unit) {
     TopAppBar(
-        title = { Text("Screen Time") },
+        title = { Text("Lock Time") },
         navigationIcon = { IconButton(onClick = onBackClick) {
             Icon(Icons.Rounded.ArrowBack, "back")
         } }

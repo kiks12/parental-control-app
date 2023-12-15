@@ -60,7 +60,7 @@ class SharedPreferencesManager{
         }
 
         fun genTimer(sharedPreferences: SharedPreferences) : Long {
-            return TimeUnit.MILLISECONDS.toMillis(sharedPreferences.getLong(TIMER_KEY, 0L))
+            return sharedPreferences.getLong(TIMER_KEY, 0L)
         }
 
         fun getUninstalledStatus(sharedPreferences: SharedPreferences) : Boolean {

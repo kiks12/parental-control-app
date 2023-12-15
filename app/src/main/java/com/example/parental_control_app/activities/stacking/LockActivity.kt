@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,25 +27,33 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.parental_control_app.managers.SharedPreferencesManager
+import com.example.parental_control_app.repositories.users.UsersRepository
 import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class LockActivity : AppCompatActivity() {
 
+    private val usersRepository = UsersRepository()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val time = intent.getLongExtra("time", 0)
+
         val sharedPreferences = getSharedPreferences(SharedPreferencesManager.PREFS_KEY, MODE_PRIVATE)
+        val uid = SharedPreferencesManager.getUID(sharedPreferences)
         var spTimer = SharedPreferencesManager.genTimer(sharedPreferences)
 
         if (spTimer == 0L) {
             val editor = sharedPreferences.edit()
-            editor.putLong(SharedPreferencesManager.TIMER_KEY, TimeUnit.HOURS.toMillis(24))
+            editor.putLong(SharedPreferencesManager.TIMER_KEY, time)
             editor.apply()
-            spTimer = TimeUnit.HOURS.toMillis(24)
+            spTimer = time
         }
 
         setContent {
+            val scope = rememberCoroutineScope()
             var timerText by remember { mutableStateOf("") }
 
             val timer = object : CountDownTimer(spTimer,1000) {
@@ -69,6 +78,9 @@ class LockActivity : AppCompatActivity() {
 
                 override fun onFinish() {
                     timerText = "Finished!"
+                    scope.launch {
+                        usersRepository.unlockChildPhone(uid.toString())
+                    }
                 }
             }
 

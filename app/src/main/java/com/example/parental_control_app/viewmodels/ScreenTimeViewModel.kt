@@ -98,7 +98,7 @@ class ScreenTimeViewModel(
         val response = CompletableDeferred<Response?>(null)
 
         viewModelScope.launch {
-            val res = usersRepository.setChildScreenTimeLimit(_uidState.value, limit)
+            val res = usersRepository.setChildLockTime(_uidState.value, limit)
             response.complete(res)
         }
 
@@ -113,7 +113,7 @@ class ScreenTimeViewModel(
         val response = CompletableDeferred<Response?>(null)
 
         viewModelScope.launch {
-            val res = usersRepository.setChildScreenTimeLimit(_uidState.value, 0, true)
+            val res = usersRepository.setChildLockTime(_uidState.value, 0, true)
             if (res?.status == ResponseStatus.SUCCESS) {
                 _screenTimeLimitState.keys.forEach{ key ->
                     _screenTimeLimitState[key] = "0"

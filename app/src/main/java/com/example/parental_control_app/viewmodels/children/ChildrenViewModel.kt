@@ -37,7 +37,7 @@ class ChildrenViewModel(
     companion object {
         val featureIcons = listOf(
             FeatureIcon("Apps", FeatureIcons.APPS, Icons.Outlined.Menu),
-            FeatureIcon("Screen Time", FeatureIcons.SCREEN_TIME, Icons.Outlined.List),
+            FeatureIcon("Lock Time", FeatureIcons.SCREEN_TIME, Icons.Outlined.List),
             FeatureIcon("Location", FeatureIcons.LOCATION, Icons.Outlined.LocationOn),
             FeatureIcon("Activity Log", FeatureIcons.ACTIVITY_LOG, Icons.Outlined.Info),
             FeatureIcon("SMS", FeatureIcons.SMS, Icons.Outlined.Call),

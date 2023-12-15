@@ -43,7 +43,7 @@ class ParentChildFeaturesViewModel : ViewModel(){
         val featureIcons = listOf(
             FeatureIcon("Apps", FeatureIcons.APPS, Icons.Outlined.Menu),
             FeatureIcon("Blocked Apps", FeatureIcons.BLOCKED_APPS, Icons.Outlined.Lock),
-            FeatureIcon("Screen Time", FeatureIcons.SCREEN_TIME, Icons.Outlined.List),
+            FeatureIcon("Lock Time", FeatureIcons.SCREEN_TIME, Icons.Outlined.List),
             FeatureIcon("Location", FeatureIcons.LOCATION, Icons.Outlined.LocationOn),
             FeatureIcon("Website Filter", FeatureIcons.WEBSITE_FILTER, Icons.Outlined.Edit),
             FeatureIcon("Activity Log", FeatureIcons.ACTIVITY_LOG, Icons.Outlined.Info),
