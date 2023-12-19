@@ -7,14 +7,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import com.example.parental_control_app.helpers.ActivityStarterHelper
@@ -22,11 +27,8 @@ import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.repositories.users.UserProfile
 import com.example.parental_control_app.repositories.users.UsersRepository
 import com.example.parental_control_app.screens.parent.ParentChildFeaturesScreen
+import com.example.parental_control_app.ui.theme.ParentalControlAppTheme
 import com.example.parental_control_app.viewmodels.parent.ParentChildFeaturesViewModel
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,7 +38,6 @@ class ParentChildFeaturesActivity : AppCompatActivity() {
 
     private val usersRepository = UsersRepository()
     private lateinit var kidProfile : UserProfile
-    private val db = Firebase.firestore
 
     private var parentChildFeaturesViewModel : ParentChildFeaturesViewModel? = null
     private val loading = mutableStateOf(true)
@@ -65,45 +66,57 @@ class ParentChildFeaturesActivity : AppCompatActivity() {
 
                 loading.value = false
             }
-
-            usersRepository.saveProfileStatus(uid, false)
-
-            db.collection("profiles").document(uid)
-                .addSnapshotListener { documentSnapshot: DocumentSnapshot?, _: FirebaseFirestoreException? ->
-                    if (documentSnapshot == null) return@addSnapshotListener
-
-                    val userProfile = documentSnapshot.toObject(UserProfile::class.java) ?: return@addSnapshotListener
-                    kidProfile.activeStatus = userProfile.activeStatus
-                }
         }
 
         setContent {
-            if (loading.value && parentChildFeaturesViewModel == null) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            } else {
-                Box {
-                    if (profile?.uninstalled!!) {
-                        Box(
-                            modifier = Modifier.fillMaxSize().background(Color.Black),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Column (
-                                modifier = Modifier.fillMaxSize(),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ){
-                                Text("Uninstalled!", fontSize = 36.sp, fontWeight = FontWeight.Bold)
-                                Text("The app may be disabled or uninstalled in your child's device")
-                                Text("Please enable or reinstall it again")
+            ParentalControlAppTheme {
+                if (loading.value && parentChildFeaturesViewModel == null) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    Box {
+                        ParentChildFeaturesScreen(parentChildFeaturesViewModel!!)
+                        if (kidProfile.uninstalled) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color(50, 50, 50, 190)),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Column (
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ){
+                                    Text(
+                                        "Uninstalled!",
+                                        fontSize = 50.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        "The app may be uninstalled\nin your child's device. Please reinstall it\nagain to enable parental control features.",
+                                        textAlign = TextAlign.Center,
+                                        color = Color.White
+                                    )
+                                    Spacer(modifier = Modifier.height(30.dp))
+                                    Text(
+                                        "NOTE: This may be inaccurate, it is\npossible that your child's\ndevice is disconnected from the internet.",
+                                        textAlign = TextAlign.Center,
+                                        color = Color.White
+                                    )
+                                    Spacer(modifier = Modifier.height(50.dp))
+                                    FilledTonalButton(onClick = { finish() }) {
+                                        Text(text = "Back")
+                                    }
+                                }
                             }
                         }
                     }
-                    ParentChildFeaturesScreen(parentChildFeaturesViewModel!!)
                 }
             }
         }

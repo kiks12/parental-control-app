@@ -43,7 +43,6 @@ class StartupActivity : AppCompatActivity() {
                 val gson = Gson()
                 val jsonData = activityResult.data?.getStringExtra("ActivityResult").toString()
                 val newProfileData = gson.fromJson(jsonData, UserProfile::class.java)
-                Log.w("NEW PROFILE", newProfileData.toString())
                 startupViewModel.addProfile(newProfileData)
             }
             RESULT_CANCELED -> {}

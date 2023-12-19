@@ -1,5 +1,6 @@
 package com.example.parental_control_app.repositories.users
 
+import android.util.Log
 import com.example.parental_control_app.data.Response
 import com.example.parental_control_app.data.ResponseStatus
 import com.google.firebase.firestore.SetOptions
@@ -66,6 +67,7 @@ class UsersRepository {
                         .get()
                         .await()
                     val docs = query.toObjects(UserProfile::class.java)
+                    docs.forEach { Log.w("UNINSTALL", it.uninstalled.toString()) }
                     completable.complete(docs)
                 }.await()
             }

@@ -3,8 +3,6 @@ package com.example.parental_control_app.activities.children
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.admin.DevicePolicyManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -46,7 +44,6 @@ import com.example.parental_control_app.helpers.ProfileSignOutHelper
 import com.example.parental_control_app.managers.SharedPreferencesManager
 import com.example.parental_control_app.helpers.ActivityStarterHelper
 import com.example.parental_control_app.helpers.ToastHelper
-import com.example.parental_control_app.broadcast.receivers.ChildDeviceAdminReceiver
 import com.example.parental_control_app.broadcast.receivers.InternetConnectivityReceiver
 import com.example.parental_control_app.repositories.AppsRepository
 import com.example.parental_control_app.repositories.users.UserProfile
@@ -59,13 +56,6 @@ import com.example.parental_control_app.viewmodels.SettingsViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionRequired
 import com.google.accompanist.permissions.rememberPermissionState
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -79,9 +69,6 @@ class ChildrenMainActivity : AppCompatActivity() {
     private val appsRepository = AppsRepository()
     private val usersRepository = UsersRepository()
     private val granted = mutableStateOf(false)
-    private val db = Firebase.firestore
-    private val job = SupervisorJob()
-    private val scope = CoroutineScope(Dispatchers.IO + job)
 
     companion object {
         const val NOTIFICATION_PERMISSION_CODE = 10
@@ -203,12 +190,7 @@ class ChildrenMainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val uid = usersRepository.getProfileUID(profile.profileId)
-            db.collection("profiles").document(uid)
-                .addSnapshotListener { _: DocumentSnapshot?, _ : FirebaseFirestoreException? ->
-                    scope.launch {
-                        usersRepository.saveProfileStatus(uid, true)
-                    }
-                }
+            usersRepository.saveProfileStatus(uid, true)
         }
 
         val deviceNameSaved = SharedPreferencesManager.isDeviceSaved(sharedPreferences)
@@ -227,10 +209,6 @@ class ChildrenMainActivity : AppCompatActivity() {
             true -> {
                 createNotificationChannel()
                 startAppLockerForegroundService()
-                val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
-                intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, ComponentName(this, ChildDeviceAdminReceiver::class.java))
-                intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Your explanation here")
-                startActivityForResult(intent, 1)
                 granted.value = true
             }
             else -> {}

@@ -35,6 +35,11 @@ class ParentHomeViewModel(
             _loadingState.value = true
             _kidsProfileState.clear()
             val list = usersRepository.findUserKidProfiles(currentUser?.uid!!)
+            list.forEach { profile ->
+                val childUID = usersRepository.getProfileUID(profile.profileId)
+                usersRepository.saveUninstalledStatus(childUID, true)
+                usersRepository.saveProfileStatus(childUID, false)
+            }
             _kidsProfileState.addAll(list)
             async { _loadingState.value = false }.await()
         }
