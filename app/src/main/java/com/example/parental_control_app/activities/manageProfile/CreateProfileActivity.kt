@@ -74,7 +74,7 @@ class CreateProfileActivity : AppCompatActivity() {
 
         val resultLauncherHelper = ResultLauncherHelper(this, resultLauncher)
         val toastHelper = ToastHelper(this)
-        viewModel = CreateProfileVIewModel(resultLauncherHelper)
+        viewModel = CreateProfileVIewModel(resultLauncherHelper, toastHelper)
 
         setContent {
             val state = viewModel.state

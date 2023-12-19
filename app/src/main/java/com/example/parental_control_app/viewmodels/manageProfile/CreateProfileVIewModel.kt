@@ -2,8 +2,10 @@ package com.example.parental_control_app.viewmodels.manageProfile
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.parental_control_app.activities.manageProfile.SurveyActivity
+import com.example.parental_control_app.activities.manageProfile.ChildTestActivity
+import com.example.parental_control_app.activities.manageProfile.TeenTestActivity
 import com.example.parental_control_app.helpers.ResultLauncherHelper
+import com.example.parental_control_app.helpers.ToastHelper
 import com.example.parental_control_app.repositories.users.UserProfile
 
 data class CreateProfileState(
@@ -11,7 +13,8 @@ data class CreateProfileState(
 )
 
 class CreateProfileVIewModel(
-    private val resultLauncherHelper: ResultLauncherHelper
+    private val resultLauncherHelper: ResultLauncherHelper,
+    private val toastHelper: ToastHelper
 ) : ViewModel() {
 
     private val _state = mutableStateOf(CreateProfileState(
@@ -76,6 +79,12 @@ class CreateProfileVIewModel(
     }
 
     fun startSurvey() {
-        resultLauncherHelper.launch(SurveyActivity::class.java)
+        if (_state.value.profile.age.isEmpty()) {
+            toastHelper.makeToast("Enter child age first to answer survey")
+            return
+        }
+        val age = _state.value.profile.age.toInt()
+        if (age in 0..11) resultLauncherHelper.launch(ChildTestActivity::class.java)
+        if (age in 12 .. 17) resultLauncherHelper.launch(TeenTestActivity::class.java)
     }
 }

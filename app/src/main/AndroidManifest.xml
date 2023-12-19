@@ -45,6 +45,12 @@
         android:windowSoftInputMode="adjustResize"
         tools:targetApi="tiramisu">
         <activity
+            android:name=".activities.manageProfile.TeenTestActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.manageProfile.ChildTestActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.ChangePasscodeActivity"
             android:exported="false" />
         <activity
@@ -64,14 +70,14 @@
             android:exported="false" />
         <activity
             android:name=".activities.stacking.LockActivity"
-            android:exported="false"
-            android:launchMode="singleInstance"
             android:clearTaskOnLaunch="true"
-            android:stateNotNeeded="true"
+            android:exported="false"
             android:finishOnTaskLaunch="true"
-            >
+            android:launchMode="singleInstance"
+            android:stateNotNeeded="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -183,16 +189,16 @@
         <service
             android:name=".service.UninstallationService"
             android:enabled="true"
-            android:exported="false"
-            />
+            android:exported="false" />
 
         <receiver
             android:name=".broadcast.receivers.InternetReceiver"
-            android:label="NetworkChangeReceiver"
             android:exported="true"
+            android:label="NetworkChangeReceiver"
             android:permission="android.permission.ACCESS_NETWORK_STATE">
             <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"
+                <action
+                    android:name="android.net.conn.CONNECTIVITY_CHANGE"
                     tools:ignore="BatteryLife" />
             </intent-filter>
         </receiver>
@@ -207,11 +213,12 @@
         </receiver>
         <receiver
             android:name=".broadcast.receivers.ChildDeviceAdminReceiver"
-            android:permission="android.permission.BIND_DEVICE_ADMIN"
-            android:exported="true">
+            android:exported="true"
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
             <meta-data
                 android:name="android.app.device_admin"
                 android:resource="@xml/device_admin_receiver" />
+
             <intent-filter>
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>

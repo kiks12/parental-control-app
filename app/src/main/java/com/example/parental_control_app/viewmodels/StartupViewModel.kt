@@ -44,6 +44,21 @@ data class SurveyOption (
     val isSelected: Boolean = false,
 )
 
+data class NewSurveyOption(
+    val index: Int,
+    val letter: String,
+    val value: String,
+    val isSelected: Boolean = false,
+    val points: Int,
+)
+
+data class NewSurveyQuestion(
+    val question: String,
+    val options: List<NewSurveyOption>,
+    val fontSize: TextUnit = 15.sp,
+    val fontWeight: FontWeight = FontWeight.Normal,
+)
+
 data class SurveyAnswer (
     val index: Int,
     val value: String,
